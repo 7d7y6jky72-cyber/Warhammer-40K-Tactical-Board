@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Warhammer 40K Tactical Board v0.4</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#15181d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="40K Board">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#15181d;--panel:#20242b;--panel2:#29303a;--text:#eef2f6;--muted:#aab2bd;--accent:#e8733c;--blue:#3f89d8;--red:#c54b4b;--gold:#f4d35e;--green:#66d18f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+#app{height:100vh;display:grid;grid-template-columns:270px minmax(520px,1fr) 320px;overflow:hidden}
+.panel{background:var(--panel);padding:13px;overflow:auto}.left{border-right:1px solid #373e48}.right{border-left:1px solid #373e48}
+h1{font-size:18px;margin:0 0 5px}h2{font-size:14px;margin:15px 0 7px}.small{font-size:11px;color:var(--muted)}.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:7px}
+button,input,select{background:var(--panel2);border:1px solid #485260;color:var(--text);padding:7px 8px;border-radius:6px}button{cursor:pointer}.primary{background:#3e536c}.danger{border-color:#7e4141}.active{outline:2px solid var(--accent)}
+input[type=number]{width:66px}.unitCard{padding:8px;border:1px solid #3e4651;border-radius:7px;background:#262b32;margin-bottom:6px;cursor:pointer}.unitCard.selected{border-color:var(--accent)}
+#center{display:flex;flex-direction:column;min-width:0}#toolbar{min-height:56px;background:#1b1f25;border-bottom:1px solid #343b45;padding:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#boardWrap{flex:1;overflow:auto;padding:14px;display:flex;align-items:center;justify-content:center}#board{position:relative;background:#343c33;border:2px solid #89947d;box-shadow:0 12px 30px #0008;touch-action:none;user-select:none}
+.gridV,.gridH{position:absolute;background:#ffffff10;pointer-events:none}.terrain{position:absolute;background:#51565b;border:2px solid #7a8086;border-radius:4px;opacity:.92}.terrain.blocking{background:#494d51;border-color:#9b6c55}
+.objective{position:absolute;border:2px dashed var(--gold);border-radius:50%;background:#f4d35e0d;pointer-events:none}.objective::after{content:"OBJ";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:9px;color:#ffec94;font-weight:800}
+.model{position:absolute;border-radius:50%;transform:translate(-50%,-50%);border:2px solid #111;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;cursor:grab;box-shadow:0 2px 5px #0008;z-index:20}.friend{background:var(--blue)}.enemy{background:var(--red)}.model.selected{outline:3px solid var(--gold)}.model.dead{display:none}
+.unitHalo{position:absolute;border:1px dotted #ffffff55;border-radius:50%;pointer-events:none;z-index:8}.rangeHalo{position:absolute;border:2px solid #55a9ffcc;border-radius:50%;background:#55a9ff0c;pointer-events:none;transform:translate(-50%,-50%);z-index:5}
+.engHalo{position:absolute;border:2px dashed #ff7070cc;border-radius:50%;background:#ff70700a;pointer-events:none;transform:translate(-50%,-50%);z-index:6}.dsHalo{position:absolute;border:2px dashed #ff5555cc;border-radius:50%;background:#ff55550c;pointer-events:none;transform:translate(-50%,-50%);z-index:4}
+.losLine{position:absolute;height:2px;background:#7cdfa1;transform-origin:0 50%;pointer-events:none;z-index:68}.losBlocked{background:#ff6b6b}.pathSeg{position:absolute;height:3px;background:#8ac6ff;transform-origin:0 50%;pointer-events:none;z-index:67}
+.ruler{position:absolute;height:3px;background:var(--gold);transform-origin:0 50%;pointer-events:none;z-index:70}.label{position:absolute;background:#111e;color:#fff;padding:3px 5px;border:1px solid #666;border-radius:4px;font-size:11px;pointer-events:none;z-index:71;transform:translate(-50%,-50%)}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.stat{background:#272d35;border:1px solid #414a56;border-radius:6px;padding:6px;font-size:11px}.log{background:#171a1f;border:1px solid #343b44;border-radius:6px;white-space:pre-wrap;font-size:11px;padding:7px;max-height:250px;overflow:auto}
+.warn{color:#ff9a87}.ok{color:#7cdfa1}.badge{display:inline-block;background:#343b45;border-radius:4px;padding:2px 4px;font-size:10px;margin-left:4px}
+.modelrow{display:grid;grid-template-columns:1fr auto auto;gap:5px;align-items:center;padding:4px 0;border-bottom:1px solid #343a43}.modelrow:last-child{border-bottom:0}
+hr{border:0;border-top:1px solid #373e48;margin:10px 0}
+@media(max-width:1050px){#app{grid-template-columns:220px 1fr}.right{display:none}}
+</style>
+</head>
+<body>
+<div id="app">
+<aside class="panel left">
+<h1>40K Tactical Board</h1><div class="small">Rules Engine v0.5 • Cross-platform</div>
+<h2>Units</h2><div id="unitList"></div>
+<h2>Add squad</h2>
+<div class="col">
+<input id="newName" value="Intercessors" placeholder="Unit name">
+<div class="row"><select id="newSide"><option value="friend">Friendly</option><option value="enemy">Enemy</option></select><label class="small">Models <input id="newCount" type="number" value="5" min="1" max="20"></label></div>
+<div class="row"><label class="small">Base mm <input id="newBase" type="number" value="32"></label><label class="small">W/model <input id="newWpm" type="number" value="2"></label></div>
+<div class="row"><label class="small">M <input id="newMove" type="number" value="6"></label><label class="small">T <input id="newT" type="number" value="4"></label><label class="small">Sv <input id="newSv" type="number" value="3"></label><label class="small">OC <input id="newOc" type="number" value="2"></label></div>
+<button id="addSquad">Add squad</button>
+</div>
+<h2>Terrain</h2>
+<div class="col">
+  <div class="row">
+    <label class="small">W <input id="terrainW" type="number" value="6" step=".5"></label>
+    <label class="small">H <input id="terrainH" type="number" value="4" step=".5"></label>
+    <label class="small"><input id="terrainBlocking" type="checkbox" checked> Blocking</label>
+  </div>
+  <button id="addTerrainBtn">Add terrain at centre</button>
+  <button id="clearTerrainBtn">Clear custom terrain</button>
+</div>
+<h2>Battle</h2>
+<div class="row"><button id="nextPhase">Next phase</button><button id="nextTurn">Next turn</button></div>
+<div id="phase" class="small" style="margin-top:7px"></div>
+<h2>Persistence</h2>
+<div class="col"><button id="saveJson">Save battle JSON</button><label class="small">Load JSON <input id="loadJson" type="file" accept=".json"></label><button id="exportCsv">Export stats CSV</button><button id="reset" class="danger">Reset demo</button></div>
+</aside>
+
+<main id="center">
+<div id="toolbar">
+<button id="selectTool" class="active">Select</button><button id="rulerTool">Ruler</button>
+<button id="moveRange">Move</button><button id="weaponRangeBtn">Weapon range</button><input id="rangeInput" type="number" value="24">
+<button id="engagementBtn">Engagement 2"</button><button id="deepStrikeBtn">Reserve / Ingress</button><label class="small">DS > <input id="dsInput" type="number" value="8" step=".01"></label>
+<button id="objectivesBtn">Objectives</button><button id="coherencyBtn">Coherency</button>
+<button id="losBtn">LOS</button><button id="coverBtn">Cover</button>
+<button id="pathMoveBtn">Path Move</button><button id="finishPathBtn">Finish Path</button>
+<button id="clearOverlays">Clear</button>
+<span id="status" class="small">Autosave on</span>
+</div>
+<div id="boardWrap"><div id="board"></div></div>
+</main>
+
+<aside class="panel right">
+<h1>Selected</h1><div id="none" class="small">Select a unit or model.</div>
+<div id="detail" style="display:none">
+<div id="unitTitle" style="font-weight:800;font-size:17px"></div><div id="unitMeta" class="small"></div>
+<div class="statgrid" style="margin-top:8px"><div class="stat">M<br><b id="mStat"></b></div><div class="stat">T<br><b id="tStat"></b></div><div class="stat">Sv<br><b id="svStat"></b></div><div class="stat">OC/model<br><b id="ocStat"></b></div><div class="stat">Alive<br><b id="aliveStat"></b></div><div class="stat">Wounds<br><b id="woundStat"></b></div></div>
+
+<h2>Models / casualties</h2><div id="modelList"></div>
+
+<h2>Charge</h2>
+<div class="col"><label class="small">Target <select id="chargeTarget"></select></label><div class="row"><button id="rollCharge" class="primary">Roll 2D6</button><span id="chargeResult" class="small">—</span></div><button id="autoCharge">Auto-move closest model</button></div>
+
+<h2>Ranged attack</h2>
+<div class="col">
+<label class="small">Target <select id="shootTarget"></select></label>
+<div class="row"><label class="small">A <input id="atk" type="number" value="10"></label><label class="small">BS <input id="bs" type="number" value="3"></label><label class="small">S <input id="str" type="number" value="4"></label></div>
+<div class="row"><label class="small">AP <input id="ap" type="number" value="-1"></label><label class="small">D <input id="dmg" type="number" value="1"></label><label class="small">Range <input id="rng" type="number" value="24"></label></div>
+<div class="row"><label class="small">Inv Sv <input id="invSv" type="number" value="0" min="0" max="6"></label><label class="small">Sustained <input id="sustained" type="number" value="0" min="0" max="6"></label></div>
+<div class="row"><label class="small">FNP target <input id="fnp" type="number" value="0" min="0" max="6"></label><span class="small">(0 = none)</span></div>
+<label class="small"><input id="rrHit" type="checkbox"> reroll failed hits</label><label class="small"><input id="rrWound" type="checkbox"> reroll failed wounds</label><label class="small"><input id="lethal" type="checkbox"> Lethal Hits</label>
+<label class="small"><input id="torrent" type="checkbox"> Torrent (auto-hit)</label>
+<label class="small"><input id="blast" type="checkbox"> Blast (+1 attack per 5 target models)</label>
+<label class="small"><input id="devWounds" type="checkbox"> Devastating Wounds (critical wounds bypass saves)</label>
+<label class="small"><input id="hazardous" type="checkbox"> Hazardous test after attack</label>
+<label class="small"><input id="coverCheck" type="checkbox"> Target has Benefit of Cover</label>
+<div id="attackPreview" class="small"></div><button id="fire" class="primary">Resolve attack</button>
+</div>
+
+<h2>Battle log</h2><div id="log" class="log"></div>
+</div>
+</aside>
+</div>
+
+<script>
+const BW=60,BH=44,PPI=14,ENGAGEMENT=2,COHERENCY_NEAR=2,COHERENCY_ALL=9,OBJ_RANGE=3;
+const phases=["Command","Movement","Shooting","Charge","Fight"];
+const board=document.getElementById("board");board.style.width=BW*PPI+"px";board.style.height=BH*PPI+"px";
+let state={turn:1,phase:0,units:[],log:[],stats:[],customTerrain:[]},selectedUnitId=null,selectedModelId=null,tool="select",drag=null,rulerStart=null,chargeRoll=null,pathPoints=[];
+const $=id=>document.getElementById(id);
+const uid=()=>crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2);
+const mm2in=mm=>mm/25.4;const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));const dxy=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+function modelR(m){return mm2in(m.base)/2}function alive(u){return u.models.filter(m=>m.alive)}
+function edgeDist(m1,m2){return Math.max(0,dxy(m1,m2)-modelR(m1)-modelR(m2))}
+function unitEdgeDistance(a,b){let best=Infinity;alive(a).forEach(x=>alive(b).forEach(y=>best=Math.min(best,edgeDist(x,y))));return best}
+function woundOn(S,T){if(S>=2*T)return 2;if(S>T)return 3;if(S===T)return 4;if(S*2<=T)return 6;return 5}
+function saveOn(sv,apv){return clamp(sv-apv,2,7)}
+function dice(){return 1+Math.floor(Math.random()*6)}
+function pool(n,target,reroll=false){let rolls=[],ok=0;for(let i=0;i<n;i++){let a=dice(),b=a;if(a<target&&reroll)b=dice();rolls.push(a===b?String(b):`${a}→${b}`);if(b>=target)ok++}return{rolls,ok}}
+function addLog(s){state.log.unshift(`[T${state.turn} ${phases[state.phase]}] ${s}`)}
+function squad(name,side,x,y,count,base,wpm,move,T,sv,oc){
+ let models=[];const spacing=mm2in(base)+.35;for(let i=0;i<count;i++){let col=i%5,row=Math.floor(i/5);models.push({id:uid(),x:x+col*spacing,y:y+row*spacing,base,wounds:wpm,maxWounds:wpm,alive:true})}
+ return{id:uid(),name,side,move,T,sv,oc,models};
+}
+function demo(){
+ state={turn:1,phase:0,log:[],stats:[],customTerrain:[],units:[
+  squad("Infernus Squad","friend",10,32,10,32,2,6,4,3,1),
+  squad("Hellblasters","friend",18,36,10,32,2,6,4,3,1),
+  squad("Redemptor","friend",13,25,1,90,12,8,10,2,4),
+  squad("CSM Squad","enemy",43,18,10,32,2,6,4,3,2),
+  squad("Defiler","enemy",48,25,1,120,14,8,10,3,5),
+  squad("Daemon Prince","enemy",45,10,1,60,10,10,9,2,3)
+ ]};
+}
+function terrain(){
+ const builtIn=[[7,6,10,5,1],[22,4,8,6,1],[40,5,10,5,1],[12,18,8,5,1],[27,18,7,7,0],[43,18,8,5,1],[7,33,10,5,1],[24,32,8,6,1],[42,33,10,5,1]];
+ [...builtIn,...(state.customTerrain||[])].forEach(([x,y,w,h,b])=>{
+   let e=document.createElement("div");e.className="terrain "+(b?"blocking":"");
+   Object.assign(e.style,{left:x*PPI+"px",top:y*PPI+"px",width:w*PPI+"px",height:h*PPI+"px"});
+   board.appendChild(e)
+ })
+}
+const objectives=[[30,22],[12,22],[48,22],[30,8],[30,36]];
+function staticBoard(){
+ for(let x=5;x<BW;x+=5){let e=document.createElement("div");e.className="gridV";Object.assign(e.style,{left:x*PPI+"px",top:0,width:"1px",height:"100%"});board.appendChild(e)}
+ for(let y=5;y<BH;y+=5){let e=document.createElement("div");e.className="gridH";Object.assign(e.style,{top:y*PPI+"px",left:0,height:"1px",width:"100%"});board.appendChild(e)}
+ objectives.forEach(([x,y])=>{let e=document.createElement("div"),r=OBJ_RANGE*PPI;e.className="objective";Object.assign(e.style,{left:x*PPI-r+"px",top:y*PPI-r+"px",width:2*r+"px",height:2*r+"px"});board.appendChild(e)});terrain()
+}
+function render(){
+ board.innerHTML="";staticBoard();
+ state.units.forEach(u=>alive(u).forEach((m,i)=>{
+   let e=document.createElement("div");e.className=`model ${u.side} ${(u.id===selectedUnitId&&m.id===selectedModelId)?"selected":""}`;
+   e.dataset.unit=u.id;e.dataset.model=m.id;let dd=Math.max(16,mm2in(m.base)*PPI);Object.assign(e.style,{left:m.x*PPI+"px",top:m.y*PPI+"px",width:dd+"px",height:dd+"px"});e.textContent=alive(u).length===1?u.name.split(" ").map(s=>s[0]).join("").slice(0,3):String(i+1);e.title=`${u.name} model ${i+1} • ${m.wounds}/${m.maxWounds}W`;board.appendChild(e)
+ }));
+ renderList();renderDetail();renderPhase();renderLog();persist()
+}
+function renderList(){
+ $("unitList").innerHTML="";state.units.forEach(u=>{let a=alive(u),w=a.reduce((s,m)=>s+m.wounds,0),max=u.models.reduce((s,m)=>s+m.maxWounds,0);let e=document.createElement("div");e.className="unitCard "+(u.id===selectedUnitId?"selected":"");e.innerHTML=`<b>${u.name}</b><span class="badge">${u.side}</span><br><span class="small">${a.length}/${u.models.length} models • ${w}/${max}W • T${u.T} Sv${u.sv}+ OC${u.oc}</span>`;e.onclick=()=>{selectedUnitId=u.id;selectedModelId=alive(u)[0]?.id||null;render()};$("unitList").appendChild(e)})
+}
+function renderDetail(){
+ let u=state.units.find(x=>x.id===selectedUnitId);$("none").style.display=u?"none":"block";$("detail").style.display=u?"block":"none";if(!u)return;
+ let a=alive(u);$("unitTitle").textContent=u.name;$("unitMeta").textContent=u.side==="friend"?"Friendly unit":"Enemy unit";$("mStat").textContent=u.move+'"';$("tStat").textContent=u.T;$("svStat").textContent=u.sv+"+";$("ocStat").textContent=u.oc;$("aliveStat").textContent=`${a.length}/${u.models.length}`;$("woundStat").textContent=a.reduce((s,m)=>s+m.wounds,0);
+ $("modelList").innerHTML="";u.models.forEach((m,i)=>{let row=document.createElement("div");row.className="modelrow";row.innerHTML=`<span class="small">Model ${i+1} • ${m.alive?m.wounds+"/"+m.maxWounds+"W":"destroyed"}</span><button data-sel="${m.id}">Select</button><button data-kill="${m.id}" class="danger">${m.alive?"Remove":"Restore"}</button>`;$("modelList").appendChild(row)});
+ $("modelList").querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{selectedModelId=b.dataset.sel;render()});$("modelList").querySelectorAll("[data-kill]").forEach(b=>b.onclick=()=>toggleCasualty(u,b.dataset.kill));
+ [chargeTarget,shootTarget].forEach(sel=>{sel.innerHTML="";state.units.filter(x=>x.side!==u.side&&alive(x).length).forEach(t=>{let o=document.createElement("option");o.value=t.id;o.textContent=`${t.name} (${unitEdgeDistance(u,t).toFixed(2)}" edge)`;sel.appendChild(o)})});previewAttack()
+}
+function toggleCasualty(u,id){let m=u.models.find(x=>x.id===id);m.alive=!m.alive;if(m.alive){m.wounds=m.maxWounds;addLog(`${u.name} model restored`)}else{m.wounds=0;addLog(`${u.name} model removed as a casualty`)}render()}
+function renderPhase(){$("phase").textContent=`Turn ${state.turn} • ${phases[state.phase]} phase`}
+function renderLog(){$("log").textContent=state.log.join("\n\n")}
+function clearDyn(){board.querySelectorAll(".rangeHalo,.engHalo,.dsHalo,.label,.ruler,.losLine,.pathSeg").forEach(e=>e.remove())}
+function circle(x,y,r,cls){let e=document.createElement("div");e.className=cls;Object.assign(e.style,{left:x*PPI+"px",top:y*PPI+"px",width:2*r*PPI+"px",height:2*r*PPI+"px"});board.appendChild(e)}
+function label(x,y,txt){let e=document.createElement("div");e.className="label";Object.assign(e.style,{left:x*PPI+"px",top:y*PPI+"px"});e.textContent=txt;board.appendChild(e)}
+function coherencyProblems(u){
+ let a=alive(u),bad=[];if(a.length<=1)return bad;a.forEach(m=>{let near=a.some(n=>n.id!==m.id&&edgeDist(m,n)<=COHERENCY_NEAR+1e-6);let all=a.every(n=>n.id===m.id||edgeDist(m,n)<=COHERENCY_ALL+1e-6);if(!near||!all)bad.push(m.id)});return bad
+}
+function showCoherency(){clearDyn();state.units.forEach(u=>{let bad=coherencyProblems(u);alive(u).forEach(m=>{if(bad.includes(m.id)){circle(m.x,m.y,modelR(m)+COHERENCY_NEAR,"engHalo");label(m.x,m.y-1.3,"OUT OF COHERENCY")}})});$("status").textContent="Coherency: ≤2″ to one model and ≤9″ to every model"}
+function showEng(){clearDyn();let u=state.units.find(x=>x.id===selectedUnitId);if(!u)return;alive(u).forEach(m=>circle(m.x,m.y,modelR(m)+ENGAGEMENT,"engHalo"));$("status").textContent='Engagement Range shown from base edge: 2"'}
+function showDS(){clearDyn();let u=state.units.find(x=>x.id===selectedUnitId);if(!u)return;let ex=+$("dsInput").value;state.units.filter(x=>x.side!==u.side).forEach(t=>alive(t).forEach(m=>circle(m.x,m.y,modelR(m)+ex,"dsHalo")));$("status").textContent=`Illegal arrival zone: reserve/ingress/deep-strike move must finish >${ex}" from enemy model bases`}
+function showMove(){clearDyn();let u=state.units.find(x=>x.id===selectedUnitId),m=u?.models.find(x=>x.id===selectedModelId);if(m)circle(m.x,m.y,u.move,"rangeHalo")}
+function showRange(){clearDyn();let u=state.units.find(x=>x.id===selectedUnitId),m=u?.models.find(x=>x.id===selectedModelId);if(m)circle(m.x,m.y,+$("rangeInput").value+modelR(m),"rangeHalo")}
+function checkObj(){clearDyn();objectives.forEach(([x,y],i)=>{let f=0,e=0;state.units.forEach(u=>alive(u).forEach(m=>{let dd=Math.max(0,Math.hypot(m.x-x,m.y-y)-modelR(m));if(dd<=OBJ_RANGE){if(u.side==="friend")f+=u.oc;else e+=u.oc}}));label(x,y-4,`OBJ ${i+1}: ${f}-${e} ${f>e?"FRIEND":e>f?"ENEMY":"CONTESTED"}`)});$("status").textContent="OC counted model-by-model within 3″ of objective centre"}
+
+function allTerrainRects(){
+ const builtIn=[[7,6,10,5,1],[22,4,8,6,1],[40,5,10,5,1],[12,18,8,5,1],[27,18,7,7,0],[43,18,8,5,1],[7,33,10,5,1],[24,32,8,6,1],[42,33,10,5,1]];
+ return [...builtIn,...(state.customTerrain||[])].map(([x,y,w,h,b])=>({x,y,w,h,blocking:!!b}));
+}
+function segmentIntersectsRect(a,b,r){
+ const steps=Math.max(8,Math.ceil(dxy(a,b)*8));
+ for(let i=0;i<=steps;i++){
+   const t=i/steps,x=a.x+(b.x-a.x)*t,y=a.y+(b.y-a.y)*t;
+   if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h)return true;
+ }
+ return false;
+}
+function hasLOS(m1,m2){
+ return !allTerrainRects().filter(r=>r.blocking).some(r=>segmentIntersectsRect(m1,m2,r));
+}
+function drawLOS(){
+ clearDyn();let a=state.units.find(x=>x.id===selectedUnitId),t=state.units.find(x=>x.id===$("shootTarget").value);if(!a||!t)return;
+ let best=null;
+ alive(a).forEach(am=>alive(t).forEach(tm=>{let dd=edgeDist(am,tm);if(!best||dd<best.dd)best={am,tm,dd}}));
+ if(!best)return;
+ let A=best.am,B=best.tm,dx=(B.x-A.x)*PPI,dy=(B.y-A.y)*PPI,L=Math.hypot(dx,dy),ok=hasLOS(A,B);
+ let ln=document.createElement("div");ln.className="losLine "+(ok?"":"losBlocked");
+ Object.assign(ln.style,{left:A.x*PPI+"px",top:A.y*PPI+"px",width:L+"px",transform:`rotate(${Math.atan2(dy,dx)}rad)`});board.appendChild(ln);
+ label((A.x+B.x)/2,(A.y+B.y)/2,ok?"LOS CLEAR":"LOS BLOCKED");
+ $("status").textContent=ok?"Line of sight clear":"Line of sight blocked by blocking terrain";
+}
+function targetInCover(attacker,target){
+ let ta=alive(target),aa=alive(attacker);if(!ta.length||!aa.length)return false;
+ // Practical v0.5 approximation: target base touches/overlaps any terrain footprint OR LOS crosses non-blocking terrain.
+ return ta.some(tm=>allTerrainRects().some(r=>{
+   let cx=clamp(tm.x,r.x,r.x+r.w),cy=clamp(tm.y,r.y,r.y+r.h);
+   return Math.hypot(tm.x-cx,tm.y-cy)<=modelR(tm)+0.01;
+ })) || aa.some(am=>ta.some(tm=>allTerrainRects().filter(r=>!r.blocking).some(r=>segmentIntersectsRect(am,tm,r))));
+}
+function showCover(){
+ clearDyn();let a=state.units.find(x=>x.id===selectedUnitId),t=state.units.find(x=>x.id===$("shootTarget").value);if(!a||!t)return;
+ let c=targetInCover(a,t);label(alive(t)[0].x,alive(t)[0].y-2,c?"COVER":"NO COVER");$("status").textContent=c?"Target receives cover in v0.5 terrain approximation":"No cover detected";
+}
+function pointInsideBlocking(p,rad=0){
+ return allTerrainRects().filter(r=>r.blocking).some(r=>p.x>=r.x-rad&&p.x<=r.x+r.w+rad&&p.y>=r.y-rad&&p.y<=r.y+r.h+rad);
+}
+function pathLength(points){let L=0;for(let i=1;i<points.length;i++)L+=dxy(points[i-1],points[i]);return L}
+function drawPath(){
+ board.querySelectorAll(".pathSeg").forEach(e=>e.remove());
+ for(let i=1;i<pathPoints.length;i++){
+  let a=pathPoints[i-1],b=pathPoints[i],dx=(b.x-a.x)*PPI,dy=(b.y-a.y)*PPI,L=Math.hypot(dx,dy),ln=document.createElement("div");
+  ln.className="pathSeg";Object.assign(ln.style,{left:a.x*PPI+"px",top:a.y*PPI+"px",width:L+"px",transform:`rotate(${Math.atan2(dy,dx)}rad)`});board.appendChild(ln)
+ }
+}
+function beginPathMove(){
+ let u=state.units.find(x=>x.id===selectedUnitId),m=u?.models.find(x=>x.id===selectedModelId);if(!u||!m){$("status").textContent="Select a model first";return}
+ tool="path";pathPoints=[{x:m.x,y:m.y}];drawPath();$("status").textContent=`Path move: tap waypoints, then Finish Path (M${u.move}")`
+}
+function finishPathMove(){
+ let u=state.units.find(x=>x.id===selectedUnitId),m=u?.models.find(x=>x.id===selectedModelId);if(!u||!m||pathPoints.length<2){pathPoints=[];tool="select";return}
+ let L=pathLength(pathPoints),end=pathPoints[pathPoints.length-1];
+ let blocked=false;
+ for(let i=1;i<pathPoints.length;i++){if(allTerrainRects().filter(r=>r.blocking).some(r=>segmentIntersectsRect(pathPoints[i-1],pathPoints[i],r))){blocked=true;break}}
+ let enemyEng=state.units.filter(x=>x.side!==u.side).some(t=>alive(t).some(n=>Math.max(0,Math.hypot(end.x-n.x,end.y-n.y)-modelR(m)-modelR(n))<ENGAGEMENT-.001));
+ if(L>u.move+.001)addLog(`${u.name} path move rejected: ${L.toFixed(2)}" exceeds M${u.move}"`);
+ else if(blocked)addLog(`${u.name} path move rejected: path crosses blocking terrain`);
+ else if(enemyEng)addLog(`${u.name} path move rejected: ends within enemy Engagement Range`);
+ else{m.x=end.x;m.y=end.y;addLog(`${u.name} model path-moved ${L.toFixed(2)}"`)}
+ pathPoints=[];tool="select";render()
+}
+function boardPoint(ev){let r=board.getBoundingClientRect();return{x:(ev.clientX-r.left)/PPI,y:(ev.clientY-r.top)/PPI}}
+function drawRuler(a,b){board.querySelectorAll(".ruler,.label.rulerLabel").forEach(e=>e.remove());let dx=(b.x-a.x)*PPI,dy=(b.y-a.y)*PPI,L=Math.hypot(dx,dy),ln=document.createElement("div");ln.className="ruler";Object.assign(ln.style,{left:a.x*PPI+"px",top:a.y*PPI+"px",width:L+"px",transform:`rotate(${Math.atan2(dy,dx)}rad)`});board.appendChild(ln);label((a.x+b.x)/2,(a.y+b.y)/2,(L/PPI).toFixed(2)+'"')}
+function legalMove(u,m,newp,ignoreEng=false){
+ let old={x:m.x,y:m.y},travel=Math.hypot(newp.x-old.x,newp.y-old.y);if(travel>u.move+.001)return{ok:false,msg:`${travel.toFixed(2)}" exceeds M${u.move}"`};
+ if(pointInsideBlocking(newp,modelR(m)))return{ok:false,msg:"Move ends inside blocking terrain"}; if(allTerrainRects().filter(r=>r.blocking).some(r=>segmentIntersectsRect(old,newp,r)))return{ok:false,msg:"Straight path crosses blocking terrain; use Path Move"}; let enemyEng=state.units.filter(x=>x.side!==u.side).some(t=>alive(t).some(n=>Math.max(0,Math.hypot(newp.x-n.x,newp.y-n.y)-modelR(m)-modelR(n))<ENGAGEMENT-.001));
+ if(enemyEng&&!ignoreEng)return{ok:false,msg:'Normal move ends within Engagement Range'};return{ok:true,msg:`${travel.toFixed(2)}"`}
+}
+board.addEventListener("pointerdown",ev=>{if(tool==="path"){pathPoints.push(boardPoint(ev));drawPath();$("status").textContent=`Path ${pathLength(pathPoints).toFixed(2)}"`;return}if(tool==="ruler"){rulerStart=boardPoint(ev);return}let el=ev.target.closest(".model");if(!el)return;selectedUnitId=el.dataset.unit;selectedModelId=el.dataset.model;let u=state.units.find(x=>x.id===selectedUnitId),m=u.models.find(x=>x.id===selectedModelId);drag={u,m,sx:ev.clientX,sy:ev.clientY,ox:m.x,oy:m.y};el.setPointerCapture(ev.pointerId);render()});
+board.addEventListener("pointermove",ev=>{if(tool==="ruler"&&rulerStart){drawRuler(rulerStart,boardPoint(ev));return}if(!drag)return;let p={x:clamp(drag.ox+(ev.clientX-drag.sx)/PPI,0,BW),y:clamp(drag.oy+(ev.clientY-drag.sy)/PPI,0,BH)};drag.m.x=p.x;drag.m.y=p.y;render()});
+board.addEventListener("pointerup",ev=>{if(tool==="ruler"&&rulerStart){drawRuler(rulerStart,boardPoint(ev));rulerStart=null;return}if(!drag)return;let p={x:drag.m.x,y:drag.m.y};drag.m.x=drag.ox;drag.m.y=drag.oy;let chk=legalMove(drag.u,drag.m,p,false);if(chk.ok){drag.m.x=p.x;drag.m.y=p.y;let bad=coherencyProblems(drag.u);addLog(`${drag.u.name} model moved ${chk.msg}${bad.length?" • WARNING: unit out of coherency":""}`)}else addLog(`${drag.u.name} move rejected: ${chk.msg}`);drag=null;render()});
+function previewAttack(){let a=state.units.find(x=>x.id===selectedUnitId),t=state.units.find(x=>x.id===$("shootTarget").value);if(!a||!t)return;let range=+$("rng").value,d=unitEdgeDistance(a,t),w=woundOn(+$("str").value,t.T),s=saveOn(t.sv,+$("ap").value);let los=alive(a).some(am=>alive(t).some(tm=>hasLOS(am,tm)));let cov=targetInCover(a,t);$("attackPreview").innerHTML=`Edge distance <b>${d.toFixed(2)}"</b> • ${d<=range?'<span class="ok">IN RANGE</span>':'<span class="warn">OUT OF RANGE</span>'} • ${los?'<span class="ok">LOS</span>':'<span class="warn">NO LOS</span>'} • ${cov?'Cover':''} • wounds ${w}+ • save ${s}+`}
+function allocateDamage(target,totalDamage,fnpTarget){
+ let damageLeft=totalDamage,ignored=0,casualties=0;while(damageLeft>0){let m=alive(target)[0];if(!m)break;let point=1;if(fnpTarget>0){let r=dice();if(r>=fnpTarget){ignored++;damageLeft--;continue}}m.wounds-=point;damageLeft--;if(m.wounds<=0){m.alive=false;m.wounds=0;casualties++}}
+ return{ignored,casualties,applied:totalDamage-ignored-damageLeft}
+}
+$("fire").onclick=()=>{
+ let a=state.units.find(x=>x.id===selectedUnitId),t=state.units.find(x=>x.id===$("shootTarget").value);if(!a||!t)return;
+ let distance=unitEdgeDistance(a,t),range=+$("rng").value;
+ if(distance>range){alert(`Target is ${distance.toFixed(2)}" away from closest attacking base. Range is ${range}".`);return}
+ let los=alive(a).some(am=>alive(t).some(tm=>hasLOS(am,tm)));
+ if(!los){alert("No line of sight between any attacking model and target model.");return}
+ let A=+$("atk").value,H=+$("bs").value,S=+$("str").value,AP=+$("ap").value,D=+$("dmg").value,W=woundOn(S,t.T);
+ if($("blast").checked) A += Math.floor(alive(t).length/5);
+ let hitRolls=[],hitCount=0,critHits=0;
+ if($("torrent").checked){hitCount=A;hitRolls=Array(A).fill("auto")}
+ else{
+   let hp=pool(A,H,$("rrHit").checked);hitRolls=hp.rolls;hitCount=hp.ok;
+   critHits=hp.rolls.filter(v=>v.split("→").pop()==="6").length;
+   if(+$("sustained").value>0) hitCount += critHits*(+$("sustained").value);
+ }
+ let lethalAuto=$("lethal").checked?critHits:0;
+ let woundDice=Math.max(0,hitCount-lethalAuto),wp=pool(woundDice,W,$("rrWound").checked);
+ let critWounds=wp.rolls.filter(v=>v.split("→").pop()==="6").length;
+ let devBypass=$("devWounds").checked?critWounds:0;
+ let normalWounds=wp.ok-devBypass+lethalAuto,totalWounds=normalWounds+devBypass;
+ let baseSv=t.sv;
+ let cov=$("coverCheck").checked||targetInCover(a,t);
+ if(cov && AP<0) baseSv=Math.max(2,baseSv-1);
+ let armour=saveOn(baseSv,AP),inv=+$("invSv").value;
+ let finalSv=inv>0?Math.min(armour,inv):armour;
+ let sv=pool(normalWounds,finalSv),unsNormal=normalWounds-sv.ok,uns=unsNormal+devBypass,total=uns*D,res=allocateDamage(t,total,+$("fnp").value);
+ let haz="";
+ if($("hazardous").checked){let hr=dice();haz=` • Hazardous ${hr}${hr===1?" FAILED":" passed"}`; if(hr===1){let m=alive(a)[0];if(m){m.wounds=Math.max(0,m.wounds-3);if(m.wounds<=0){m.alive=false;m.wounds=0}}}}
+ state.stats.push({turn:state.turn,phase:phases[state.phase],attacker:a.name,target:t.name,attacks:A,hits:hitCount,wounds:totalWounds,saves:sv.ok,unsaved:uns,damage:res.applied,fnpIgnored:res.ignored,casualties:res.casualties,distance:distance.toFixed(2)});
+ addLog(`${a.name} → ${t.name} at ${distance.toFixed(2)}"
+Hits ${hitCount}/${A}: ${hitRolls.join(" ")}
+S${S} vs T${t.T}: ${W}+ • wounds ${totalWounds}${devBypass?` (${devBypass} Devastating)`:''}
+Saves ${sv.ok}/${normalWounds} (${finalSv}+): ${sv.rolls.join(" ")}
+Damage ${total} • FNP ignored ${res.ignored} • applied ${res.applied} • casualties ${res.casualties}${haz}`);
+ render()
+};
+$("rollCharge").onclick=()=>{chargeRoll=dice()+dice();$("chargeResult").textContent=`${chargeRoll}" charge`;addLog(`${state.units.find(x=>x.id===selectedUnitId)?.name||"Unit"} rolled ${chargeRoll}" charge`)};
+$("autoCharge").onclick=()=>{let a=state.units.find(x=>x.id===selectedUnitId),t=state.units.find(x=>x.id===$("chargeTarget").value);if(!a||!t||!chargeRoll){alert("Roll the charge first.");return}let am=alive(a).sort((x,y)=>{let dx=Math.min(...alive(t).map(n=>edgeDist(x,n)));let dy=Math.min(...alive(t).map(n=>edgeDist(y,n)));return dx-dy})[0];let tm=alive(t).sort((x,y)=>edgeDist(am,x)-edgeDist(am,y))[0],ed=edgeDist(am,tm),needed=Math.max(0,ed-ENGAGEMENT+.01);if(needed>chargeRoll+.001){addLog(`${a.name} charge failed: needs about ${needed.toFixed(2)}", rolled ${chargeRoll}"`);render();return}let vx=tm.x-am.x,vy=tm.y-am.y,L=Math.hypot(vx,vy)||1,centreTarget=modelR(am)+modelR(tm)+ENGAGEMENT-.02,newp={x:tm.x-vx/L*centreTarget,y:tm.y-vy/L*centreTarget},travel=Math.hypot(newp.x-am.x,newp.y-am.y);if(travel>chargeRoll){let scale=chargeRoll/travel;newp={x:am.x+(newp.x-am.x)*scale,y:am.y+(newp.y-am.y)*scale}}am.x=newp.x;am.y=newp.y;let bad=coherencyProblems(a);addLog(`${a.name} charge model moved ${travel.toFixed(2)}" into Engagement Range${bad.length?" • WARNING: remaining unit coherency needs adjustment":""}`);chargeRoll=null;$("chargeResult").textContent="—";render()};
+$("addSquad").onclick=()=>{state.units.push(squad($("newName").value||"Unit",$("newSide").value,30,22,+$("newCount").value,+$("newBase").value,+$("newWpm").value,+$("newMove").value,+$("newT").value,+$("newSv").value,+$("newOc").value));render()};
+function setTool(t){tool=t;$("selectTool").classList.toggle("active",t==="select");$("rulerTool").classList.toggle("active",t==="ruler")}
+$("selectTool").onclick=()=>setTool("select");$("rulerTool").onclick=()=>setTool("ruler");$("moveRange").onclick=showMove;$("weaponRangeBtn").onclick=showRange;$("engagementBtn").onclick=showEng;$("deepStrikeBtn").onclick=showDS;$("objectivesBtn").onclick=checkObj;$("coherencyBtn").onclick=showCoherency;$("losBtn").onclick=drawLOS;$("coverBtn").onclick=showCover;$("pathMoveBtn").onclick=beginPathMove;$("finishPathBtn").onclick=finishPathMove;$("clearOverlays").onclick=clearDyn;
+$("addTerrainBtn").onclick=()=>{if(!state.customTerrain)state.customTerrain=[];state.customTerrain.push([27,20,+$("terrainW").value,+$("terrainH").value,$("terrainBlocking").checked?1:0]);addLog("Custom terrain added at board centre");render()};
+$("clearTerrainBtn").onclick=()=>{state.customTerrain=[];addLog("Custom terrain cleared");render()};
+$("shootTarget").onchange=previewAttack;["str","ap","rng"].forEach(id=>$(id).oninput=previewAttack);
+$("nextPhase").onclick=()=>{state.phase=(state.phase+1)%phases.length;if(state.phase===0)state.turn++;render()};$("nextTurn").onclick=()=>{state.turn++;state.phase=0;render()};
+const KEY="warhammer_tactical_v05";function persist(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function restore(){try{let x=JSON.parse(localStorage.getItem(KEY)||"null");if(x?.units){state=x;if(!state.customTerrain)state.customTerrain=[];return true}}catch(e){}return false}
+$("reset").onclick=()=>{if(confirm("Reset battle?")){localStorage.removeItem(KEY);selectedUnitId=null;selectedModelId=null;demo();render()}};
+$("saveJson").onclick=()=>download("40k_battle_v04.json",JSON.stringify(state,null,2),"application/json");
+$("loadJson").onchange=async e=>{let f=e.target.files[0];if(!f)return;try{state=JSON.parse(await f.text());selectedUnitId=null;selectedModelId=null;render()}catch(x){alert("Invalid battle file")}};
+function download(name,text,type){let b=new Blob([text],{type}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),100)}
+$("exportCsv").onclick=()=>{let keys=["turn","phase","attacker","target","attacks","hits","wounds","saves","unsaved","damage","fnpIgnored","casualties","distance"],rows=[keys,...state.stats.map(s=>keys.map(k=>s[k]??""))],csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");download("40k_stats_v04.csv",csv,"text/csv")};
+if(!restore())demo();render();
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
+</script>
+</body></html>
