@@ -1,4 +1,14 @@
-# Warhammer 40K Tactical Board v0.7.0
+# Warhammer 40K Tactical Board v0.7.1
+
+## New in v0.7.1 — Phase-aware UI, Attached Units and Tactical Icons
+
+- Army-building controls only appear during Army Builder; formation controls appear during Declare Battle Formations; battle scoring/actions are revealed in their relevant phase.
+- Leaders save a specific Bodyguard relationship through an Attach to Unit selector. Leaders are nested beneath their Bodyguard card and can be changed or removed.
+- Attached Leaders inherit formation/deployment/reserve state from their Bodyguard. Deployment confirmation, reserve arrival and target distance treat the group as one Attached Unit while models, profiles, wounds and weapons remain separate.
+- Reusable top-down icons cover infantry, Terminator/heavy infantry, Gravis, jump infantry, Characters, walkers, tanks, transports, bikes/cavalry, monsters, flyers and miscellaneous models.
+- Exact true-base circles remain the authoritative draggable geometry underneath every icon. Friendly/Enemy, selected, destroyed and engaged states are visually distinct.
+- Terrain footprints, objectives, deployment shading, paths, ranges, line of sight and selection highlights use a cleaner tactical-map treatment.
+- Autosave, undo/redo, combat, statistics, deployment/reserves and Windows/iOS PWA support are retained.
 
 ## New in v0.7.0 — Deployment and Reserves
 
@@ -16,7 +26,7 @@
 
 ## Install / Run
 
-Keep all six packaged files together and open `index.html`, or serve the folder from any static web host. On iPhone/iPad, use Safari's Add to Home Screen for the standalone PWA. The v0.7.0 service worker uses cache `40k-board-v070` to replace older cached builds.
+Keep all six packaged files together and open `index.html`, or serve the folder from any static web host. On iPhone/iPad, use Safari's Add to Home Screen for the standalone PWA. The v0.7.1 service worker uses cache `40k-board-v071` to replace older cached builds.
 
 UI redesign:
 - Friendly and Enemy panes are now clean roster panels.

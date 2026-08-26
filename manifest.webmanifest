@@ -1,7 +1,7 @@
 {
-  "name": "Warhammer 40K Tactical Board v0.7.0",
+  "name": "Warhammer 40K Tactical Board v0.7.1",
   "short_name": "40K Board",
-  "description": "Tactical rehearsal board with deployment, reserves, scoring, combat and terrain tools.",
+  "description": "Phase-aware tactical rehearsal board with Attached Units, model icons, deployment, scoring and combat tools.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

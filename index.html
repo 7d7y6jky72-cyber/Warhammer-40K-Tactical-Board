@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Warhammer 40K Tactical Board v0.7.0</title>
+<title>Warhammer 40K Tactical Board v0.7.1</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#15181d">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -21,11 +21,11 @@ input[type=number]{width:66px}.unitCard{padding:8px;border:1px solid #3e4651;bor
 #center{display:flex;flex-direction:column;min-width:0;min-height:0;position:relative;overflow:hidden}#toolbar{flex:0 0 auto;min-height:56px;background:#1b1f25;border-bottom:1px solid #343b45;padding:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 #boardWrap{flex:1 1 auto;min-height:0;overflow:auto;padding:14px;display:flex;align-items:center;justify-content:center}#board{position:relative;flex:0 0 auto;background:#343c33;border:2px solid #89947d;box-shadow:0 12px 30px #0008;touch-action:none;user-select:none}
 .gridV,.gridH{position:absolute;background:#ffffff10;pointer-events:none}.terrain{position:absolute;background:#51565b;border:2px solid #7a8086;border-radius:4px;opacity:.92}.terrain.blocking{background:#494d51;border-color:#9b6c55}
-.objective{position:absolute;border:2px dashed var(--gold);border-radius:50%;background:#f4d35e0d;pointer-events:none}.objective::after{content:"OBJ";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:9px;color:#ffec94;font-weight:800}
-.model{position:absolute;border-radius:50%;transform:translate(-50%,-50%);border:2px solid #111;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;cursor:grab;box-shadow:0 2px 5px #0008;z-index:20}.friend{background:var(--blue)}.enemy{background:var(--red)}.model.selected{outline:3px solid var(--gold)}.model.dead{display:none}
+.objective{position:absolute;border:1px solid #f4d35e99;border-radius:50%;background:radial-gradient(circle,#f4d35e32 0 12%,#f4d35e10 13% 68%,transparent 69%);box-shadow:inset 0 0 0 1px #0008;pointer-events:none;z-index:4}.objective::before{content:"";position:absolute;left:50%;top:50%;width:10px;height:10px;border-radius:50%;transform:translate(-50%,-50%);background:var(--gold);box-shadow:0 0 10px #f4d35e}.objective::after{content:"OBJ";position:absolute;left:50%;top:50%;transform:translate(-50%,10px);font-size:8px;color:#fff3ad;font-weight:900}
+.model{position:absolute;border-radius:50%;transform:translate(-50%,-50%);border:2px solid #101318;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;cursor:grab;box-shadow:0 2px 5px #0008;z-index:20;color:transparent;background:#18202a}.model.friend{border-color:#68b5ff}.model.enemy{border-color:#ff7777}.model.selected{outline:3px solid var(--gold);outline-offset:2px;box-shadow:0 0 14px #f4d35ecc}.model.destroyed{display:flex;opacity:.28;filter:grayscale(1)}.model.engaged{box-shadow:0 0 0 3px #ff735dcc,0 0 14px #ff4f3f99}
 .unitHalo{position:absolute;border:1px dotted #ffffff55;border-radius:50%;pointer-events:none;z-index:8}.rangeHalo{position:absolute;border:2px solid #55a9ffcc;border-radius:50%;background:#55a9ff0c;pointer-events:none;transform:translate(-50%,-50%);z-index:5}
 .engHalo{position:absolute;border:2px dashed #ff7070cc;border-radius:50%;background:#ff70700a;pointer-events:none;transform:translate(-50%,-50%);z-index:6}.dsHalo{position:absolute;border:2px dashed #ff5555cc;border-radius:50%;background:#ff55550c;pointer-events:none;transform:translate(-50%,-50%);z-index:4}
-.losLine{position:absolute;height:2px;background:#7cdfa1;transform-origin:0 50%;pointer-events:none;z-index:68}.losBlocked{background:#ff6b6b}.pathSeg{position:absolute;height:3px;background:#8ac6ff;transform-origin:0 50%;pointer-events:none;z-index:67}
+.losLine{position:absolute;height:2px;background:#7cdfa1;box-shadow:0 0 5px #7cdfa1;transform-origin:0 50%;pointer-events:none;z-index:68}.losBlocked{background:#ff6b6b;box-shadow:0 0 5px #ff6b6b}.pathSeg{position:absolute;height:3px;background:#8ac6ff;box-shadow:0 0 5px #4fa7ff;transform-origin:0 50%;pointer-events:none;z-index:67}
 .ruler{position:absolute;height:3px;background:var(--gold);transform-origin:0 50%;pointer-events:none;z-index:70}.label{position:absolute;background:#111e;color:#fff;padding:3px 5px;border:1px solid #666;border-radius:4px;font-size:11px;pointer-events:none;z-index:71;transform:translate(-50%,-50%)}
 .statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.stat{background:#272d35;border:1px solid #414a56;border-radius:6px;padding:6px;font-size:11px}.log{background:#171a1f;border:1px solid #343b44;border-radius:6px;white-space:pre-wrap;font-size:11px;padding:7px;max-height:250px;overflow:auto}
 .warn{color:#ff9a87}.ok{color:#7cdfa1}.badge{display:inline-block;background:#343b45;border-radius:4px;padding:2px 4px;font-size:10px;margin-left:4px}
@@ -36,7 +36,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 .panel select{width:100%;max-width:100%;min-width:0}
 .panel .col,.panel label{min-width:0;max-width:100%}
 #friendlyUnitInfo,#enemyUnitInfo,#friendlyRangedInfo,#friendlyMeleeInfo,#enemyRangedInfo,#enemyMeleeInfo{overflow-wrap:anywhere;line-height:1.35}
-.terrainArea{position:absolute;z-index:2;border:2px solid #a5aa9f;background:rgba(196,199,188,.18);pointer-events:none}
+.terrainArea{position:absolute;z-index:2;border:1px solid #939b90;background:repeating-linear-gradient(135deg,rgba(190,197,183,.19) 0 7px,rgba(78,88,80,.16) 7px 14px);box-shadow:inset 0 0 0 3px rgba(34,40,36,.35),inset 10px 10px 0 rgba(62,70,64,.28);pointer-events:none}
 .terrainArea.large{background:rgba(180,187,177,.24)}
 .terrainArea.medium{background:rgba(177,184,173,.18)}
 .terrainArea.line{background:rgba(170,179,167,.15)}
@@ -60,6 +60,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
  flex:0 0 auto;min-height:138px;max-height:190px;overflow:auto;background:#1b1f25;border-top:1px solid #343b45;padding:9px 10px;
  display:grid;grid-template-columns:1fr .9fr 1fr 1.25fr 1.25fr;gap:8px;align-items:start
 }
+.commandOnly,.scoreOnly{display:none}body[data-context="battle"][data-phase="Command"] .commandOnly,body[data-context="battle"][data-phase="Command"] .scoreOnly{display:block}body:not([data-context="battle"]) #rulesPanel{display:none}body[data-context="battle"] #deploymentPanel{display:none}
 .dash{background:#242a32;border:1px solid #3c4550;border-radius:7px;padding:8px;min-width:0}
 .dash h3{font-size:12px;margin:0 0 6px}
 .dash input{max-width:100%}
@@ -72,11 +73,12 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 #viewModeSelect{min-width:125px}
 #boardWrap.view3d{perspective:1200px;overflow:hidden;cursor:grab}
 #boardWrap.view3d #board{transform-origin:50% 50%;transition:transform .1s linear;box-shadow:0 30px 55px rgba(0,0,0,.45)}
-.modelToken{position:absolute;z-index:12;pointer-events:none;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 2px 1px rgba(0,0,0,.55))}
+.modelToken{position:absolute;z-index:21;pointer-events:none;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 2px 1px rgba(0,0,0,.65))}
 .modelToken .body{position:relative;width:72%;height:72%;border:2px solid rgba(255,255,255,.75);background:currentColor}
 .modelToken.infantry .body{border-radius:45% 45% 30% 30%}
 .modelToken.terminator .body{width:84%;height:78%;border-radius:25%;box-shadow:inset 0 0 0 3px rgba(0,0,0,.25)}
 .modelToken.gravis .body{width:80%;height:78%;border-radius:36%}
+.modelToken.jump .body{width:70%;height:70%;border-radius:42%}.modelToken.jump .body:before,.modelToken.jump .body:after{content:"";position:absolute;top:18%;width:28%;height:60%;border:2px solid rgba(255,255,255,.7);border-radius:50%}.modelToken.jump .body:before{left:-38%}.modelToken.jump .body:after{right:-38%}
 .modelToken.character .body{border-radius:50% 50% 22% 22%;box-shadow:0 0 0 2px rgba(255,215,90,.75)}
 .modelToken.dreadnought .body{width:72%;height:70%;border-radius:12%}
 .modelToken.dreadnought .body:before,.modelToken.dreadnought .body:after{content:"";position:absolute;top:18%;width:25%;height:65%;background:currentColor;border:2px solid rgba(255,255,255,.6)}
@@ -85,8 +87,13 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 .modelToken.vehicle .body:after{content:"";position:absolute;width:42%;height:52%;left:29%;top:23%;border:2px solid rgba(255,255,255,.55);border-radius:18%}
 .modelToken.flyer .body{width:96%;height:55%;clip-path:polygon(0 48%,38% 25%,48% 0,58% 25%,100% 48%,62% 62%,50% 100%,38% 62%)}
 .modelToken.monster .body{width:88%;height:88%;clip-path:polygon(50% 0,65% 25%,100% 12%,78% 48%,88% 100%,50% 72%,12% 100%,22% 48%,0 12%,35% 25%)}
+.modelToken.bike .body{width:48%;height:94%;border-radius:45%}.modelToken.bike .body:before,.modelToken.bike .body:after{content:"";position:absolute;left:50%;width:92%;height:28%;border:2px solid rgba(255,255,255,.7);border-radius:50%;transform:translateX(-50%)}.modelToken.bike .body:before{top:-12%}.modelToken.bike .body:after{bottom:-12%}
+.modelToken.transport .body{width:96%;height:70%;border-radius:12%;box-shadow:inset 0 0 0 3px rgba(0,0,0,.28)}
+.modelToken.other .body{width:76%;height:76%;transform:rotate(45deg);border-radius:12%}
+.modelToken.destroyed{opacity:.22;filter:grayscale(1)}.modelToken.engaged{filter:drop-shadow(0 0 5px #ff5d4d)}.modelToken.selected{filter:drop-shadow(0 0 6px #f4d35e)}
 .modelToken .facing{position:absolute;left:50%;top:-15%;width:2px;height:23%;background:#fff;transform:translateX(-50%)}
-.modelToken .modelLabel{position:absolute;top:105%;font-size:8px;white-space:nowrap;background:rgba(0,0,0,.7);padding:1px 3px;border-radius:3px;color:#fff}
+.modelToken .modelLabel{display:none;position:absolute;top:105%;font-size:8px;white-space:nowrap;background:rgba(0,0,0,.75);padding:1px 3px;border-radius:3px;color:#fff}.model.selected+.modelToken .modelLabel{display:block}
+.attachedCard{margin-left:16px;border-left:3px solid #d7b85a;background:#24282e}.attachmentLine{font-size:10px;color:#f1d77d;margin:3px 0}.attachSelect{font-size:10px;padding:3px 4px;margin-top:5px;width:100%}.phaseContext{font-weight:800;color:#f0d77c}.builderOnly,.formationOnly{display:none}body[data-context="build"] .builderOnly,body[data-context="formations"] .formationOnly{display:block}body[data-context="build"] .statusSelect,body:not([data-context="formations"]) .attachSelect{display:none}body[data-context="battle"] .deployPanel{display:none}body[data-context="deployment"] .deployPanel,body[data-context="formations"] .deployPanel,body[data-context="setup"] .deployPanel{display:grid}
 .terrainArea:after{position:absolute;left:4px;top:3px;font-size:9px;font-weight:900;letter-spacing:.4px;color:rgba(235,238,228,.75)}
 .terrainArea.large:after{content:"HEAVY"}
 .terrainArea.medium:after,.terrainArea.line:after{content:"LIGHT"}
@@ -133,19 +140,21 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 <div id="app">
 <aside class="panel left">
 <h1>Friendly Army</h1>
-<div class="small">v0.7.0 • live roster</div>
-<div class="rosterMeta" style="margin-top:8px">
+<div class="small">v0.7.1 • <span class="phaseContext">Army Builder</span></div>
+<div class="rosterMeta builderOnly" style="margin-top:8px">
  <label class="small full">Army<select id="friendlyArmy"></select></label>
  <label class="small">Detachment<input id="friendlyDetachment" type="text" placeholder="Detachment"></label>
  <label class="small">Disposition<input id="friendlyDisposition" type="text" placeholder="Disposition"></label>
  <div class="stat full">Army total<br><span id="friendlyPoints" class="pointsTotal">0 pts</span></div>
 </div>
-<h2>Add unit</h2>
-<div class="col sidebarAdd">
+<h2 class="builderOnly">Add unit</h2>
+<div class="col sidebarAdd builderOnly">
  <select id="unitPreset"><option value="">Select army first…</option></select>
  <div id="friendlyUnitInfo" class="small"></div>
  <select id="friendlyRangedWeapon"><option value="">Ranged weapon…</option></select>
+ <div id="friendlyRangedInfo" class="small"></div>
  <select id="friendlyMeleeWeapon"><option value="">Melee weapon…</option></select>
+ <div id="friendlyMeleeInfo" class="small"></div>
  <button id="addSquad" class="primary">Add unit</button>
 </div>
 <h2>Roster</h2>
@@ -194,7 +203,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 </select></label>
 <button id="finishPathBtn">Finish Path</button><button id="clearOverlays">Clear</button>
 <span id="status" class="small">Autosave on</span><span id="viewHint">3D: drag to rotate • wheel to zoom</span>
-<span class="badge">Build v0.7.0</span>
+<span class="badge">Build v0.7.1</span>
 <div style="display:none">
  <button id="selectTool"></button><button id="rulerTool"></button><button id="moveRange"></button><button id="weaponRangeBtn"></button>
  <button id="engagementBtn"></button><button id="deepStrikeBtn"></button><button id="objectivesBtn"></button><button id="coherencyBtn"></button>
@@ -229,11 +238,11 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
    </div>
    <div id="timelineInfo">Rehearsal history active</div>
  </div>
- <div class="dash"><h3>Command Points</h3>
+ <div class="dash commandOnly"><h3>Command Points</h3>
    <label class="small">Friendly <input id="friendlyCP" type="number" value="0" min="0"></label>
    <label class="small">Enemy <input id="enemyCP" type="number" value="0" min="0"></label>
  </div>
- <div class="dash"><h3>Primary Mission</h3>
+ <div class="dash scoreOnly"><h3>Primary Mission</h3>
    <label class="small">Active player
      <select id="activePlayer"><option value="friend">Friendly</option><option value="enemy">Enemy</option></select>
    </label>
@@ -253,14 +262,14 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
    <div class="small">Friendly <span id="friendlyPrimary">0</span> • Enemy <span id="enemyPrimary">0</span></div>
    <div style="margin-top:5px">Total <span id="totalScore" class="scoreBig">0–0</span></div>
  </div>
- <div class="dash"><h3>Friendly Secondaries</h3>
+ <div class="dash scoreOnly"><h3>Friendly Secondaries</h3>
    <div class="scoreRule"><input id="friendlySecondary1" placeholder="Secondary 1"><select id="friendlySecondary1Timing"><option value="end_turn">End Turn</option><option value="end_command">End Command</option><option value="end_round">End Round</option><option value="end_battle">End Battle</option></select></div>
    <div class="row"><label class="small">VP <input id="friendlySecondary1Award" type="number" value="5" min="0"></label><label class="small"><input id="friendlySecondary1Achieved" type="checkbox"> met</label></div>
    <div class="scoreRule"><input id="friendlySecondary2" placeholder="Secondary 2"><select id="friendlySecondary2Timing"><option value="end_turn">End Turn</option><option value="end_command">End Command</option><option value="end_round">End Round</option><option value="end_battle">End Battle</option></select></div>
    <div class="row"><label class="small">VP <input id="friendlySecondary2Award" type="number" value="5" min="0"></label><label class="small"><input id="friendlySecondary2Achieved" type="checkbox"> met</label></div>
    <div class="small">Secondary scored: <span id="friendlySecondaryTotal">0</span></div>
  </div>
- <div class="dash"><h3>Enemy Secondaries</h3>
+ <div class="dash scoreOnly"><h3>Enemy Secondaries</h3>
    <div class="scoreRule"><input id="enemySecondary1" placeholder="Secondary 1"><select id="enemySecondary1Timing"><option value="end_turn">End Turn</option><option value="end_command">End Command</option><option value="end_round">End Round</option><option value="end_battle">End Battle</option></select></div>
    <div class="row"><label class="small">VP <input id="enemySecondary1Award" type="number" value="5" min="0"></label><label class="small"><input id="enemySecondary1Achieved" type="checkbox"> met</label></div>
    <div class="scoreRule"><input id="enemySecondary2" placeholder="Secondary 2"><select id="enemySecondary2Timing"><option value="end_turn">End Turn</option><option value="end_command">End Command</option><option value="end_round">End Round</option><option value="end_battle">End Battle</option></select></div>
@@ -272,19 +281,21 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 
 <aside class="panel right">
 <h1>Enemy Army</h1>
-<div class="small">v0.7.0 • live roster</div>
-<div class="rosterMeta" style="margin-top:8px">
+<div class="small">v0.7.1 • <span class="phaseContext">Army Builder</span></div>
+<div class="rosterMeta builderOnly" style="margin-top:8px">
  <label class="small full">Army<select id="enemyArmy"></select></label>
  <label class="small">Detachment<input id="enemyDetachment" type="text" placeholder="Detachment"></label>
  <label class="small">Disposition<input id="enemyDisposition" type="text" placeholder="Disposition"></label>
  <div class="stat full">Army total<br><span id="enemyPoints" class="pointsTotal">0 pts</span></div>
 </div>
-<h2>Add unit</h2>
-<div class="col sidebarAdd">
+<h2 class="builderOnly">Add unit</h2>
+<div class="col sidebarAdd builderOnly">
  <select id="enemyUnitPreset"><option value="">Select army first…</option></select>
  <div id="enemyUnitInfo" class="small"></div>
  <select id="enemyRangedWeapon"><option value="">Ranged weapon…</option></select>
+ <div id="enemyRangedInfo" class="small"></div>
  <select id="enemyMeleeWeapon"><option value="">Melee weapon…</option></select>
+ <div id="enemyMeleeInfo" class="small"></div>
  <button id="addEnemySquad" class="primary">Add unit</button>
 </div>
 <h2>Roster</h2>
@@ -312,7 +323,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 const BW=60,BH=44,PPI=14,ENGAGEMENT=2,COHERENCY_NEAR=2,COHERENCY_ALL=9,OBJ_RANGE=3;
 const phases=["Command","Movement","Shooting","Charge","Fight"];
 const DEPLOY_STAGES=["Setup","Declare Battle Formations","Deployment","Redeploy","Determine First Turn","Pre-battle","Command"];
-const DEPLOY_STATUS={board:"Deploy on Board",strategic:"Strategic Reserve",reserve:"Other Reserve / Deep Strike",embarked:"Embarked",attached:"Attached"};
+const DEPLOY_STATUS={board:"Deploy on Board",strategic:"Strategic Reserve",reserve:"Other Reserve / Deep Strike",embarked:"Embarked"};
 const board=document.getElementById("board");board.style.width=BW*PPI+"px";board.style.height=BH*PPI+"px";
 let state={turn:1,phase:0,units:[],log:[],stats:[],customTerrain:[],terrainPreset:"layoutA"},selectedUnitId=null,selectedModelId=null,tool="select",drag=null,rulerStart=null,chargeRoll=null,pathPoints=[];
 const $=id=>document.getElementById(id);
@@ -320,7 +331,7 @@ const uid=()=>crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).s
 const mm2in=mm=>mm/25.4;const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));const dxy=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 function modelR(m){return mm2in(m.base)/2}function alive(u){return u.models.filter(m=>m.alive)}
 function edgeDist(m1,m2){return Math.max(0,dxy(m1,m2)-modelR(m1)-modelR(m2))}
-function unitEdgeDistance(a,b){let best=Infinity;alive(a).forEach(x=>alive(b).forEach(y=>best=Math.min(best,edgeDist(x,y))));return best}
+function unitEdgeDistance(a,b){let best=Infinity;attachedUnitMembers(a).forEach(ua=>alive(ua).forEach(x=>attachedUnitMembers(b).forEach(ub=>alive(ub).forEach(y=>best=Math.min(best,edgeDist(x,y))))));return best}
 function woundOn(S,T){if(S>=2*T)return 2;if(S>T)return 3;if(S===T)return 4;if(S*2<=T)return 6;return 5}
 function saveOn(sv,apv){return clamp(sv-apv,2,7)}
 function dice(){return 1+Math.floor(Math.random()*6)}
@@ -328,8 +339,9 @@ function pool(n,target,reroll=false){let rolls=[],ok=0;for(let i=0;i<n;i++){let 
 function addLog(s){state.log.unshift(`[T${state.turn} ${phases[state.phase]}] ${s}`)}
 function squad(name,side,x,y,count,base,wpm,move,T,sv,oc,points=0,faction="Custom",rangedWeapon=null,meleeWeapon=null){
  let models=[];const spacing=mm2in(base)+.35;for(let i=0;i<count;i++){let col=i%5,row=Math.floor(i/5);models.push({id:uid(),x:x+col*spacing,y:y+row*spacing,base,wounds:wpm,maxWounds:wpm,alive:true})}
- return{id:uid(),name,side,move,T,sv,oc,points,faction,rangedWeapon,meleeWeapon,models,deploymentStatus:"board",deploymentComplete:false,arrivalPending:false};
+ return{id:uid(),name,side,move,T,sv,oc,points,faction,rangedWeapon,meleeWeapon,models,deploymentStatus:"board",deploymentComplete:false,arrivalPending:false,isLeader:isLeaderName(name),attachedTo:null,maxLeaders:2};
 }
+function isLeaderName(name){return /captain|chapter master|lieutenant|chaplain|librarian|apothecary|techmarine|ancient|castellan|marshal|vulkan|crowe|farseer|warboss|overlord|character|daemon prince/i.test(name||"")}
 function demo(){
  state={turn:1,phase:0,log:[],stats:[],customTerrain:[],terrainPreset:"layoutA",units:[
   squad("Infernus Squad","friend",10,32,10,32,2,6,4,3,1),
@@ -343,9 +355,21 @@ function demo(){
 function ensureDeployment(){
  if(!state.deployment)state.deployment={stage:0,preset:"long",nextSide:"friend",firstTurn:null};
  if(state.deployment.stage===undefined)state.deployment.stage=0;
- state.units.forEach(u=>{if(!u.deploymentStatus)u.deploymentStatus="board";if(u.deploymentComplete===undefined)u.deploymentComplete=false;if(u.arrivalPending===undefined)u.arrivalPending=false});
+ state.units.forEach(u=>{if(!u.deploymentStatus||u.deploymentStatus==="attached")u.deploymentStatus="board";if(u.deploymentComplete===undefined)u.deploymentComplete=false;if(u.arrivalPending===undefined)u.arrivalPending=false;if(u.isLeader===undefined)u.isLeader=isLeaderName(u.name);if(u.attachedTo===undefined)u.attachedTo=null;if(u.maxLeaders===undefined)u.maxLeaders=2;if(u.attachedTo&&!state.units.some(x=>x.id===u.attachedTo))u.attachedTo=null});
 }
-function isOnBoard(u){return u.deploymentStatus==="board"}
+function bodyguardFor(u){return u?.attachedTo?state.units.find(x=>x.id===u.attachedTo)||null:null}
+function attachedLeaders(u){return state.units.filter(x=>x.attachedTo===u.id)}
+function attachedUnitMembers(u){const root=bodyguardFor(u)||u;return [root,...attachedLeaders(root)]}
+function isOnBoard(u){const root=bodyguardFor(u)||u;return root.deploymentStatus==="board"}
+function setAttachment(leaderId,bodyguardId){
+ const leader=state.units.find(x=>x.id===leaderId);if(!leader||!leader.isLeader)return;
+ const target=bodyguardId?state.units.find(x=>x.id===bodyguardId):null;
+ if(target&&(target.side!==leader.side||target.isLeader||attachedLeaders(target).length>=(target.maxLeaders||1))){alert("That unit cannot accept another Leader.");return}
+ pushHistory(`Before changing ${leader.name} attachment`);leader.attachedTo=target?.id||null;
+ if(target){leader.deploymentStatus=target.deploymentStatus;leader.deploymentComplete=target.deploymentComplete;addLog(`${leader.name} attached to ${target.name}`)}else addLog(`${leader.name} detached`);
+ pushHistory(`${leader.name} attachment changed`);render()
+}
+function syncAttachedState(root){attachedLeaders(root).forEach(l=>{l.deploymentStatus=root.deploymentStatus;l.deploymentComplete=root.deploymentComplete;l.arrivalPending=root.arrivalPending})}
 function zoneContains(side,m,preset=state.deployment.preset){
  const r=modelR(m),x=m.x,y=m.y;
  if(preset==="long")return side==="friend"?y-r>=BH-12:y+r<=12;
@@ -369,21 +393,21 @@ function renderDeploymentZones(){
  else{add("zoneOverlay zoneEnemy",0,0,BW-6,15);add("zoneOverlay zoneFriend",8,BH-13,BW-8,13)}
 }
 function setDeploymentStatus(id,status){
- const u=state.units.find(x=>x.id===id);if(!u)return;pushHistory(`Before changing ${u.name} deployment status`);u.deploymentStatus=status;u.deploymentComplete=false;u.arrivalPending=false;addLog(`${u.name}: ${DEPLOY_STATUS[status]}`);pushHistory(`${u.name}: ${DEPLOY_STATUS[status]}`);render()
+ let u=state.units.find(x=>x.id===id);if(!u)return;u=bodyguardFor(u)||u;pushHistory(`Before changing ${u.name} deployment status`);u.deploymentStatus=status;u.deploymentComplete=false;u.arrivalPending=false;syncAttachedState(u);addLog(`${u.name}${attachedLeaders(u).length?" attached unit":""}: ${DEPLOY_STATUS[status]}`);pushHistory(`${u.name}: ${DEPLOY_STATUS[status]}`);render()
 }
 function beginReserveArrival(id){
- const u=state.units.find(x=>x.id===id);if(!u)return;pushHistory(`Before ${u.name} reserve arrival`);u.deploymentStatus="board";u.arrivalPending=true;u.deploymentComplete=false;selectedUnitId=u.id;selectedModelId=alive(u)[0]?.id||null;addLog(`${u.name} began reserve arrival; every base must finish >8.00\" from enemy models`);pushHistory(`${u.name} reserve arrival started`);render();showDS()
+ const u=state.units.find(x=>x.id===id);if(!u)return;pushHistory(`Before ${u.name} reserve arrival`);u.deploymentStatus="board";u.arrivalPending=true;u.deploymentComplete=false;syncAttachedState(u);selectedUnitId=u.id;selectedModelId=alive(u)[0]?.id||null;addLog(`${u.name}${attachedLeaders(u).length?" Attached Unit":""} began reserve arrival; every base must finish >8.00\" from enemy models`);pushHistory(`${u.name} reserve arrival started`);render();showDS()
 }
 function confirmSelectedDeployment(){
  ensureDeployment();const u=state.units.find(x=>x.id===selectedUnitId);if(!u||!isOnBoard(u)){alert("Select an on-board unit first.");return}
- if(u.arrivalPending){if(!alive(u).every(m=>arrivalLegal(u,m,m))){alert('Illegal reserve arrival: every base must finish more than 8.00\" from enemy models.');return}pushHistory(`Before confirming ${u.name} arrival`);u.arrivalPending=false;u.deploymentComplete=true;addLog(`${u.name} reserve arrival confirmed`);pushHistory(`${u.name} reserve arrival confirmed`);render();return}
- if(state.deployment.stage===2||state.deployment.stage===3){if(state.deployment.stage===2&&u.side!==state.deployment.nextSide){alert(`${state.deployment.nextSide==="friend"?"Friendly":"Enemy"} deploys next.`);return}if(!unitInZone(u)){alert("Illegal deployment: every base must be wholly within its deployment zone.");return}pushHistory(`Before confirming ${u.name} deployment`);u.deploymentComplete=true;if(state.deployment.stage===2)state.deployment.nextSide=u.side==="friend"?"enemy":"friend";addLog(`${u.name} ${state.deployment.stage===3?"redeployment":"deployment"} confirmed`);pushHistory(`${u.name} deployment confirmed`);render()}
+ if(u.arrivalPending){const root=bodyguardFor(u)||u;if(!attachedUnitMembers(root).every(unit=>alive(unit).every(m=>arrivalLegal(unit,m,m)))){alert('Illegal reserve arrival: every base in the Attached Unit must finish more than 8.00\" from enemy models.');return}pushHistory(`Before confirming ${root.name} arrival`);root.arrivalPending=false;root.deploymentComplete=true;syncAttachedState(root);addLog(`${root.name} reserve arrival confirmed`);pushHistory(`${root.name} reserve arrival confirmed`);render();return}
+ if(state.deployment.stage===2||state.deployment.stage===3){const root=bodyguardFor(u)||u;if(state.deployment.stage===2&&root.side!==state.deployment.nextSide){alert(`${state.deployment.nextSide==="friend"?"Friendly":"Enemy"} deploys next.`);return}if(!attachedUnitMembers(root).every(unitInZone)){alert("Illegal deployment: every base in the Attached Unit must be wholly within its deployment zone.");return}pushHistory(`Before confirming ${root.name} deployment`);root.deploymentComplete=true;syncAttachedState(root);if(state.deployment.stage===2)state.deployment.nextSide=root.side==="friend"?"enemy":"friend";addLog(`${root.name}${attachedLeaders(root).length?" Attached Unit":""} ${state.deployment.stage===3?"redeployment":"deployment"} confirmed`);pushHistory(`${root.name} deployment confirmed`);render()}
 }
 function renderDeploymentPanel(){
  ensureDeployment();$("deploymentStages").innerHTML=DEPLOY_STAGES.map((s,i)=>`<button class="deployStage ${i===state.deployment.stage?"current":i<state.deployment.stage?"done":""}" data-stage="${i}">${s}</button>`).join("");
  $("deploymentStages").querySelectorAll("[data-stage]").forEach(b=>b.onclick=()=>{pushHistory("Before deployment stage change");state.deployment.stage=+b.dataset.stage;if(state.deployment.stage===6){state.phase=0;state.turn=1}pushHistory(`Deployment stage: ${DEPLOY_STAGES[state.deployment.stage]}`);render()});
  $("deploymentPreset").value=state.deployment.preset;$("firstTurnSelect").value=state.deployment.firstTurn||"";$("deploymentTurn").textContent=state.units.some(u=>u.arrivalPending)?'Reserve arrival active • finish >8.00" from enemies':state.deployment.stage===2?`${state.deployment.nextSide==="friend"?"Friendly":"Enemy"} deploys next • bases must be wholly inside the shaded zone`:"Choose each unit's formation status in its roster card.";
- ["friend","enemy"].forEach(side=>{const units=state.units.filter(u=>u.side===side),sum=k=>units.filter(u=>u.deploymentStatus===k).reduce((n,u)=>n+(+u.points||0),0);$(side==="friend"?"friendlyDeployTotals":"enemyDeployTotals").innerHTML=`<span>On Board <b>${sum("board")} pts</b></span><span>Strategic <b>${sum("strategic")} pts</b></span><span>Other Reserve <b>${sum("reserve")} pts</b></span><span>Embarked <b>${sum("embarked")} pts</b></span>`;const tray=$(side==="friend"?"friendlyReserveTray":"enemyReserveTray");const held=units.filter(u=>["strategic","reserve","embarked","attached"].includes(u.deploymentStatus));tray.innerHTML=held.length?held.map(u=>`<div class="reserveItem"><span>${u.name} <span class="deployBadge">${DEPLOY_STATUS[u.deploymentStatus]}</span></span>${["strategic","reserve"].includes(u.deploymentStatus)?`<button data-arrive="${u.id}">Arrive</button>`:""}</div>`).join(""):"<span class='small'>Empty</span>";tray.querySelectorAll("[data-arrive]").forEach(b=>b.onclick=()=>beginReserveArrival(b.dataset.arrive))});
+ ["friend","enemy"].forEach(side=>{const units=state.units.filter(u=>u.side===side),sum=k=>units.filter(u=>u.deploymentStatus===k).reduce((n,u)=>n+(+u.points||0),0);$(side==="friend"?"friendlyDeployTotals":"enemyDeployTotals").innerHTML=`<span>On Board <b>${sum("board")} pts</b></span><span>Strategic <b>${sum("strategic")} pts</b></span><span>Other Reserve <b>${sum("reserve")} pts</b></span><span>Embarked <b>${sum("embarked")} pts</b></span>`;const tray=$(side==="friend"?"friendlyReserveTray":"enemyReserveTray");const held=units.filter(u=>!u.attachedTo&&["strategic","reserve","embarked"].includes(u.deploymentStatus));tray.innerHTML=held.length?held.map(u=>`<div class="reserveItem"><span>${u.name}${attachedLeaders(u).length?` + ${attachedLeaders(u).map(l=>l.name).join(", ")}`:""} <span class="deployBadge">${DEPLOY_STATUS[u.deploymentStatus]}</span></span>${["strategic","reserve"].includes(u.deploymentStatus)?`<button data-arrive="${u.id}">Arrive</button>`:""}</div>`).join(""):"<span class='small'>Empty</span>";tray.querySelectorAll("[data-arrive]").forEach(b=>b.onclick=()=>beginReserveArrival(b.dataset.arrive))});
 }
 const TERRAIN_LAYOUTS={
  layoutA:[
@@ -712,21 +736,25 @@ let view3d={rx:56,rz:0,zoom:.86,drag:false,lastX:0,lastY:0};
 function modelVisualType(u){
  const n=(u?.name||"").toLowerCase();
  if(/stormraven|stormhawk|stormtalon|aircraft|flyer/.test(n))return"flyer";
- if(/land raider|redeemer|predator|rhino|razorback|impulsor|repulsor|gladiator|vindicator|tank|speeder/.test(n))return"vehicle";
+ if(/rhino|razorback|impulsor|transport|wave serpent|devilfish|trukk/.test(n))return"transport";
+ if(/land raider|redeemer|predator|repulsor|gladiator|vindicator|tank|speeder/.test(n))return"vehicle";
  if(/dreadnought|redemptor|brutalis|ballistus|dreadknight|gmndk|\bndk\b/.test(n))return"dreadnought";
  if(/daemon prince|carnifex|tyrant|monster|greater daemon/.test(n))return"monster";
+ if(/bike|biker|outrider|cavalry|mounted|rider/.test(n))return"bike";
+ if(/jump|swooping hawk|seraphim|raptor|warp talon/.test(n))return"jump";
  if(/terminator|paladin/.test(n))return"terminator";
  if(/gravis|eradicator|aggressor|heavy intercessor/.test(n))return"gravis";
- if(/captain|chaplain|librarian|lieutenant|vulkan|crowe|techmarine|apothecary/.test(n))return"character";
+ if(u?.isLeader||isLeaderName(n))return"character";
+ if(/servitor|drone|swarm|spore|fortification/.test(n))return"other";
  return"infantry";
 }
 function modelTokenFor(u,m){
  const e=document.createElement("div"),type=modelVisualType(u),size=Math.max(14,mm2in(m.base)*PPI*1.05);
- e.className=`modelToken ${type}`;
+ const engaged=m.alive&&state.units.some(t=>t.side!==u.side&&isOnBoard(t)&&alive(t).some(n=>edgeDist(m,n)<=ENGAGEMENT));e.className=`modelToken ${type} ${(u.id===selectedUnitId&&m.id===selectedModelId)?"selected":""} ${m.alive?"":"destroyed"} ${engaged?"engaged":""}`;
  Object.assign(e.style,{left:m.x*PPI+"px",top:m.y*PPI+"px",width:size+"px",height:size+"px",color:u.side==="friend"?"#4da3ff":"#ff5d5d"});
  e.innerHTML=`<div class="body"></div><div class="facing"></div><div class="modelLabel">${u.name}</div>`;return e
 }
-function renderModelTokens(){state.units.filter(isOnBoard).forEach(u=>alive(u).forEach(m=>board.appendChild(modelTokenFor(u,m))))}
+function renderModelTokens(){state.units.filter(isOnBoard).forEach(u=>u.models.forEach(m=>board.appendChild(modelTokenFor(u,m))))}
 function apply3DView(){
  const wrap=$("boardWrap"),b=$("board"),mode=$("viewModeSelect")?.value||"top";
  board.querySelectorAll(".model").forEach(e=>e.style.opacity=mode==="3d"?"0.12":"1");
@@ -741,38 +769,44 @@ function setup3DControls(){
  wrap.addEventListener("wheel",e=>{if($("viewModeSelect").value!=="3d")return;e.preventDefault();view3d.zoom=Math.max(.55,Math.min(1.25,view3d.zoom-e.deltaY*.0007));apply3DView()},{passive:false});
 }
 function render(){
- ensureDeployment();board.innerHTML="";staticBoard();renderDeploymentZones();
- state.units.filter(isOnBoard).forEach(u=>alive(u).forEach((m,i)=>{
-   let e=document.createElement("div");e.className=`model ${u.side} ${(u.id===selectedUnitId&&m.id===selectedModelId)?"selected":""}`;
+ ensureDeployment();const context=state.deployment.stage===0?"build":state.deployment.stage===1?"formations":state.deployment.stage<6?"deployment":"battle";document.body.dataset.context=context;document.body.dataset.phase=phases[state.phase];document.querySelectorAll(".phaseContext").forEach(e=>e.textContent=context==="build"?"Army Builder":context==="formations"?"Declare Formations":context==="deployment"?DEPLOY_STAGES[state.deployment.stage]:phases[state.phase]);board.innerHTML="";staticBoard();renderDeploymentZones();
+ state.units.filter(isOnBoard).forEach(u=>u.models.forEach((m,i)=>{
+   let e=document.createElement("div");const engaged=m.alive&&state.units.some(t=>t.side!==u.side&&isOnBoard(t)&&alive(t).some(n=>edgeDist(m,n)<=ENGAGEMENT));e.className=`model ${u.side} ${(u.id===selectedUnitId&&m.id===selectedModelId)?"selected":""} ${m.alive?"":"destroyed"} ${engaged?"engaged":""}`;
    e.dataset.unit=u.id;e.dataset.model=m.id;let dd=Math.max(16,mm2in(m.base)*PPI);Object.assign(e.style,{left:m.x*PPI+"px",top:m.y*PPI+"px",width:dd+"px",height:dd+"px"});e.textContent=alive(u).length===1?u.name.split(" ").map(s=>s[0]).join("").slice(0,3):String(i+1);e.title=`${u.name} model ${i+1} • ${m.wounds}/${m.maxWounds}W`;board.appendChild(e)
  }));
- if($("viewModeSelect")?.value==="3d")renderModelTokens();
+ renderModelTokens();
  apply3DView();
  renderList();renderDetail();renderPhase();renderLog();renderRulesPanel();renderDeploymentPanel();persist()
 }
 function renderList(){
  const friendly=$("friendlyUnitList"),enemy=$("enemyUnitList");friendly.innerHTML="";enemy.innerHTML="";
- state.units.forEach(u=>{
+ const ordered=[...state.units.filter(u=>!u.attachedTo),...state.units.filter(u=>u.attachedTo)];
+ ordered.forEach(u=>{
   const living=alive(u);
   const woundsNow=living.reduce((s,m)=>s+m.wounds,0);
   const woundsMax=u.models.reduce((s,m)=>s+m.maxWounds,0);
-  const e=document.createElement("div");e.className="rosterCard "+(u.id===selectedUnitId?"selected":"");
+  const e=document.createElement("div");e.className=`rosterCard ${u.id===selectedUnitId?"selected":""} ${u.attachedTo?"attachedCard":""}`;
   const pips=u.models.map((m,i)=>{
     const cls=!m.alive?"dead":m.wounds<m.maxWounds?"damaged":"";
     return `<span class="woundPip ${cls}" title="Model ${i+1}: ${m.alive?m.wounds+"/"+m.maxWounds+" wounds":"destroyed"}">${m.alive?m.wounds:"X"}</span>`;
   }).join("");
-  e.innerHTML=`<div class="rosterHead"><b>${u.name}</b><span>${u.points||0} pts</span></div>
+  const root=bodyguardFor(u)||u,leaders=attachedLeaders(u),eligible=state.units.filter(x=>x.side===u.side&&!x.isLeader&&x.id!==u.id&&attachedLeaders(x).length<(x.maxLeaders||1));
+  const attachControl=u.isLeader?`<label class="formationOnly small">Attach to Unit<select class="attachSelect" data-attach="${u.id}"><option value="">Not attached</option>${eligible.concat(bodyguardFor(u)||[]).filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i).map(x=>`<option value="${x.id}" ${u.attachedTo===x.id?"selected":""}>${x.name}</option>`).join("")}</select></label>`:"";
+  e.innerHTML=`<div class="rosterHead"><b>${u.name}</b><span class="builderOnly">${u.points||0} pts</span></div>
+   ${u.attachedTo?`<div class="attachmentLine">↳ Leader attached to ${root.name}</div>`:leaders.length?`<div class="attachmentLine">Attached Unit • ${leaders.map(l=>l.name).join(" + ")}</div>`:""}
    <div class="rosterSummary small"><span>${living.length}/${u.models.length} models</span><span>${woundsNow}/${woundsMax} wounds</span></div>
    <div class="small">T${u.T} • Sv${u.sv}+ • OC${u.oc}</div>
-   <span class="deployBadge">${DEPLOY_STATUS[u.deploymentStatus||"board"]}${u.deploymentComplete?" ✓":""}</span>
+   <span class="deployBadge">${u.attachedTo?`ATTACHED → ${root.name}`:DEPLOY_STATUS[u.deploymentStatus||"board"]}${u.deploymentComplete?" ✓":""}</span>
    <select class="statusSelect" data-status="${u.id}">${Object.entries(DEPLOY_STATUS).map(([k,v])=>`<option value="${k}" ${k===(u.deploymentStatus||"board")?"selected":""}>${v}</option>`).join("")}</select>
+   ${attachControl}
    <div class="woundTrack">${pips}</div>
-   <div class="rosterActions"><button data-select="${u.id}">Select</button><button data-remove="${u.id}" class="danger">Remove</button></div>`;
+   <div class="rosterActions"><button data-select="${u.id}">Select</button><button data-remove="${u.id}" class="danger builderOnly">Remove</button></div>`;
   (u.side==="friend"?friendly:enemy).appendChild(e);
  });
  document.querySelectorAll("[data-select]").forEach(b=>b.onclick=()=>{const u=state.units.find(x=>x.id===b.dataset.select);selectedUnitId=u.id;selectedModelId=alive(u)[0]?.id||u.models[0]?.id||null;render()});
  document.querySelectorAll("[data-status]").forEach(s=>s.onchange=()=>setDeploymentStatus(s.dataset.status,s.value));
- document.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>{pushHistory("Remove unit");state.units=state.units.filter(x=>x.id!==b.dataset.remove);if(selectedUnitId===b.dataset.remove){selectedUnitId=null;selectedModelId=null}render()});
+ document.querySelectorAll("[data-attach]").forEach(s=>s.onchange=()=>setAttachment(s.dataset.attach,s.value));
+ document.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>{pushHistory("Remove unit");state.units.forEach(x=>{if(x.attachedTo===b.dataset.remove)x.attachedTo=null});state.units=state.units.filter(x=>x.id!==b.dataset.remove);if(selectedUnitId===b.dataset.remove){selectedUnitId=null;selectedModelId=null}render()});
  $("friendlyPoints").textContent=`${state.units.filter(u=>u.side==="friend").reduce((s,u)=>s+(u.points||0),0)} pts`;
  $("enemyPoints").textContent=`${state.units.filter(u=>u.side==="enemy").reduce((s,u)=>s+(u.points||0),0)} pts`;
 }
@@ -781,7 +815,7 @@ function renderDetail(){
  let a=alive(u);$("unitTitle").textContent=u.name;$("unitMeta").textContent=u.side==="friend"?"Friendly unit":"Enemy unit";$("selectedLoadout").innerHTML=`${u.rangedWeapon?`Ranged: <b>${u.rangedWeapon.name}</b><br>`:""}${u.meleeWeapon?`Melee: <b>${u.meleeWeapon.name}</b>`:"No saved melee weapon"}`;$("mStat").textContent=u.move+'"';$("tStat").textContent=u.T;$("svStat").textContent=u.sv+"+";$("ocStat").textContent=u.oc;$("aliveStat").textContent=`${a.length}/${u.models.length}`;$("woundStat").textContent=a.reduce((s,m)=>s+m.wounds,0);
  $("modelList").innerHTML="";u.models.forEach((m,i)=>{let row=document.createElement("div");row.className="modelrow";row.innerHTML=`<span class="small">Model ${i+1} • ${m.alive?m.wounds+"/"+m.maxWounds+"W":"destroyed"}</span><button data-sel="${m.id}">Select</button><button data-kill="${m.id}" class="danger">${m.alive?"Remove":"Restore"}</button>`;$("modelList").appendChild(row)});
  $("modelList").querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{selectedModelId=b.dataset.sel;render()});$("modelList").querySelectorAll("[data-kill]").forEach(b=>b.onclick=()=>toggleCasualty(u,b.dataset.kill));
- [chargeTarget,shootTarget].forEach(sel=>{sel.innerHTML="";state.units.filter(x=>x.side!==u.side&&isOnBoard(x)&&alive(x).length).forEach(t=>{let o=document.createElement("option");o.value=t.id;o.textContent=`${t.name} (${unitEdgeDistance(u,t).toFixed(2)}" edge)`;sel.appendChild(o)})});previewAttack()
+ [chargeTarget,shootTarget].forEach(sel=>{sel.innerHTML="";state.units.filter(x=>x.side!==u.side&&!x.attachedTo&&isOnBoard(x)&&attachedUnitMembers(x).some(y=>alive(y).length)).forEach(t=>{let o=document.createElement("option");o.value=t.id;o.textContent=`${t.name}${attachedLeaders(t).length?" Attached Unit":""} (${unitEdgeDistance(u,t).toFixed(2)}" edge)`;sel.appendChild(o)})});previewAttack()
 }
 function toggleCasualty(u,id){pushHistory("Before casualty change");let m=u.models.find(x=>x.id===id);m.alive=!m.alive;if(m.alive){m.wounds=m.maxWounds;addLog(`${u.name} model restored`)}else{m.wounds=0;addLog(`${u.name} model removed as a casualty`)}render()}
 function renderPhase(){expireEffects();$("phase").textContent=`T${state.turn} ${phases[state.phase]}`;updateTotalScore()}
