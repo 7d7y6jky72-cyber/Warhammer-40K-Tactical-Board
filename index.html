@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Warhammer 40K Tactical Board v0.7.1</title>
+<title>Warhammer 40K Tactical Board v0.7.2</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#15181d">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,7 +18,7 @@
 h1{font-size:18px;margin:0 0 5px}h2{font-size:14px;margin:15px 0 7px}.small{font-size:11px;color:var(--muted)}.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:7px}
 button,input,select{background:var(--panel2);border:1px solid #485260;color:var(--text);padding:7px 8px;border-radius:6px}button{cursor:pointer}.primary{background:#3e536c}.danger{border-color:#7e4141}.active{outline:2px solid var(--accent)}
 input[type=number]{width:66px}.unitCard{padding:8px;border:1px solid #3e4651;border-radius:7px;background:#262b32;margin-bottom:6px;cursor:pointer}.unitCard.selected{border-color:var(--accent)}
-#center{display:flex;flex-direction:column;min-width:0;min-height:0;position:relative;overflow:hidden}#toolbar{flex:0 0 auto;min-height:56px;background:#1b1f25;border-bottom:1px solid #343b45;padding:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#center{display:flex;flex-direction:column;min-width:0;min-height:0;position:relative;overflow:hidden}#toolbar{flex:0 0 auto;min-height:48px;background:#1b1f25;border-bottom:1px solid #343b45;padding:6px 8px;display:flex;gap:6px;align-items:center;flex-wrap:nowrap;position:relative;z-index:110;overflow:visible}
 #boardWrap{flex:1 1 auto;min-height:0;overflow:auto;padding:14px;display:flex;align-items:center;justify-content:center}#board{position:relative;flex:0 0 auto;background:#343c33;border:2px solid #89947d;box-shadow:0 12px 30px #0008;touch-action:none;user-select:none}
 .gridV,.gridH{position:absolute;background:#ffffff10;pointer-events:none}.terrain{position:absolute;background:#51565b;border:2px solid #7a8086;border-radius:4px;opacity:.92}.terrain.blocking{background:#494d51;border-color:#9b6c55}
 .objective{position:absolute;border:1px solid #f4d35e99;border-radius:50%;background:radial-gradient(circle,#f4d35e32 0 12%,#f4d35e10 13% 68%,transparent 69%);box-shadow:inset 0 0 0 1px #0008;pointer-events:none;z-index:4}.objective::before{content:"";position:absolute;left:50%;top:50%;width:10px;height:10px;border-radius:50%;transform:translate(-50%,-50%);background:var(--gold);box-shadow:0 0 10px #f4d35e}.objective::after{content:"OBJ";position:absolute;left:50%;top:50%;transform:translate(-50%,10px);font-size:8px;color:#fff3ad;font-weight:900}
@@ -46,7 +46,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 .terrainFeature.light{border:3px solid #8b7852;background:rgba(139,120,82,.14)}
 .terrainLegend{font-size:11px;color:var(--muted);line-height:1.35}
 
-#toolbar select{width:auto;min-width:145px}
+#toolbar select{width:100%;min-width:180px}.toolMenu{position:relative}.toolMenu>summary{list-style:none;background:#29303a;border:1px solid #485260;border-radius:6px;padding:7px 10px;cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap}.toolMenu>summary::-webkit-details-marker{display:none}.toolMenu>summary:after{content:" ▾";color:var(--muted)}.toolMenu[open]>summary{outline:2px solid var(--accent)}.toolPopover{position:absolute;left:0;top:calc(100% + 5px);min-width:230px;max-width:min(360px,80vw);padding:9px;background:#20242bf8;border:1px solid #4b5664;border-radius:8px;box-shadow:0 12px 28px #000b;display:flex;flex-direction:column;gap:7px;z-index:150}.toolPopover .row{flex-wrap:wrap}.toolbarSpacer{flex:1}.toolbarStatus{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px}.quickPhase{display:flex;align-items:center;gap:4px}.quickPhase button{padding:6px 9px}.deployPanel{display:none!important}.deployPanel.open{display:grid!important}.deployPanel{position:absolute;left:8px;right:8px;top:50px;z-index:105;box-shadow:0 15px 35px #000c;border:1px solid #46515f;border-radius:8px}.dashboardCompact{min-height:48px!important;max-height:48px!important;grid-template-columns:minmax(260px,1fr)!important}.dashboardCompact .dash:not(:first-child){display:none}.dashboardCompact .dash:first-child{display:flex;gap:10px;align-items:center;padding:5px 8px}.dashboardCompact .dash:first-child h3,.dashboardCompact #timelineInfo{display:none}.dashboardCompact .scoreBig{font-size:16px}.dashboardCompact .timelineControls{margin-top:0!important}.dashboardCompact .row{flex-wrap:nowrap}.panelToggle{padding:6px 9px}
 .rosterMeta{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .rosterMeta .full{grid-column:1/-1}
 .rosterStack{display:flex;flex-direction:column;gap:6px;margin-top:6px}
@@ -68,6 +68,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 .sidebarAdd select{width:100%}
 @media(max-width:760px){
  #battleDashboard{grid-template-columns:1fr 1fr}
+ #toolbar{flex-wrap:wrap;min-height:92px;align-content:center}.toolbarStatus,.toolbarSpacer,.badge{display:none}.toolPopover{position:fixed;left:8px!important;right:8px!important;top:100px;max-width:none}.quickPhase{order:10;width:100%;justify-content:center}.deployPanel{top:94px}.dashboardCompact{grid-template-columns:1fr!important}.dashboardCompact .dash:first-child{overflow-x:auto}
 }
 
 #viewModeSelect{min-width:125px}
@@ -94,6 +95,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 .modelToken .facing{position:absolute;left:50%;top:-15%;width:2px;height:23%;background:#fff;transform:translateX(-50%)}
 .modelToken .modelLabel{display:none;position:absolute;top:105%;font-size:8px;white-space:nowrap;background:rgba(0,0,0,.75);padding:1px 3px;border-radius:3px;color:#fff}.model.selected+.modelToken .modelLabel{display:block}
 .attachedCard{margin-left:16px;border-left:3px solid #d7b85a;background:#24282e}.attachmentLine{font-size:10px;color:#f1d77d;margin:3px 0}.attachSelect{font-size:10px;padding:3px 4px;margin-top:5px;width:100%}.phaseContext{font-weight:800;color:#f0d77c}.builderOnly,.formationOnly{display:none}body[data-context="build"] .builderOnly,body[data-context="formations"] .formationOnly{display:block}body[data-context="build"] .statusSelect,body:not([data-context="formations"]) .attachSelect{display:none}body[data-context="battle"] .deployPanel{display:none}body[data-context="deployment"] .deployPanel,body[data-context="formations"] .deployPanel,body[data-context="setup"] .deployPanel{display:grid}
+.sideMenu{margin-top:9px;border:1px solid #3d4652;border-radius:7px;background:#242a32}.sideMenu>summary{cursor:pointer;padding:8px;font-size:12px;font-weight:800}.sideMenu>div{padding:0 8px 8px}.sideMenu h2{margin-top:10px}
 .terrainArea:after{position:absolute;left:4px;top:3px;font-size:9px;font-weight:900;letter-spacing:.4px;color:rgba(235,238,228,.75)}
 .terrainArea.large:after{content:"HEAVY"}
 .terrainArea.medium:after,.terrainArea.line:after{content:"LIGHT"}
@@ -140,15 +142,16 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 <div id="app">
 <aside class="panel left">
 <h1>Friendly Army</h1>
-<div class="small">v0.7.1 • <span class="phaseContext">Army Builder</span></div>
-<div class="rosterMeta builderOnly" style="margin-top:8px">
+<div class="small">v0.7.2 • <span class="phaseContext">Army Builder</span></div>
+<details class="sideMenu builderOnly"><summary>Army setup &amp; add units</summary><div>
+<div class="rosterMeta" style="margin-top:8px">
  <label class="small full">Army<select id="friendlyArmy"></select></label>
  <label class="small">Detachment<input id="friendlyDetachment" type="text" placeholder="Detachment"></label>
  <label class="small">Disposition<input id="friendlyDisposition" type="text" placeholder="Disposition"></label>
  <div class="stat full">Army total<br><span id="friendlyPoints" class="pointsTotal">0 pts</span></div>
 </div>
-<h2 class="builderOnly">Add unit</h2>
-<div class="col sidebarAdd builderOnly">
+<h2>Add unit</h2>
+<div class="col sidebarAdd">
  <select id="unitPreset"><option value="">Select army first…</option></select>
  <div id="friendlyUnitInfo" class="small"></div>
  <select id="friendlyRangedWeapon"><option value="">Ranged weapon…</option></select>
@@ -157,6 +160,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
  <div id="friendlyMeleeInfo" class="small"></div>
  <button id="addSquad" class="primary">Add unit</button>
 </div>
+</div></details>
 <h2>Roster</h2>
 <div id="friendlyUnitList" class="rosterStack"></div>
 
@@ -173,37 +177,24 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 
 <main id="center">
 <div id="toolbar">
-<label class="small">Tool
-<select id="toolMenu">
- <option value="select">Select / Move</option>
- <option value="ruler">Ruler</option>
- <option value="path">Path Move</option>
- <option value="moveRange">Move Range</option>
- <option value="weaponRange">Weapon Range</option>
- <option value="engagement">Engagement Range</option>
- <option value="reserve">Reserve / Ingress</option>
- <option value="coherency">Coherency</option>
- <option value="los">Line of Sight</option>
- <option value="cover">Cover</option>
- <option value="objectives">Objectives</option>
-</select></label>
-<label class="small">View<select id="viewModeSelect"><option value="top">2D Top</option><option value="3d">3D Rotate</option></select></label>
-<label class="small">Terrain
-<select id="terrainLayoutSelect">
- <option value="layoutA">11e Layout A</option><option value="layoutB">11e Layout B</option><option value="layoutC">11e Layout C</option>
- <option value="footprints">11e Footprint Set</option><option value="custom">Custom</option>
-</select></label>
-<button id="applyTerrainLayout">Load</button>
-<label class="small">Range <input id="rangeInput" type="number" value="24"></label>
-<label class="small">Arrival &gt; <input id="dsInput" type="number" value="8" step=".01"></label>
-<label class="small">File
-<select id="fileMenu">
- <option value="">File…</option><option value="save">Save Battle</option><option value="load">Load Battle</option>
- <option value="export">Export Stats</option><option value="scoreBattle">Score End Battle</option><option value="reset">Reset Demo</option>
-</select></label>
-<button id="finishPathBtn">Finish Path</button><button id="clearOverlays">Clear</button>
-<span id="status" class="small">Autosave on</span><span id="viewHint">3D: drag to rotate • wheel to zoom</span>
-<span class="badge">Build v0.7.1</span>
+<details class="toolMenu"><summary>Actions</summary><div class="toolPopover">
+ <label class="small">Board action<select id="toolMenu"><option value="select">Select / Move</option><option value="ruler">Ruler</option><option value="path">Path Move</option><option value="moveRange">Move Range</option><option value="weaponRange">Weapon Range</option><option value="engagement">Engagement Range</option><option value="reserve">Reserve / Ingress</option><option value="coherency">Coherency</option><option value="los">Line of Sight</option><option value="cover">Cover</option><option value="objectives">Objectives</option></select></label>
+ <div class="row"><button id="finishPathBtn">Finish Path</button><button id="clearOverlays">Clear overlays</button></div>
+ <label class="small">Range <input id="rangeInput" type="number" value="24"></label><label class="small">Arrival must finish &gt; <input id="dsInput" type="number" value="8" step=".01"></label>
+</div></details>
+<details class="toolMenu"><summary>Map</summary><div class="toolPopover">
+ <label class="small">View<select id="viewModeSelect"><option value="top">2D Top</option><option value="3d">3D Rotate</option></select></label>
+ <label class="small">Terrain<select id="terrainLayoutSelect"><option value="layoutA">11e Layout A</option><option value="layoutB">11e Layout B</option><option value="layoutC">11e Layout C</option><option value="footprints">11e Footprint Set</option><option value="custom">Custom</option></select></label>
+ <button id="applyTerrainLayout">Load terrain</button><span id="viewHint">3D: drag to rotate • wheel to zoom</span>
+</div></details>
+<button id="toggleDeployment" class="panelToggle">Pre-game</button>
+<button id="toggleDashboard" class="panelToggle">Turn dashboard</button>
+<div class="quickPhase"><button id="toolbarPrevPhase" title="Previous phase">‹</button><span class="phaseContext">Army Builder</span><button id="toolbarNextPhase" title="Next phase">›</button></div>
+<div class="toolbarSpacer"></div><span id="status" class="small toolbarStatus">Autosave on</span>
+<details class="toolMenu"><summary>File</summary><div class="toolPopover" style="left:auto;right:0">
+ <label class="small">Battle file<select id="fileMenu"><option value="">Choose…</option><option value="save">Save Battle</option><option value="load">Load Battle</option><option value="export">Export Stats</option><option value="scoreBattle">Score End Battle</option><option value="reset">Reset Demo</option></select></label>
+ <span class="small">Autosave is always active.</span>
+</div></details><span class="badge">v0.7.2</span>
 <div style="display:none">
  <button id="selectTool"></button><button id="rulerTool"></button><button id="moveRange"></button><button id="weaponRangeBtn"></button>
  <button id="engagementBtn"></button><button id="deepStrikeBtn"></button><button id="objectivesBtn"></button><button id="coherencyBtn"></button>
@@ -226,7 +217,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 <h3 style="margin-top:8px">Active effects</h3>
 <div id="activeEffects" class="small">None</div>
 </div>
-<div id="battleDashboard">
+<div id="battleDashboard" class="dashboardCompact">
  <div class="dash"><h3>Turn / Phase</h3>
    <div id="phase" class="scoreBig">T1 Command</div>
    <div class="row"><button id="prevTurn">− Turn</button><button id="nextTurn">+ Turn</button></div>
@@ -281,15 +272,16 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 
 <aside class="panel right">
 <h1>Enemy Army</h1>
-<div class="small">v0.7.1 • <span class="phaseContext">Army Builder</span></div>
-<div class="rosterMeta builderOnly" style="margin-top:8px">
+<div class="small">v0.7.2 • <span class="phaseContext">Army Builder</span></div>
+<details class="sideMenu builderOnly"><summary>Army setup &amp; add units</summary><div>
+<div class="rosterMeta" style="margin-top:8px">
  <label class="small full">Army<select id="enemyArmy"></select></label>
  <label class="small">Detachment<input id="enemyDetachment" type="text" placeholder="Detachment"></label>
  <label class="small">Disposition<input id="enemyDisposition" type="text" placeholder="Disposition"></label>
  <div class="stat full">Army total<br><span id="enemyPoints" class="pointsTotal">0 pts</span></div>
 </div>
-<h2 class="builderOnly">Add unit</h2>
-<div class="col sidebarAdd builderOnly">
+<h2>Add unit</h2>
+<div class="col sidebarAdd">
  <select id="enemyUnitPreset"><option value="">Select army first…</option></select>
  <div id="enemyUnitInfo" class="small"></div>
  <select id="enemyRangedWeapon"><option value="">Ranged weapon…</option></select>
@@ -298,6 +290,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
  <div id="enemyMeleeInfo" class="small"></div>
  <button id="addEnemySquad" class="primary">Add unit</button>
 </div>
+</div></details>
 <h2>Roster</h2>
 <div id="enemyUnitList" class="rosterStack"></div>
 
@@ -1202,6 +1195,11 @@ function runFileMenu(){
 }
 function setTool(t){tool=t;$("selectTool").classList.toggle("active",t==="select");$("rulerTool").classList.toggle("active",t==="ruler")}
 $("toolMenu").onchange=runToolMenu;$("fileMenu").onchange=runFileMenu;$("ruleCategory").onchange=renderRulesPanel;
+$("toggleDeployment").onclick=()=>{$("deploymentPanel").classList.toggle("open");$("toggleDeployment").classList.toggle("active",$("deploymentPanel").classList.contains("open"))};
+$("toggleDashboard").onclick=()=>{$("battleDashboard").classList.toggle("dashboardCompact");$("toggleDashboard").classList.toggle("active",!$("battleDashboard").classList.contains("dashboardCompact"))};
+$("toolbarPrevPhase").onclick=()=>{ensureDeployment();if(state.deployment.stage<6){pushHistory("Before previous workflow stage");state.deployment.stage=Math.max(0,state.deployment.stage-1);render()}else $("prevPhase").click()};
+$("toolbarNextPhase").onclick=()=>{ensureDeployment();if(state.deployment.stage<6)$("advanceDeployment").click();else $("nextPhase").click()};
+document.addEventListener("click",e=>{document.querySelectorAll(".toolMenu[open]").forEach(d=>{if(!d.contains(e.target))d.removeAttribute("open")})});
 $("selectTool").onclick=()=>setTool("select");$("rulerTool").onclick=()=>setTool("ruler");$("moveRange").onclick=showMove;$("weaponRangeBtn").onclick=showRange;$("engagementBtn").onclick=showEng;$("deepStrikeBtn").onclick=showDS;$("objectivesBtn").onclick=checkObj;$("coherencyBtn").onclick=showCoherency;$("losBtn").onclick=drawLOS;$("coverBtn").onclick=showCover;$("pathMoveBtn").onclick=beginPathMove;$("finishPathBtn").onclick=finishPathMove;$("clearOverlays").onclick=clearDyn;
 $("addTerrainBtn").onclick=()=>{if(!state.customTerrain)state.customTerrain=[];state.terrainPreset="custom";$("terrainLayoutSelect").value="custom";state.customTerrain.push([27,20,+$("terrainW").value,+$("terrainH").value,$("terrainBlocking").checked?1:0]);addLog("Custom terrain added at board centre");render()};
 $("clearTerrainBtn").onclick=()=>{state.customTerrain=[];state.terrainPreset="custom";$("terrainLayoutSelect").value="custom";addLog("Custom terrain cleared");render()};

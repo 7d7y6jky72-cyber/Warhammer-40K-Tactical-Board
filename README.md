@@ -1,4 +1,13 @@
-# Warhammer 40K Tactical Board v0.7.1
+# Warhammer 40K Tactical Board v0.7.2
+
+## New in v0.7.2 — Compact toolbar navigation
+
+- Replaced the row of permanent board controls with compact Actions, Map and File dropdowns.
+- Added one-click Pre-game and Turn Dashboard drawers; both remain collapsed until needed.
+- Added compact previous/next phase controls and the current context directly in the toolbar.
+- Army setup and unit-addition controls now live inside a collapsed sidebar dropdown.
+- The bottom dashboard defaults to a slim turn/history strip and expands only on request.
+- The battlefield, Friendly roster and Enemy roster receive substantially more usable space without removing any simulator function.
 
 ## New in v0.7.1 — Phase-aware UI, Attached Units and Tactical Icons
 
@@ -26,7 +35,7 @@
 
 ## Install / Run
 
-Keep all six packaged files together and open `index.html`, or serve the folder from any static web host. On iPhone/iPad, use Safari's Add to Home Screen for the standalone PWA. The v0.7.1 service worker uses cache `40k-board-v071` to replace older cached builds.
+Keep all six packaged files together and open `index.html`, or serve the folder from any static web host. On iPhone/iPad, use Safari's Add to Home Screen for the standalone PWA. The v0.7.2 service worker uses cache `40k-board-v072` to replace older cached builds.
 
 UI redesign:
 - Friendly and Enemy panes are now clean roster panels.
