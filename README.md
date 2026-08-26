@@ -1,4 +1,10 @@
-# Warhammer 40K Tactical Board v0.7.2
+# Warhammer 40K Tactical Board v0.7.3
+
+## New in v0.7.3 — Army metadata selectors
+
+- Friendly and Enemy Detachment fields are now dropdown selectors.
+- Friendly and Enemy Disposition fields are now dropdown selectors for Attacker, Defender, first/second player and rehearsal states.
+- Previously saved free-text values remain available as saved dropdown options, preventing metadata loss when older battles are opened.
 
 ## New in v0.7.2 — Compact toolbar navigation
 
@@ -35,7 +41,7 @@
 
 ## Install / Run
 
-Keep all six packaged files together and open `index.html`, or serve the folder from any static web host. On iPhone/iPad, use Safari's Add to Home Screen for the standalone PWA. The v0.7.2 service worker uses cache `40k-board-v072` to replace older cached builds.
+Keep all six packaged files together and open `index.html`, or serve the folder from any static web host. On iPhone/iPad, use Safari's Add to Home Screen for the standalone PWA. The v0.7.3 service worker uses cache `40k-board-v073` to replace older cached builds.
 
 UI redesign:
 - Friendly and Enemy panes are now clean roster panels.

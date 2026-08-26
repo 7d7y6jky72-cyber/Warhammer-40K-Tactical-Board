@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Warhammer 40K Tactical Board v0.7.2</title>
+<title>Warhammer 40K Tactical Board v0.7.3</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#15181d">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -142,12 +142,12 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 <div id="app">
 <aside class="panel left">
 <h1>Friendly Army</h1>
-<div class="small">v0.7.2 • <span class="phaseContext">Army Builder</span></div>
+<div class="small">v0.7.3 • <span class="phaseContext">Army Builder</span></div>
 <details class="sideMenu builderOnly"><summary>Army setup &amp; add units</summary><div>
 <div class="rosterMeta" style="margin-top:8px">
  <label class="small full">Army<select id="friendlyArmy"></select></label>
- <label class="small">Detachment<input id="friendlyDetachment" type="text" placeholder="Detachment"></label>
- <label class="small">Disposition<input id="friendlyDisposition" type="text" placeholder="Disposition"></label>
+ <label class="small">Detachment<select id="friendlyDetachment" class="detachmentSelect"></select></label>
+ <label class="small">Disposition<select id="friendlyDisposition" class="dispositionSelect"></select></label>
  <div class="stat full">Army total<br><span id="friendlyPoints" class="pointsTotal">0 pts</span></div>
 </div>
 <h2>Add unit</h2>
@@ -194,7 +194,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 <details class="toolMenu"><summary>File</summary><div class="toolPopover" style="left:auto;right:0">
  <label class="small">Battle file<select id="fileMenu"><option value="">Choose…</option><option value="save">Save Battle</option><option value="load">Load Battle</option><option value="export">Export Stats</option><option value="scoreBattle">Score End Battle</option><option value="reset">Reset Demo</option></select></label>
  <span class="small">Autosave is always active.</span>
-</div></details><span class="badge">v0.7.2</span>
+</div></details><span class="badge">v0.7.3</span>
 <div style="display:none">
  <button id="selectTool"></button><button id="rulerTool"></button><button id="moveRange"></button><button id="weaponRangeBtn"></button>
  <button id="engagementBtn"></button><button id="deepStrikeBtn"></button><button id="objectivesBtn"></button><button id="coherencyBtn"></button>
@@ -272,12 +272,12 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 
 <aside class="panel right">
 <h1>Enemy Army</h1>
-<div class="small">v0.7.2 • <span class="phaseContext">Army Builder</span></div>
+<div class="small">v0.7.3 • <span class="phaseContext">Army Builder</span></div>
 <details class="sideMenu builderOnly"><summary>Army setup &amp; add units</summary><div>
 <div class="rosterMeta" style="margin-top:8px">
  <label class="small full">Army<select id="enemyArmy"></select></label>
- <label class="small">Detachment<input id="enemyDetachment" type="text" placeholder="Detachment"></label>
- <label class="small">Disposition<input id="enemyDisposition" type="text" placeholder="Disposition"></label>
+ <label class="small">Detachment<select id="enemyDetachment" class="detachmentSelect"></select></label>
+ <label class="small">Disposition<select id="enemyDisposition" class="dispositionSelect"></select></label>
  <div class="stat full">Army total<br><span id="enemyPoints" class="pointsTotal">0 pts</span></div>
 </div>
 <h2>Add unit</h2>
@@ -1096,6 +1096,15 @@ function ensureMeta(){
  Object.keys(d).forEach(k=>{if(state.meta[k]===undefined)state.meta[k]=d[k]});
  if(!Array.isArray(state.meta.scoreEvents))state.meta.scoreEvents=[];
 }
+const DETACHMENT_OPTIONS=["","Gladius Task Force","Anvil Siege Force","Firestorm Assault Force","Ironstorm Spearhead","Stormlance Task Force","Vanguard Spearhead","1st Company Task Force","Librarius Conclave","Faction-specific / Other"];
+const DISPOSITION_OPTIONS=["","Attacker","Defender","First player","Second player","Undetermined / Rehearsal"];
+function populateArmyMetaSelectors(){
+ document.querySelectorAll(".detachmentSelect").forEach(sel=>{sel.innerHTML=DETACHMENT_OPTIONS.map((v,i)=>`<option value="${v}">${i?v:"Select detachment…"}</option>`).join("")});
+ document.querySelectorAll(".dispositionSelect").forEach(sel=>{sel.innerHTML=DISPOSITION_OPTIONS.map((v,i)=>`<option value="${v}">${i?v:"Select disposition…"}</option>`).join("")});
+}
+function setSelectPreservingSaved(sel,value){
+ if(!sel)return;const v=String(value??"");if(v&&![...sel.options].some(o=>o.value===v)){const o=document.createElement("option");o.value=v;o.textContent=`${v} (saved)`;sel.appendChild(o)}sel.value=v;
+}
 const META_IDS=["friendlyDetachment","friendlyDisposition","enemyDetachment","enemyDisposition","friendlyCP","enemyCP",
 "activePlayer","primaryName","primaryTiming","primaryAward","primaryAchieved",
 "friendlySecondary1","friendlySecondary1Timing","friendlySecondary1Award","friendlySecondary1Achieved",
@@ -1117,6 +1126,7 @@ function syncMeta(){
  META_IDS.forEach(id=>{
   if(!$(id))return;
   if($(id).type==="checkbox")$(id).checked=!!state.meta[id];
+  else if($(id).tagName==="SELECT")setSelectPreservingSaved($(id),state.meta[id]);
   else $(id).value=state.meta[id];
  });
  updateTotalScore()
@@ -1237,7 +1247,7 @@ $("saveJson").onclick=()=>download("40k_battle_v070.json",JSON.stringify(state,n
 $("loadJson").onchange=async e=>{let f=e.target.files[0];if(!f)return;try{state=JSON.parse(await f.text());selectedUnitId=null;selectedModelId=null;render()}catch(x){alert("Invalid battle file")}};
 function download(name,text,type){let b=new Blob([text],{type}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),100)}
 $("exportCsv").onclick=()=>{let keys=["turn","phase","attacker","target","attacks","hits","wounds","saves","unsaved","damage","fnpIgnored","casualties","distance"],rows=[keys,...state.stats.map(s=>keys.map(k=>s[k]??""))],csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");download("40k_stats_v04.csv",csv,"text/csv")};
-populateUnitLibrary();populateLiveUnitSelector("friend");populateLiveUnitSelector("enemy");if(!restore())demo();ensureMeta();ensureRulesState();ensureDeployment();$("terrainLayoutSelect").value=state.terrainPreset||"layoutA";syncMeta();setup3DControls();render();pushHistory("Initial rehearsal state");
+populateUnitLibrary();populateArmyMetaSelectors();populateLiveUnitSelector("friend");populateLiveUnitSelector("enemy");if(!restore())demo();ensureMeta();ensureRulesState();ensureDeployment();$("terrainLayoutSelect").value=state.terrainPreset||"layoutA";syncMeta();setup3DControls();render();pushHistory("Initial rehearsal state");
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
 </script>
 </body></html>
