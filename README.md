@@ -1,4 +1,13 @@
-# Warhammer 40K Tactical Board v0.7.3
+# Warhammer 40K Tactical Board v0.7.4
+
+## New in v0.7.4 — Current points and visible army relationships
+
+- Corrected current official base points for 10 Infernus Marines (170), 10 Hellblasters (220), and a Redemptor Dreadnought (195 before the optional macro-plasma upgrade).
+- Existing autosaves containing zero points for those exact units are migrated automatically.
+- Army setup opens automatically during Army Builder so Detachment and Force Disposition selectors are immediately visible.
+- Detachments show their current DP cost, and selecting a known detachment automatically selects its official Force Disposition.
+- Force Disposition choices now use the official categories: Priority Assets, Take and Hold, Purge the Foe, Disruption and Reconnaissance.
+- Each army has a visible Leader Attachments manager during Army Builder. It lists every Leader and eligible Bodyguard squad, including a clear message when no Leader has been added.
 
 ## New in v0.7.3 — Army metadata selectors
 
@@ -41,7 +50,7 @@
 
 ## Install / Run
 
-Keep all six packaged files together and open `index.html`, or serve the folder from any static web host. On iPhone/iPad, use Safari's Add to Home Screen for the standalone PWA. The v0.7.3 service worker uses cache `40k-board-v073` to replace older cached builds.
+Keep all six packaged files together and open `index.html`, or serve the folder from any static web host. On iPhone/iPad, use Safari's Add to Home Screen for the standalone PWA. The v0.7.4 service worker uses cache `40k-board-v074` to replace older cached builds.
 
 UI redesign:
 - Friendly and Enemy panes are now clean roster panels.

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Warhammer 40K Tactical Board v0.7.3</title>
+<title>Warhammer 40K Tactical Board v0.7.4</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#15181d">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -94,8 +94,9 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 .modelToken.destroyed{opacity:.22;filter:grayscale(1)}.modelToken.engaged{filter:drop-shadow(0 0 5px #ff5d4d)}.modelToken.selected{filter:drop-shadow(0 0 6px #f4d35e)}
 .modelToken .facing{position:absolute;left:50%;top:-15%;width:2px;height:23%;background:#fff;transform:translateX(-50%)}
 .modelToken .modelLabel{display:none;position:absolute;top:105%;font-size:8px;white-space:nowrap;background:rgba(0,0,0,.75);padding:1px 3px;border-radius:3px;color:#fff}.model.selected+.modelToken .modelLabel{display:block}
-.attachedCard{margin-left:16px;border-left:3px solid #d7b85a;background:#24282e}.attachmentLine{font-size:10px;color:#f1d77d;margin:3px 0}.attachSelect{font-size:10px;padding:3px 4px;margin-top:5px;width:100%}.phaseContext{font-weight:800;color:#f0d77c}.builderOnly,.formationOnly{display:none}body[data-context="build"] .builderOnly,body[data-context="formations"] .formationOnly{display:block}body[data-context="build"] .statusSelect,body:not([data-context="formations"]) .attachSelect{display:none}body[data-context="battle"] .deployPanel{display:none}body[data-context="deployment"] .deployPanel,body[data-context="formations"] .deployPanel,body[data-context="setup"] .deployPanel{display:grid}
+.attachedCard{margin-left:16px;border-left:3px solid #d7b85a;background:#24282e}.attachmentLine{font-size:10px;color:#f1d77d;margin:3px 0}.attachSelect{display:none;font-size:10px;padding:3px 4px;margin-top:5px;width:100%}.phaseContext{font-weight:800;color:#f0d77c}.builderOnly,.formationOnly{display:none}body[data-context="build"] .builderOnly,body[data-context="formations"] .formationOnly,body[data-context="build"] .attachSelect,body[data-context="formations"] .attachSelect{display:block}body[data-context="build"] .statusSelect{display:none}body[data-context="battle"] .deployPanel{display:none}body[data-context="deployment"] .deployPanel,body[data-context="formations"] .deployPanel,body[data-context="setup"] .deployPanel{display:grid}
 .sideMenu{margin-top:9px;border:1px solid #3d4652;border-radius:7px;background:#242a32}.sideMenu>summary{cursor:pointer;padding:8px;font-size:12px;font-weight:800}.sideMenu>div{padding:0 8px 8px}.sideMenu h2{margin-top:10px}
+.attachManagerRow{display:grid;grid-template-columns:1fr;gap:3px;padding:6px;margin-top:5px;background:#1d2229;border:1px solid #3d4652;border-radius:6px}.attachManagerRow b{font-size:11px}.attachManagerRow select{width:100%}
 .terrainArea:after{position:absolute;left:4px;top:3px;font-size:9px;font-weight:900;letter-spacing:.4px;color:rgba(235,238,228,.75)}
 .terrainArea.large:after{content:"HEAVY"}
 .terrainArea.medium:after,.terrainArea.line:after{content:"LIGHT"}
@@ -142,8 +143,8 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 <div id="app">
 <aside class="panel left">
 <h1>Friendly Army</h1>
-<div class="small">v0.7.3 • <span class="phaseContext">Army Builder</span></div>
-<details class="sideMenu builderOnly"><summary>Army setup &amp; add units</summary><div>
+<div class="small">v0.7.4 • <span class="phaseContext">Army Builder</span></div>
+<details class="sideMenu builderOnly" open><summary>Army setup, detachments &amp; units</summary><div>
 <div class="rosterMeta" style="margin-top:8px">
  <label class="small full">Army<select id="friendlyArmy"></select></label>
  <label class="small">Detachment<select id="friendlyDetachment" class="detachmentSelect"></select></label>
@@ -160,6 +161,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
  <div id="friendlyMeleeInfo" class="small"></div>
  <button id="addSquad" class="primary">Add unit</button>
 </div>
+<h2>Leader attachments</h2><div id="friendlyAttachmentManager" class="small">Add a Leader to create an attachment.</div>
 </div></details>
 <h2>Roster</h2>
 <div id="friendlyUnitList" class="rosterStack"></div>
@@ -194,7 +196,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 <details class="toolMenu"><summary>File</summary><div class="toolPopover" style="left:auto;right:0">
  <label class="small">Battle file<select id="fileMenu"><option value="">Choose…</option><option value="save">Save Battle</option><option value="load">Load Battle</option><option value="export">Export Stats</option><option value="scoreBattle">Score End Battle</option><option value="reset">Reset Demo</option></select></label>
  <span class="small">Autosave is always active.</span>
-</div></details><span class="badge">v0.7.3</span>
+</div></details><span class="badge">v0.7.4</span>
 <div style="display:none">
  <button id="selectTool"></button><button id="rulerTool"></button><button id="moveRange"></button><button id="weaponRangeBtn"></button>
  <button id="engagementBtn"></button><button id="deepStrikeBtn"></button><button id="objectivesBtn"></button><button id="coherencyBtn"></button>
@@ -272,8 +274,8 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 
 <aside class="panel right">
 <h1>Enemy Army</h1>
-<div class="small">v0.7.3 • <span class="phaseContext">Army Builder</span></div>
-<details class="sideMenu builderOnly"><summary>Army setup &amp; add units</summary><div>
+<div class="small">v0.7.4 • <span class="phaseContext">Army Builder</span></div>
+<details class="sideMenu builderOnly" open><summary>Army setup, detachments &amp; units</summary><div>
 <div class="rosterMeta" style="margin-top:8px">
  <label class="small full">Army<select id="enemyArmy"></select></label>
  <label class="small">Detachment<select id="enemyDetachment" class="detachmentSelect"></select></label>
@@ -290,6 +292,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
  <div id="enemyMeleeInfo" class="small"></div>
  <button id="addEnemySquad" class="primary">Add unit</button>
 </div>
+<h2>Leader attachments</h2><div id="enemyAttachmentManager" class="small">Add a Leader to create an attachment.</div>
 </div></details>
 <h2>Roster</h2>
 <div id="enemyUnitList" class="rosterStack"></div>
@@ -337,9 +340,9 @@ function squad(name,side,x,y,count,base,wpm,move,T,sv,oc,points=0,faction="Custo
 function isLeaderName(name){return /captain|chapter master|lieutenant|chaplain|librarian|apothecary|techmarine|ancient|castellan|marshal|vulkan|crowe|farseer|warboss|overlord|character|daemon prince/i.test(name||"")}
 function demo(){
  state={turn:1,phase:0,log:[],stats:[],customTerrain:[],terrainPreset:"layoutA",units:[
-  squad("Infernus Squad","friend",10,32,10,32,2,6,4,3,1),
-  squad("Hellblasters","friend",18,36,10,32,2,6,4,3,1),
-  squad("Redemptor","friend",13,25,1,90,12,8,10,2,4),
+  squad("Infernus Squad","friend",10,32,10,32,2,6,4,3,1,170,"Space Marines"),
+  squad("Hellblaster Squad","friend",18,36,10,32,2,6,4,3,1,220,"Space Marines"),
+  squad("Redemptor Dreadnought","friend",13,25,1,90,12,8,10,2,4,195,"Space Marines"),
   squad("CSM Squad","enemy",43,18,10,32,2,6,4,3,2),
   squad("Defiler","enemy",48,25,1,120,14,8,10,3,5),
   squad("Daemon Prince","enemy",45,10,1,60,10,10,9,2,3)
@@ -348,16 +351,25 @@ function demo(){
 function ensureDeployment(){
  if(!state.deployment)state.deployment={stage:0,preset:"long",nextSide:"friend",firstTurn:null};
  if(state.deployment.stage===undefined)state.deployment.stage=0;
- state.units.forEach(u=>{if(!u.deploymentStatus||u.deploymentStatus==="attached")u.deploymentStatus="board";if(u.deploymentComplete===undefined)u.deploymentComplete=false;if(u.arrivalPending===undefined)u.arrivalPending=false;if(u.isLeader===undefined)u.isLeader=isLeaderName(u.name);if(u.attachedTo===undefined)u.attachedTo=null;if(u.maxLeaders===undefined)u.maxLeaders=2;if(u.attachedTo&&!state.units.some(x=>x.id===u.attachedTo))u.attachedTo=null});
+ state.units.forEach(u=>{if(!u.deploymentStatus||u.deploymentStatus==="attached")u.deploymentStatus="board";if(u.deploymentComplete===undefined)u.deploymentComplete=false;if(u.arrivalPending===undefined)u.arrivalPending=false;if(u.isLeader===undefined)u.isLeader=isLeaderName(u.name);if(u.attachedTo===undefined)u.attachedTo=null;if(u.maxLeaders===undefined)u.maxLeaders=2;if(u.attachedTo&&!state.units.some(x=>x.id===u.attachedTo))u.attachedTo=null;const corrected=currentPointDefault(u.name,u.models?.length||0);if((!u.points||u.points===0)&&corrected)u.points=corrected});
 }
 function bodyguardFor(u){return u?.attachedTo?state.units.find(x=>x.id===u.attachedTo)||null:null}
 function attachedLeaders(u){return state.units.filter(x=>x.attachedTo===u.id)}
 function attachedUnitMembers(u){const root=bodyguardFor(u)||u;return [root,...attachedLeaders(root)]}
 function isOnBoard(u){const root=bodyguardFor(u)||u;return root.deploymentStatus==="board"}
+function attachmentEligible(leader,target){
+ if(!leader||!target||leader.side!==target.side||target.isLeader)return false;
+ const ln=leader.name.toLowerCase(),tt=modelVisualType(target);
+ if(/terminator/.test(ln))return tt==="terminator";
+ if(/gravis|biologis/.test(ln))return tt==="gravis";
+ if(/jump/.test(ln))return tt==="jump";
+ if(/bike|mounted/.test(ln))return tt==="bike";
+ return ["infantry","terminator","gravis"].includes(tt);
+}
 function setAttachment(leaderId,bodyguardId){
  const leader=state.units.find(x=>x.id===leaderId);if(!leader||!leader.isLeader)return;
  const target=bodyguardId?state.units.find(x=>x.id===bodyguardId):null;
- if(target&&(target.side!==leader.side||target.isLeader||attachedLeaders(target).length>=(target.maxLeaders||1))){alert("That unit cannot accept another Leader.");return}
+ if(target&&(!attachmentEligible(leader,target)||attachedLeaders(target).length>=(target.maxLeaders||1))){alert("That unit is not an eligible Bodyguard or cannot accept another Leader.");return}
  pushHistory(`Before changing ${leader.name} attachment`);leader.attachedTo=target?.id||null;
  if(target){leader.deploymentStatus=target.deploymentStatus;leader.deploymentComplete=target.deploymentComplete;addLog(`${leader.name} attached to ${target.name}`)}else addLog(`${leader.name} detached`);
  pushHistory(`${leader.name} attachment changed`);render()
@@ -561,6 +573,8 @@ function pointCost(entry){
  const p=(entry?.costs||[]).find(c=>c.name==="pts");
  return p?Number(p.value||0):0;
 }
+const CURRENT_POINT_DEFAULTS={"infernus squad":{5:85,10:170},"hellblaster squad":{5:110,10:220},"redemptor dreadnought":{1:195}};
+function currentPointDefault(name,count){const row=CURRENT_POINT_DEFAULTS[String(name||"").toLowerCase()];return row?.[count]||0}
 function hasPointModifiers(entry){
  const txt=JSON.stringify(entry?.modifiers||entry?.modifierGroups||[]);
  return txt.includes('"field":"51b2-306e-1021-d207"') || txt.includes('"name":"pts"');
@@ -577,7 +591,7 @@ function extractLiveUnits(data){
    if(profile && entry.name && !entry.hidden){
      const stats=charsToStats(profile),pts=pointCost(entry);
      found.push({
-       name:entry.name, points:pts, pointsVariable:hasPointModifiers(entry),
+       name:entry.name, points:pts||currentPointDefault(entry.name,1), pointsVariable:hasPointModifiers(entry),
        move:stats.M||"", T:stats.T||"", sv:stats.Sv||"", W:stats.W||"",
        LD:stats.LD||"", oc:stats.OC||"", inv:stats.InSv||"",
        raw:entry
@@ -673,14 +687,15 @@ function applyLiveOrFallback(side){
 }
 
 const UNIT_LIBRARY = [
+ {faction:"Space Marines",name:"Captain",count:1,base:40,wpm:5,move:6,T:4,sv:3,oc:1,points:80},
  {faction:"Space Marines",name:"Intercessor Squad",count:5,base:32,wpm:2,move:6,T:4,sv:3,oc:2,points:0},
  {faction:"Space Marines",name:"Assault Intercessor Squad",count:5,base:32,wpm:2,move:6,T:4,sv:3,oc:2,points:0},
- {faction:"Space Marines",name:"Infernus Squad",count:10,base:32,wpm:2,move:6,T:4,sv:3,oc:1,points:0},
- {faction:"Space Marines",name:"Hellblaster Squad",count:10,base:32,wpm:2,move:6,T:4,sv:3,oc:1,points:0},
+ {faction:"Space Marines",name:"Infernus Squad",count:10,base:32,wpm:2,move:6,T:4,sv:3,oc:1,points:170},
+ {faction:"Space Marines",name:"Hellblaster Squad",count:10,base:32,wpm:2,move:6,T:4,sv:3,oc:1,points:220},
  {faction:"Space Marines",name:"Eradicator Squad",count:3,base:40,wpm:3,move:5,T:6,sv:3,oc:1,points:0},
  {faction:"Space Marines",name:"Terminator Squad",count:5,base:40,wpm:3,move:5,T:5,sv:2,oc:1,points:0},
  {faction:"Space Marines",name:"Vanguard Veterans with Jump Packs",count:5,base:32,wpm:2,move:12,T:4,sv:3,oc:1,points:0},
- {faction:"Space Marines",name:"Redemptor Dreadnought",count:1,base:90,wpm:12,move:8,T:10,sv:2,oc:4,points:0},
+ {faction:"Space Marines",name:"Redemptor Dreadnought",count:1,base:90,wpm:12,move:8,T:10,sv:2,oc:4,points:195},
  {faction:"Space Marines",name:"Brutalis Dreadnought",count:1,base:90,wpm:12,move:10,T:10,sv:2,oc:4,points:0},
  {faction:"Space Marines",name:"Land Raider Redeemer",count:1,base:160,wpm:16,move:10,T:12,sv:2,oc:5,points:0},
  {faction:"Space Marines",name:"Stormraven Gunship",count:1,base:120,wpm:14,move:20,T:10,sv:3,oc:0,points:0},
@@ -783,7 +798,7 @@ function renderList(){
     const cls=!m.alive?"dead":m.wounds<m.maxWounds?"damaged":"";
     return `<span class="woundPip ${cls}" title="Model ${i+1}: ${m.alive?m.wounds+"/"+m.maxWounds+" wounds":"destroyed"}">${m.alive?m.wounds:"X"}</span>`;
   }).join("");
-  const root=bodyguardFor(u)||u,leaders=attachedLeaders(u),eligible=state.units.filter(x=>x.side===u.side&&!x.isLeader&&x.id!==u.id&&attachedLeaders(x).length<(x.maxLeaders||1));
+  const root=bodyguardFor(u)||u,leaders=attachedLeaders(u),eligible=state.units.filter(x=>attachmentEligible(u,x)&&x.id!==u.id&&attachedLeaders(x).length<(x.maxLeaders||1));
   const attachControl=u.isLeader?`<label class="formationOnly small">Attach to Unit<select class="attachSelect" data-attach="${u.id}"><option value="">Not attached</option>${eligible.concat(bodyguardFor(u)||[]).filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i).map(x=>`<option value="${x.id}" ${u.attachedTo===x.id?"selected":""}>${x.name}</option>`).join("")}</select></label>`:"";
   e.innerHTML=`<div class="rosterHead"><b>${u.name}</b><span class="builderOnly">${u.points||0} pts</span></div>
    ${u.attachedTo?`<div class="attachmentLine">↳ Leader attached to ${root.name}</div>`:leaders.length?`<div class="attachmentLine">Attached Unit • ${leaders.map(l=>l.name).join(" + ")}</div>`:""}
@@ -796,6 +811,7 @@ function renderList(){
    <div class="rosterActions"><button data-select="${u.id}">Select</button><button data-remove="${u.id}" class="danger builderOnly">Remove</button></div>`;
   (u.side==="friend"?friendly:enemy).appendChild(e);
  });
+ ["friend","enemy"].forEach(side=>{const box=$(side==="friend"?"friendlyAttachmentManager":"enemyAttachmentManager"),leaders=state.units.filter(u=>u.side===side&&u.isLeader);if(!box)return;if(!leaders.length){box.innerHTML="Add a Leader unit, then choose its Bodyguard squad here.";return}box.innerHTML=leaders.map(l=>{const current=bodyguardFor(l),eligible=state.units.filter(x=>attachmentEligible(l,x)&&(x.id===current?.id||attachedLeaders(x).length<(x.maxLeaders||1)));return `<div class="attachManagerRow"><b>${l.name}</b><select class="attachSelect" data-attach="${l.id}"><option value="">Not attached</option>${eligible.map(x=>`<option value="${x.id}" ${l.attachedTo===x.id?"selected":""}>${x.name}</option>`).join("")}</select></div>`}).join("")});
  document.querySelectorAll("[data-select]").forEach(b=>b.onclick=()=>{const u=state.units.find(x=>x.id===b.dataset.select);selectedUnitId=u.id;selectedModelId=alive(u)[0]?.id||u.models[0]?.id||null;render()});
  document.querySelectorAll("[data-status]").forEach(s=>s.onchange=()=>setDeploymentStatus(s.dataset.status,s.value));
  document.querySelectorAll("[data-attach]").forEach(s=>s.onchange=()=>setAttachment(s.dataset.attach,s.value));
@@ -1096,10 +1112,17 @@ function ensureMeta(){
  Object.keys(d).forEach(k=>{if(state.meta[k]===undefined)state.meta[k]=d[k]});
  if(!Array.isArray(state.meta.scoreEvents))state.meta.scoreEvents=[];
 }
-const DETACHMENT_OPTIONS=["","Gladius Task Force","Anvil Siege Force","Firestorm Assault Force","Ironstorm Spearhead","Stormlance Task Force","Vanguard Spearhead","1st Company Task Force","Librarius Conclave","Faction-specific / Other"];
-const DISPOSITION_OPTIONS=["","Attacker","Defender","First player","Second player","Undetermined / Rehearsal"];
+const DETACHMENT_OPTIONS=[
+ ["","Select detachment…"],["Gladius Task Force","Gladius Task Force — 3DP"],["Anvil Siege Force","Anvil Siege Force — 2DP"],
+ ["Firestorm Assault Force","Firestorm Assault Force — 2DP"],["Forgefather's Seekers","Forgefather's Seekers — 2DP"],
+ ["Ironstorm Spearhead","Ironstorm Spearhead — 2DP"],["Stormlance Task Force","Stormlance Task Force — 3DP"],
+ ["Vanguard Spearhead","Vanguard Spearhead — 2DP"],["1st Company Task Force","1st Company Task Force — 2DP"],
+ ["Librarius Conclave","Librarius Conclave — 1DP"],["Armoured Speartip","Armoured Speartip — 3DP"],["Faction-specific / Other","Faction-specific / Other"]
+];
+const DETACHMENT_DISPOSITIONS={"Gladius Task Force":"Priority Assets","Anvil Siege Force":"Take and Hold","Firestorm Assault Force":"Purge the Foe","Forgefather's Seekers":"Purge the Foe","Ironstorm Spearhead":"Purge the Foe","Stormlance Task Force":"Disruption","Vanguard Spearhead":"Reconnaissance","1st Company Task Force":"Priority Assets","Librarius Conclave":"Reconnaissance","Armoured Speartip":"Take and Hold"};
+const DISPOSITION_OPTIONS=["","Priority Assets","Take and Hold","Purge the Foe","Disruption","Reconnaissance"];
 function populateArmyMetaSelectors(){
- document.querySelectorAll(".detachmentSelect").forEach(sel=>{sel.innerHTML=DETACHMENT_OPTIONS.map((v,i)=>`<option value="${v}">${i?v:"Select detachment…"}</option>`).join("")});
+ document.querySelectorAll(".detachmentSelect").forEach(sel=>{sel.innerHTML=DETACHMENT_OPTIONS.map(([v,label])=>`<option value="${v}">${label}</option>`).join("")});
  document.querySelectorAll(".dispositionSelect").forEach(sel=>{sel.innerHTML=DISPOSITION_OPTIONS.map((v,i)=>`<option value="${v}">${i?v:"Select disposition…"}</option>`).join("")});
 }
 function setSelectPreservingSaved(sel,value){
@@ -1131,12 +1154,15 @@ function syncMeta(){
  });
  updateTotalScore()
 }
-function metaChanged(){
+function metaChanged(event){
  ensureMeta();
  META_IDS.forEach(id=>{
   if(!$(id))return;
   state.meta[id]=$(id).type==="checkbox"?$(id).checked:$(id).type==="number"?Number($(id).value||0):$(id).value
  });
+ if(event?.target?.id==="friendlyDetachment"&&DETACHMENT_DISPOSITIONS[state.meta.friendlyDetachment])state.meta.friendlyDisposition=DETACHMENT_DISPOSITIONS[state.meta.friendlyDetachment];
+ if(event?.target?.id==="enemyDetachment"&&DETACHMENT_DISPOSITIONS[state.meta.enemyDetachment])state.meta.enemyDisposition=DETACHMENT_DISPOSITIONS[state.meta.enemyDetachment];
+ if(event?.target?.id?.endsWith("Detachment"))syncMeta();
  updateTotalScore();persist()
 }
 
