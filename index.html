@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Warhammer 40K Tactical Board v0.5.5</title>
+<title>Warhammer 40K Tactical Board v0.4</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#15181d">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,12 +13,12 @@
 <style>
 :root{--bg:#15181d;--panel:#20242b;--panel2:#29303a;--text:#eef2f6;--muted:#aab2bd;--accent:#e8733c;--blue:#3f89d8;--red:#c54b4b;--gold:#f4d35e;--green:#66d18f}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-#app{height:100vh;display:grid;grid-template-columns:330px minmax(520px,1fr) 330px;overflow:hidden}
+#app{height:100vh;display:grid;grid-template-columns:270px minmax(520px,1fr) 320px;overflow:hidden}
 .panel{background:var(--panel);padding:13px;overflow:auto}.left{border-right:1px solid #373e48}.right{border-left:1px solid #373e48}
 h1{font-size:18px;margin:0 0 5px}h2{font-size:14px;margin:15px 0 7px}.small{font-size:11px;color:var(--muted)}.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:7px}
 button,input,select{background:var(--panel2);border:1px solid #485260;color:var(--text);padding:7px 8px;border-radius:6px}button{cursor:pointer}.primary{background:#3e536c}.danger{border-color:#7e4141}.active{outline:2px solid var(--accent)}
 input[type=number]{width:66px}.unitCard{padding:8px;border:1px solid #3e4651;border-radius:7px;background:#262b32;margin-bottom:6px;cursor:pointer}.unitCard.selected{border-color:var(--accent)}
-#center{display:flex;flex-direction:column;min-width:0;position:relative}#toolbar{min-height:56px;background:#1b1f25;border-bottom:1px solid #343b45;padding:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#center{display:flex;flex-direction:column;min-width:0}#toolbar{min-height:56px;background:#1b1f25;border-bottom:1px solid #343b45;padding:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 #boardWrap{flex:1;overflow:auto;padding:14px;display:flex;align-items:center;justify-content:center}#board{position:relative;background:#343c33;border:2px solid #89947d;box-shadow:0 12px 30px #0008;touch-action:none;user-select:none}
 .gridV,.gridH{position:absolute;background:#ffffff10;pointer-events:none}.terrain{position:absolute;background:#51565b;border:2px solid #7a8086;border-radius:4px;opacity:.92}.terrain.blocking{background:#494d51;border-color:#9b6c55}
 .objective{position:absolute;border:2px dashed var(--gold);border-radius:50%;background:#f4d35e0d;pointer-events:none}.objective::after{content:"OBJ";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:9px;color:#ffec94;font-weight:800}
@@ -31,269 +31,81 @@ input[type=number]{width:66px}.unitCard{padding:8px;border:1px solid #3e4651;bor
 .warn{color:#ff9a87}.ok{color:#7cdfa1}.badge{display:inline-block;background:#343b45;border-radius:4px;padding:2px 4px;font-size:10px;margin-left:4px}
 .modelrow{display:grid;grid-template-columns:1fr auto auto;gap:5px;align-items:center;padding:4px 0;border-bottom:1px solid #343a43}.modelrow:last-child{border-bottom:0}
 hr{border:0;border-top:1px solid #373e48;margin:10px 0}
-@media(max-width:1050px){#app{height:auto;min-height:100vh;grid-template-columns:1fr}.left{order:1;border-right:0;border-bottom:1px solid #373e48}.right{order:3;border-left:0;border-top:1px solid #373e48}#center{order:2;min-height:70vh}}
-
-.panel select{width:100%;max-width:100%;min-width:0}
-.panel .col,.panel label{min-width:0;max-width:100%}
-#friendlyUnitInfo,#enemyUnitInfo,#friendlyRangedInfo,#friendlyMeleeInfo,#enemyRangedInfo,#enemyMeleeInfo{overflow-wrap:anywhere;line-height:1.35}
-.terrainArea{position:absolute;z-index:2;border:2px solid #a5aa9f;background:rgba(196,199,188,.18);pointer-events:none}
-.terrainArea.large{background:rgba(180,187,177,.24)}
-.terrainArea.medium{background:rgba(177,184,173,.18)}
-.terrainArea.line{background:rgba(170,179,167,.15)}
-.terrainArea.poly{clip-path:polygon(0 0,100% 0,0 100%)}
-.terrainFeature{position:absolute;z-index:3;pointer-events:none;opacity:.95}
-.terrainFeature.dense{border-left:5px solid #4c5b58;border-bottom:5px solid #4c5b58;background:rgba(76,91,88,.22)}
-.terrainFeature.light{border:3px solid #8b7852;background:rgba(139,120,82,.14)}
-.terrainLegend{font-size:11px;color:var(--muted);line-height:1.35}
-
-#toolbar select{width:auto;min-width:145px}
-.rosterMeta{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.rosterMeta .full{grid-column:1/-1}
-.rosterStack{display:flex;flex-direction:column;gap:6px;margin-top:6px}
-.rosterCard{padding:7px;border:1px solid #3e4651;border-radius:7px;background:#262b32}
-.rosterCard.selected{border-color:var(--accent)}
-.rosterHead{display:flex;justify-content:space-between;gap:8px;align-items:center}
-.rosterActions{display:flex;gap:5px;margin-top:5px}
-.rosterActions button{padding:4px 7px;font-size:11px}
-.pointsTotal{font-size:22px;font-weight:800}
-#battleDashboard{
- min-height:138px;background:#1b1f25;border-top:1px solid #343b45;padding:9px 10px;
- display:grid;grid-template-columns:1fr .9fr 1fr 1.25fr 1.25fr;gap:8px;align-items:start
-}
-.dash{background:#242a32;border:1px solid #3c4550;border-radius:7px;padding:8px;min-width:0}
-.dash h3{font-size:12px;margin:0 0 6px}
-.dash input{max-width:100%}
-.scoreBig{font-size:22px;font-weight:800}
-.sidebarAdd select{width:100%}
-@media(max-width:1050px){
- #battleDashboard{grid-template-columns:1fr 1fr}
-}
-
-#viewModeSelect{min-width:125px}
-#boardWrap.view3d{perspective:1200px;overflow:hidden;cursor:grab}
-#boardWrap.view3d #board{transform-origin:50% 50%;transition:transform .1s linear;box-shadow:0 30px 55px rgba(0,0,0,.45)}
-.modelToken{position:absolute;z-index:12;pointer-events:none;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 2px 1px rgba(0,0,0,.55))}
-.modelToken .body{position:relative;width:72%;height:72%;border:2px solid rgba(255,255,255,.75);background:currentColor}
-.modelToken.infantry .body{border-radius:45% 45% 30% 30%}
-.modelToken.terminator .body{width:84%;height:78%;border-radius:25%;box-shadow:inset 0 0 0 3px rgba(0,0,0,.25)}
-.modelToken.gravis .body{width:80%;height:78%;border-radius:36%}
-.modelToken.character .body{border-radius:50% 50% 22% 22%;box-shadow:0 0 0 2px rgba(255,215,90,.75)}
-.modelToken.dreadnought .body{width:72%;height:70%;border-radius:12%}
-.modelToken.dreadnought .body:before,.modelToken.dreadnought .body:after{content:"";position:absolute;top:18%;width:25%;height:65%;background:currentColor;border:2px solid rgba(255,255,255,.6)}
-.modelToken.dreadnought .body:before{left:-34%}.modelToken.dreadnought .body:after{right:-34%}
-.modelToken.vehicle .body{width:94%;height:65%;border-radius:10%}
-.modelToken.vehicle .body:after{content:"";position:absolute;width:42%;height:52%;left:29%;top:23%;border:2px solid rgba(255,255,255,.55);border-radius:18%}
-.modelToken.flyer .body{width:96%;height:55%;clip-path:polygon(0 48%,38% 25%,48% 0,58% 25%,100% 48%,62% 62%,50% 100%,38% 62%)}
-.modelToken.monster .body{width:88%;height:88%;clip-path:polygon(50% 0,65% 25%,100% 12%,78% 48%,88% 100%,50% 72%,12% 100%,22% 48%,0 12%,35% 25%)}
-.modelToken .facing{position:absolute;left:50%;top:-15%;width:2px;height:23%;background:#fff;transform:translateX(-50%)}
-.modelToken .modelLabel{position:absolute;top:105%;font-size:8px;white-space:nowrap;background:rgba(0,0,0,.7);padding:1px 3px;border-radius:3px;color:#fff}
-.terrainArea:after{position:absolute;left:4px;top:3px;font-size:9px;font-weight:900;letter-spacing:.4px;color:rgba(235,238,228,.75)}
-.terrainArea.large:after{content:"HEAVY"}
-.terrainArea.medium:after,.terrainArea.line:after{content:"LIGHT"}
-.terrainFeature{display:none!important}
-.objective:after{content:"OBJ";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:9px;font-weight:900;color:#fff}
-#viewHint{font-size:11px;color:var(--muted)}
-
-.woundTrack{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
-.woundPip{min-width:20px;height:18px;padding:0 4px;border-radius:9px;background:#38414c;border:1px solid #596574;font-size:10px;display:flex;align-items:center;justify-content:center}
-.woundPip.damaged{background:#6a4a2d;border-color:#a97946}
-.woundPip.dead{background:#4b2d2d;border-color:#865050;text-decoration:line-through;opacity:.55}
-.rosterSummary{display:flex;justify-content:space-between;gap:8px;margin-top:3px}
-.timelineControls{display:flex;gap:5px;flex-wrap:wrap}
-.timelineControls button{padding:5px 8px}
-#timelineInfo{font-size:11px;color:var(--muted);margin-top:5px}
-.branchBadge{display:inline-block;padding:2px 5px;border-radius:4px;background:#4b3d27;color:#f4d35e;font-size:10px}
-
-#rulesPanel{
- position:absolute;right:12px;bottom:148px;width:310px;max-height:48vh;overflow:auto;
- background:#20242bf2;border:1px solid #46515f;border-radius:9px;padding:9px;z-index:95;box-shadow:0 10px 28px #0008
-}
-#rulesPanel h3{font-size:13px;margin:0 0 6px}
-.ruleCard{padding:7px;border:1px solid #3d4652;border-radius:6px;background:#272d35;margin-bottom:6px}
-.ruleCard.used{opacity:.55}
-.ruleCard.active{border-color:#79c78f}
-.ruleTop{display:flex;justify-content:space-between;gap:8px;align-items:center}
-.ruleMeta{font-size:10px;color:var(--muted);margin-top:3px;line-height:1.3}
-.ruleActions{display:flex;gap:5px;margin-top:5px}
-.ruleActions button{padding:4px 7px;font-size:11px}
-.effectChip{display:inline-block;padding:2px 5px;border-radius:4px;background:#30493a;color:#8ee0a5;font-size:10px;margin:2px 2px 0 0}
-
-.scoreRule{display:grid;grid-template-columns:1fr auto;gap:5px;align-items:center;margin-top:4px}
-.scoreRule select{min-width:118px}
-.scoreRule input[type=number]{width:56px}
-.scoreEvent{font-size:10px;color:var(--muted);margin-top:3px}
-.scoreReady{color:#8ee0a5;font-weight:700}
+@media(max-width:1050px){#app{grid-template-columns:220px 1fr}.right{display:none}}
 </style>
 </head>
 <body>
 <div id="app">
 <aside class="panel left">
-<h1>Friendly Army</h1>
-<div class="small">v0.5.8 • live roster</div>
-<div class="rosterMeta" style="margin-top:8px">
- <label class="small full">Army<select id="friendlyArmy"></select></label>
- <label class="small">Detachment<input id="friendlyDetachment" type="text" placeholder="Detachment"></label>
- <label class="small">Disposition<input id="friendlyDisposition" type="text" placeholder="Disposition"></label>
- <div class="stat full">Army total<br><span id="friendlyPoints" class="pointsTotal">0 pts</span></div>
+<h1>40K Tactical Board</h1><div class="small">Rules Engine v0.5 • Cross-platform</div>
+<h2>Units</h2><div id="unitList"></div>
+<h2>Add squad</h2>
+<div class="col">
+<input id="newName" value="Intercessors" placeholder="Unit name">
+<div class="row"><select id="newSide"><option value="friend">Friendly</option><option value="enemy">Enemy</option></select><label class="small">Models <input id="newCount" type="number" value="5" min="1" max="20"></label></div>
+<div class="row"><label class="small">Base mm <input id="newBase" type="number" value="32"></label><label class="small">W/model <input id="newWpm" type="number" value="2"></label></div>
+<div class="row"><label class="small">M <input id="newMove" type="number" value="6"></label><label class="small">T <input id="newT" type="number" value="4"></label><label class="small">Sv <input id="newSv" type="number" value="3"></label><label class="small">OC <input id="newOc" type="number" value="2"></label></div>
+<button id="addSquad">Add squad</button>
 </div>
-<h2>Add unit</h2>
-<div class="col sidebarAdd">
- <select id="unitPreset"><option value="">Select army first…</option></select>
- <div id="friendlyUnitInfo" class="small"></div>
- <select id="friendlyRangedWeapon"><option value="">Ranged weapon…</option></select>
- <select id="friendlyMeleeWeapon"><option value="">Melee weapon…</option></select>
- <button id="addSquad" class="primary">Add unit</button>
+<h2>Terrain</h2>
+<div class="col">
+  <div class="row">
+    <label class="small">W <input id="terrainW" type="number" value="6" step=".5"></label>
+    <label class="small">H <input id="terrainH" type="number" value="4" step=".5"></label>
+    <label class="small"><input id="terrainBlocking" type="checkbox" checked> Blocking</label>
+  </div>
+  <button id="addTerrainBtn">Add terrain at centre</button>
+  <button id="clearTerrainBtn">Clear custom terrain</button>
 </div>
-<h2>Roster</h2>
-<div id="friendlyUnitList" class="rosterStack"></div>
-
-<!-- Engine compatibility fields kept out of the roster UI -->
-<div style="display:none">
-<input id="newSide" value="friend"><input id="newName" value="Unit"><input id="newCount" type="number" value="1">
-<input id="newBase" type="number" value="32"><input id="newWpm" type="number" value="2"><input id="newMove" type="number" value="6">
-<input id="newPts" type="number" value="0"><input id="newT" type="number" value="4"><input id="newSv" type="number" value="3"><input id="newOc" type="number" value="1">
-<input id="terrainW" type="number" value="6"><input id="terrainH" type="number" value="4"><input id="terrainBlocking" type="checkbox" checked>
-<button id="addTerrainBtn"></button><button id="clearTerrainBtn"></button>
-<button id="saveJson"></button><input id="loadJson" type="file"><button id="exportCsv"></button><button id="reset"></button>
-</div>
+<h2>Battle</h2>
+<div class="row"><button id="nextPhase">Next phase</button><button id="nextTurn">Next turn</button></div>
+<div id="phase" class="small" style="margin-top:7px"></div>
+<h2>Persistence</h2>
+<div class="col"><button id="saveJson">Save battle JSON</button><label class="small">Load JSON <input id="loadJson" type="file" accept=".json"></label><button id="exportCsv">Export stats CSV</button><button id="reset" class="danger">Reset demo</button></div>
 </aside>
 
 <main id="center">
 <div id="toolbar">
-<label class="small">Tool
-<select id="toolMenu">
- <option value="select">Select / Move</option>
- <option value="ruler">Ruler</option>
- <option value="path">Path Move</option>
- <option value="moveRange">Move Range</option>
- <option value="weaponRange">Weapon Range</option>
- <option value="engagement">Engagement Range</option>
- <option value="reserve">Reserve / Ingress</option>
- <option value="coherency">Coherency</option>
- <option value="los">Line of Sight</option>
- <option value="cover">Cover</option>
- <option value="objectives">Objectives</option>
-</select></label>
-<label class="small">View<select id="viewModeSelect"><option value="top">2D Top</option><option value="3d">3D Rotate</option></select></label>
-<label class="small">Terrain
-<select id="terrainLayoutSelect">
- <option value="layoutA">11e Layout A</option><option value="layoutB">11e Layout B</option><option value="layoutC">11e Layout C</option>
- <option value="footprints">11e Footprint Set</option><option value="custom">Custom</option>
-</select></label>
-<button id="applyTerrainLayout">Load</button>
-<label class="small">Range <input id="rangeInput" type="number" value="24"></label>
-<label class="small">Arrival &gt; <input id="dsInput" type="number" value="8" step=".01"></label>
-<label class="small">File
-<select id="fileMenu">
- <option value="">File…</option><option value="save">Save Battle</option><option value="load">Load Battle</option>
- <option value="export">Export Stats</option><option value="scoreBattle">Score End Battle</option><option value="reset">Reset Demo</option>
-</select></label>
-<button id="finishPathBtn">Finish Path</button><button id="clearOverlays">Clear</button>
-<span id="status" class="small">Autosave on</span><span id="viewHint">3D: drag to rotate • wheel to zoom</span>
-<div style="display:none">
- <button id="selectTool"></button><button id="rulerTool"></button><button id="moveRange"></button><button id="weaponRangeBtn"></button>
- <button id="engagementBtn"></button><button id="deepStrikeBtn"></button><button id="objectivesBtn"></button><button id="coherencyBtn"></button>
- <button id="losBtn"></button><button id="coverBtn"></button><button id="pathMoveBtn"></button>
-</div>
+<button id="selectTool" class="active">Select</button><button id="rulerTool">Ruler</button>
+<button id="moveRange">Move</button><button id="weaponRangeBtn">Weapon range</button><input id="rangeInput" type="number" value="24">
+<button id="engagementBtn">Engagement 2"</button><button id="deepStrikeBtn">Reserve / Ingress</button><label class="small">DS > <input id="dsInput" type="number" value="8" step=".01"></label>
+<button id="objectivesBtn">Objectives</button><button id="coherencyBtn">Coherency</button>
+<button id="losBtn">LOS</button><button id="coverBtn">Cover</button>
+<button id="pathMoveBtn">Path Move</button><button id="finishPathBtn">Finish Path</button>
+<button id="clearOverlays">Clear</button>
+<span id="status" class="small">Autosave on</span>
 </div>
 <div id="boardWrap"><div id="board"></div></div>
-<div id="rulesPanel">
-<h3>Rules / Actions</h3>
-<div id="rulesPanelUnit" class="small">Select a unit.</div>
-<label class="small">Category
-<select id="ruleCategory"><option value="all">All</option><option value="enhancement">Enhancements</option><option value="ability">Abilities</option><option value="stratagem">Stratagems</option></select>
-</label>
-<div id="ruleList"></div>
-<h3 style="margin-top:8px">Active effects</h3>
-<div id="activeEffects" class="small">None</div>
-</div>
-<div id="battleDashboard">
- <div class="dash"><h3>Turn / Phase</h3>
-   <div id="phase" class="scoreBig">T1 Command</div>
-   <div class="row"><button id="prevTurn">− Turn</button><button id="nextTurn">+ Turn</button></div>
-   <div class="row"><button id="prevPhase">− Phase</button><button id="nextPhase">+ Phase</button></div>
-   <div class="timelineControls" style="margin-top:6px">
-     <button id="undoStep">↶ Undo</button>
-     <button id="redoStep">Redo ↷</button>
-     <button id="checkpointBtn">Checkpoint</button>
-   </div>
-   <div id="timelineInfo">Rehearsal history active</div>
- </div>
- <div class="dash"><h3>Command Points</h3>
-   <label class="small">Friendly <input id="friendlyCP" type="number" value="0" min="0"></label>
-   <label class="small">Enemy <input id="enemyCP" type="number" value="0" min="0"></label>
- </div>
- <div class="dash"><h3>Primary Mission</h3>
-   <label class="small">Active player
-     <select id="activePlayer"><option value="friend">Friendly</option><option value="enemy">Enemy</option></select>
-   </label>
-   <div class="scoreRule">
-     <input id="primaryName" placeholder="Primary mission">
-     <select id="primaryTiming">
-       <option value="end_command">End Command</option>
-       <option value="end_turn">End Turn</option>
-       <option value="end_round">End Battle Round</option>
-       <option value="end_battle">End Battle</option>
-     </select>
-   </div>
-   <div class="row">
-     <label class="small">VP <input id="primaryAward" type="number" value="5" min="0"></label>
-     <label class="small"><input id="primaryAchieved" type="checkbox"> requirement met</label>
-   </div>
-   <div class="small">Friendly <span id="friendlyPrimary">0</span> • Enemy <span id="enemyPrimary">0</span></div>
-   <div style="margin-top:5px">Total <span id="totalScore" class="scoreBig">0–0</span></div>
- </div>
- <div class="dash"><h3>Friendly Secondaries</h3>
-   <div class="scoreRule"><input id="friendlySecondary1" placeholder="Secondary 1"><select id="friendlySecondary1Timing"><option value="end_turn">End Turn</option><option value="end_command">End Command</option><option value="end_round">End Round</option><option value="end_battle">End Battle</option></select></div>
-   <div class="row"><label class="small">VP <input id="friendlySecondary1Award" type="number" value="5" min="0"></label><label class="small"><input id="friendlySecondary1Achieved" type="checkbox"> met</label></div>
-   <div class="scoreRule"><input id="friendlySecondary2" placeholder="Secondary 2"><select id="friendlySecondary2Timing"><option value="end_turn">End Turn</option><option value="end_command">End Command</option><option value="end_round">End Round</option><option value="end_battle">End Battle</option></select></div>
-   <div class="row"><label class="small">VP <input id="friendlySecondary2Award" type="number" value="5" min="0"></label><label class="small"><input id="friendlySecondary2Achieved" type="checkbox"> met</label></div>
-   <div class="small">Secondary scored: <span id="friendlySecondaryTotal">0</span></div>
- </div>
- <div class="dash"><h3>Enemy Secondaries</h3>
-   <div class="scoreRule"><input id="enemySecondary1" placeholder="Secondary 1"><select id="enemySecondary1Timing"><option value="end_turn">End Turn</option><option value="end_command">End Command</option><option value="end_round">End Round</option><option value="end_battle">End Battle</option></select></div>
-   <div class="row"><label class="small">VP <input id="enemySecondary1Award" type="number" value="5" min="0"></label><label class="small"><input id="enemySecondary1Achieved" type="checkbox"> met</label></div>
-   <div class="scoreRule"><input id="enemySecondary2" placeholder="Secondary 2"><select id="enemySecondary2Timing"><option value="end_turn">End Turn</option><option value="end_command">End Command</option><option value="end_round">End Round</option><option value="end_battle">End Battle</option></select></div>
-   <div class="row"><label class="small">VP <input id="enemySecondary2Award" type="number" value="5" min="0"></label><label class="small"><input id="enemySecondary2Achieved" type="checkbox"> met</label></div>
-   <div class="small">Secondary scored: <span id="enemySecondaryTotal">0</span></div>
- </div>
-</div>
 </main>
 
 <aside class="panel right">
-<h1>Enemy Army</h1>
-<div class="small">v0.5.8 • live roster</div>
-<div class="rosterMeta" style="margin-top:8px">
- <label class="small full">Army<select id="enemyArmy"></select></label>
- <label class="small">Detachment<input id="enemyDetachment" type="text" placeholder="Detachment"></label>
- <label class="small">Disposition<input id="enemyDisposition" type="text" placeholder="Disposition"></label>
- <div class="stat full">Army total<br><span id="enemyPoints" class="pointsTotal">0 pts</span></div>
-</div>
-<h2>Add unit</h2>
-<div class="col sidebarAdd">
- <select id="enemyUnitPreset"><option value="">Select army first…</option></select>
- <div id="enemyUnitInfo" class="small"></div>
- <select id="enemyRangedWeapon"><option value="">Ranged weapon…</option></select>
- <select id="enemyMeleeWeapon"><option value="">Melee weapon…</option></select>
- <button id="addEnemySquad" class="primary">Add unit</button>
-</div>
-<h2>Roster</h2>
-<div id="enemyUnitList" class="rosterStack"></div>
+<h1>Selected</h1><div id="none" class="small">Select a unit or model.</div>
+<div id="detail" style="display:none">
+<div id="unitTitle" style="font-weight:800;font-size:17px"></div><div id="unitMeta" class="small"></div>
+<div class="statgrid" style="margin-top:8px"><div class="stat">M<br><b id="mStat"></b></div><div class="stat">T<br><b id="tStat"></b></div><div class="stat">Sv<br><b id="svStat"></b></div><div class="stat">OC/model<br><b id="ocStat"></b></div><div class="stat">Alive<br><b id="aliveStat"></b></div><div class="stat">Wounds<br><b id="woundStat"></b></div></div>
 
-<!-- Detailed rules controls are retained invisibly so the simulation engine still works -->
-<div style="display:none">
- <input id="enemyName" value="Enemy Unit"><input id="enemyCount" type="number" value="1"><input id="enemyBase" type="number" value="32">
- <input id="enemyWpm" type="number" value="2"><input id="enemyMove" type="number" value="6"><input id="enemyPts" type="number" value="0">
- <input id="enemyT" type="number" value="4"><input id="enemySv" type="number" value="3"><input id="enemyOc" type="number" value="1">
- <div id="none"></div><div id="detail"></div><div id="unitTitle"></div><div id="unitMeta"></div>
- <div id="mStat"></div><div id="tStat"></div><div id="svStat"></div><div id="ocStat"></div><div id="aliveStat"></div><div id="woundStat"></div>
- <div id="modelList"></div><select id="chargeTarget"></select><span id="chargeResult"></span><button id="rollCharge"></button><button id="autoCharge"></button>
- <div id="selectedLoadout"></div><button id="loadSelectedRanged"></button>
- <select id="shootTarget"></select><input id="atk" type="number" value="10"><input id="bs" type="number" value="3"><input id="str" type="number" value="4">
- <input id="ap" type="number" value="-1"><input id="dmg" type="number" value="1"><input id="rng" type="number" value="24"><input id="invSv" type="number" value="0">
- <input id="sustained" type="number" value="0"><input id="fnp" type="number" value="0"><input id="rrHit" type="checkbox"><input id="rrWound" type="checkbox">
- <input id="lethal" type="checkbox"><input id="torrent" type="checkbox"><input id="blast" type="checkbox"><input id="devWounds" type="checkbox">
- <input id="hazardous" type="checkbox"><input id="coverCheck" type="checkbox"><div id="attackPreview"></div><button id="fire"></button><div id="log"></div>
+<h2>Models / casualties</h2><div id="modelList"></div>
+
+<h2>Charge</h2>
+<div class="col"><label class="small">Target <select id="chargeTarget"></select></label><div class="row"><button id="rollCharge" class="primary">Roll 2D6</button><span id="chargeResult" class="small">—</span></div><button id="autoCharge">Auto-move closest model</button></div>
+
+<h2>Ranged attack</h2>
+<div class="col">
+<label class="small">Target <select id="shootTarget"></select></label>
+<div class="row"><label class="small">A <input id="atk" type="number" value="10"></label><label class="small">BS <input id="bs" type="number" value="3"></label><label class="small">S <input id="str" type="number" value="4"></label></div>
+<div class="row"><label class="small">AP <input id="ap" type="number" value="-1"></label><label class="small">D <input id="dmg" type="number" value="1"></label><label class="small">Range <input id="rng" type="number" value="24"></label></div>
+<div class="row"><label class="small">Inv Sv <input id="invSv" type="number" value="0" min="0" max="6"></label><label class="small">Sustained <input id="sustained" type="number" value="0" min="0" max="6"></label></div>
+<div class="row"><label class="small">FNP target <input id="fnp" type="number" value="0" min="0" max="6"></label><span class="small">(0 = none)</span></div>
+<label class="small"><input id="rrHit" type="checkbox"> reroll failed hits</label><label class="small"><input id="rrWound" type="checkbox"> reroll failed wounds</label><label class="small"><input id="lethal" type="checkbox"> Lethal Hits</label>
+<label class="small"><input id="torrent" type="checkbox"> Torrent (auto-hit)</label>
+<label class="small"><input id="blast" type="checkbox"> Blast (+1 attack per 5 target models)</label>
+<label class="small"><input id="devWounds" type="checkbox"> Devastating Wounds (critical wounds bypass saves)</label>
+<label class="small"><input id="hazardous" type="checkbox"> Hazardous test after attack</label>
+<label class="small"><input id="coverCheck" type="checkbox"> Target has Benefit of Cover</label>
+<div id="attackPreview" class="small"></div><button id="fire" class="primary">Resolve attack</button>
+</div>
+
+<h2>Battle log</h2><div id="log" class="log"></div>
 </div>
 </aside>
 </div>
@@ -302,7 +114,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 const BW=60,BH=44,PPI=14,ENGAGEMENT=2,COHERENCY_NEAR=2,COHERENCY_ALL=9,OBJ_RANGE=3;
 const phases=["Command","Movement","Shooting","Charge","Fight"];
 const board=document.getElementById("board");board.style.width=BW*PPI+"px";board.style.height=BH*PPI+"px";
-let state={turn:1,phase:0,units:[],log:[],stats:[],customTerrain:[],terrainPreset:"layoutA"},selectedUnitId=null,selectedModelId=null,tool="select",drag=null,rulerStart=null,chargeRoll=null,pathPoints=[];
+let state={turn:1,phase:0,units:[],log:[],stats:[],customTerrain:[]},selectedUnitId=null,selectedModelId=null,tool="select",drag=null,rulerStart=null,chargeRoll=null,pathPoints=[];
 const $=id=>document.getElementById(id);
 const uid=()=>crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2);
 const mm2in=mm=>mm/25.4;const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));const dxy=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
@@ -314,12 +126,12 @@ function saveOn(sv,apv){return clamp(sv-apv,2,7)}
 function dice(){return 1+Math.floor(Math.random()*6)}
 function pool(n,target,reroll=false){let rolls=[],ok=0;for(let i=0;i<n;i++){let a=dice(),b=a;if(a<target&&reroll)b=dice();rolls.push(a===b?String(b):`${a}→${b}`);if(b>=target)ok++}return{rolls,ok}}
 function addLog(s){state.log.unshift(`[T${state.turn} ${phases[state.phase]}] ${s}`)}
-function squad(name,side,x,y,count,base,wpm,move,T,sv,oc,points=0,faction="Custom",rangedWeapon=null,meleeWeapon=null){
+function squad(name,side,x,y,count,base,wpm,move,T,sv,oc){
  let models=[];const spacing=mm2in(base)+.35;for(let i=0;i<count;i++){let col=i%5,row=Math.floor(i/5);models.push({id:uid(),x:x+col*spacing,y:y+row*spacing,base,wounds:wpm,maxWounds:wpm,alive:true})}
- return{id:uid(),name,side,move,T,sv,oc,points,faction,rangedWeapon,meleeWeapon,models};
+ return{id:uid(),name,side,move,T,sv,oc,models};
 }
 function demo(){
- state={turn:1,phase:0,log:[],stats:[],customTerrain:[],terrainPreset:"layoutA",units:[
+ state={turn:1,phase:0,log:[],stats:[],customTerrain:[],units:[
   squad("Infernus Squad","friend",10,32,10,32,2,6,4,3,1),
   squad("Hellblasters","friend",18,36,10,32,2,6,4,3,1),
   squad("Redemptor","friend",13,25,1,90,12,8,10,2,4),
@@ -328,360 +140,19 @@ function demo(){
   squad("Daemon Prince","enemy",45,10,1,60,10,10,9,2,3)
  ]};
 }
-const TERRAIN_LAYOUTS={
- layoutA:[
- [6,4,7,11.5,"large","rect",1],[19,4,6,4,"medium","rect",0],[29,4,10,2.5,"line","rect",0],[45,4,7,11.5,"large","rect",1],
- [7,18,8,11.5,"large","poly",1],[22,17,6,2,"line","rect",0],[32,17,6,2,"line","rect",0],[45,18,8,11.5,"large","poly",1],
- [5,34,6,4,"medium","rect",0],[15,34,7,11.5,"large","rect",1],[28,35,10,2.5,"line","rect",0],[42,34,7,11.5,"large","rect",1],
- [52,34,6,4,"medium","rect",0],[3,26,6,2,"line","rect",0],[51,26,6,2,"line","rect",0],[27,26,6,4,"medium","rect",0]
- ],
- layoutB:[
- [5,5,10,2.5,"line","rect",0],[19,4,7,11.5,"large","rect",1],[35,5,6,4,"medium","rect",0],[47,4,8,11.5,"large","poly",1],
- [5,18,7,11.5,"large","rect",1],[19,18,6,2,"line","rect",0],[28,17,8,11.5,"large","poly",1],[45,18,10,2.5,"line","rect",0],
- [6,34,6,4,"medium","rect",0],[17,33,7,11.5,"large","rect",1],[31,34,6,2,"line","rect",0],[43,33,7,11.5,"large","rect",1],
- [52,35,6,4,"medium","rect",0],[3,28,6,2,"line","rect",0],[24,31,6,4,"medium","rect",0],[51,27,6,2,"line","rect",0]
- ],
- layoutC:[
- [5,4,7,11.5,"large","rect",1],[18,5,6,4,"medium","rect",0],[28,4,8,11.5,"large","poly",1],[45,5,10,2.5,"line","rect",0],
- [8,18,6,2,"line","rect",0],[19,17,7,11.5,"large","rect",1],[35,18,6,4,"medium","rect",0],[46,17,7,11.5,"large","rect",1],
- [5,34,10,2.5,"line","rect",0],[18,33,8,11.5,"large","poly",1],[33,34,6,2,"line","rect",0],[43,33,7,11.5,"large","rect",1],
- [53,35,6,4,"medium","rect",0],[3,27,6,2,"line","rect",0],[28,31,6,4,"medium","rect",0],[51,27,6,2,"line","rect",0]
- ],
- footprints:[
- [2,3,6,4,"medium","rect",0],[10,3,6,4,"medium","rect",0],[18,3,6,4,"medium","rect",0],[26,3,6,4,"medium","rect",0],
- [2,10,10,2.5,"line","rect",0],[14,10,10,2.5,"line","rect",0],
- [2,15,6,2,"line","rect",0],[10,15,6,2,"line","rect",0],[18,15,6,2,"line","rect",0],[26,15,6,2,"line","rect",0],
- [2,20,7,11.5,"large","rect",1],[11,20,7,11.5,"large","rect",1],[20,20,7,11.5,"large","rect",1],[29,20,7,11.5,"large","rect",1],
- [39,20,8,11.5,"large","poly",1],[50,20,8,11.5,"large","poly",1]
- ]
-};
-function activeTerrain(){
- if(state.terrainPreset==="custom")return (state.customTerrain||[]).map(([x,y,w,h,b])=>[x,y,w,h,b?"large":"medium","rect",b?1:0]);
- return TERRAIN_LAYOUTS[state.terrainPreset]||TERRAIN_LAYOUTS.layoutA;
-}
 function terrain(){
- activeTerrain().forEach(([x,y,w,h,kind,shape,dense])=>{
-   let area=document.createElement("div");area.className=`terrainArea ${kind} ${shape==="poly"?"poly":""}`;
-   Object.assign(area.style,{left:x*PPI+"px",top:y*PPI+"px",width:w*PPI+"px",height:h*PPI+"px"});board.appendChild(area);
-   let f=document.createElement("div");f.className=`terrainFeature ${dense?"dense":"light"}`;
-   Object.assign(f.style,{left:(x+w*.18)*PPI+"px",top:(y+h*.18)*PPI+"px",width:Math.max(1.2,w*.48)*PPI+"px",height:Math.max(1.1,h*.48)*PPI+"px"});board.appendChild(f);
+ const builtIn=[[7,6,10,5,1],[22,4,8,6,1],[40,5,10,5,1],[12,18,8,5,1],[27,18,7,7,0],[43,18,8,5,1],[7,33,10,5,1],[24,32,8,6,1],[42,33,10,5,1]];
+ [...builtIn,...(state.customTerrain||[])].forEach(([x,y,w,h,b])=>{
+   let e=document.createElement("div");e.className="terrain "+(b?"blocking":"");
+   Object.assign(e.style,{left:x*PPI+"px",top:y*PPI+"px",width:w*PPI+"px",height:h*PPI+"px"});
+   board.appendChild(e)
  })
 }
 const objectives=[[30,22],[12,22],[48,22],[30,8],[30,36]];
-
-const ARMY_CATALOGUES = {
- "Adepta Sororitas":"Imperium - Adepta Sororitas.json",
- "Adeptus Custodes":"Imperium - Adeptus Custodes.json",
- "Adeptus Mechanicus":"Imperium - Adeptus Mechanicus.json",
- "Agents of the Imperium":"Imperium - Agents of the Imperium.json",
- "Aeldari":"Aeldari - Craftworlds.json",
- "Astra Militarum":"Imperium - Astra Militarum.json",
- "Black Templars":"Imperium - Black Templars.json",
- "Blood Angels":"Imperium - Blood Angels.json",
- "Chaos Daemons":"Chaos - Chaos Daemons.json",
- "Chaos Knights":"Chaos - Chaos Knights.json",
- "Chaos Space Marines":"Chaos - Chaos Space Marines.json",
- "Dark Angels":"Imperium - Dark Angels.json",
- "Death Guard":"Chaos - Death Guard.json",
- "Deathwatch":"Imperium - Deathwatch.json",
- "Drukhari":"Aeldari - Drukhari.json",
- "Emperor's Children":"Chaos - Emperor's Children.json",
- "Genestealer Cults":"Genestealer Cults.json",
- "Grey Knights":"Imperium - Grey Knights.json",
- "Imperial Knights":"Imperium - Imperial Knights.json",
- "Leagues of Votann":"Leagues of Votann.json",
- "Necrons":"Necrons.json",
- "Orks":"Orks.json",
- "Salamanders":"Imperium - Salamanders.json",
- "Space Marines":"Imperium - Space Marines.json",
- "Space Wolves":"Imperium - Space Wolves.json",
- "T'au Empire":"T'au Empire.json",
- "Thousand Sons":"Chaos - Thousand Sons.json",
- "Tyranids":"Tyranids.json",
- "Ultramarines":"Imperium - Ultramarines.json",
- "White Scars":"Imperium - White Scars.json",
- "World Eaters":"Chaos - World Eaters.json"
-};
-const LIVE_BASE="https://raw.githubusercontent.com/BSData/wh40k-11e/refs/heads/main/";
-const liveArmyCache={};
-
-function charsToStats(profile){
- const out={};
- (profile?.characteristics||[]).forEach(c=>out[c.name]=String(c.$text??"").trim());
- return out;
-}
-function weaponProfiles(entry){
- const all=[];
- const visit=e=>{
-   (e?.profiles||[]).forEach(p=>{
-     if(p.typeName==="Ranged Weapons"||p.typeName==="Melee Weapons"){
-       const c=charsToStats(p);
-       all.push({
-         type:p.typeName==="Ranged Weapons"?"ranged":"melee",
-         name:p.name,
-         range:c.Range||"",
-         A:c.A||"",
-         skill:c.BS||c.WS||"",
-         S:c.S||"",
-         AP:c.AP||"",
-         D:c.D||"",
-         keywords:c.Keywords||""
-       });
-     }
-   });
-   ["selectionEntries","sharedSelectionEntries"].forEach(k=>(e?.[k]||[]).forEach(visit));
- };
- visit(entry);
- const seen=new Set();
- return all.filter(w=>{const k=[w.type,w.name,w.range,w.A,w.skill,w.S,w.AP,w.D,w.keywords].join("|");if(seen.has(k))return false;seen.add(k);return true});
-}
-function weaponLabel(w){
- const sk=w.type==="ranged"?"BS":"WS";
- return `${w.name} — ${w.range?`R ${w.range} • `:""}A ${w.A||"?"} • ${sk} ${w.skill||"?"} • S ${w.S||"?"} • AP ${w.AP||"?"} • D ${w.D||"?"}`;
-}
-function weaponInfo(w){
- if(!w)return"";
- const sk=w.type==="ranged"?"BS":"WS";
- return `${w.name} • ${w.range?`Range ${w.range} • `:""}A ${w.A||"?"} • ${sk} ${w.skill||"?"} • S ${w.S||"?"} • AP ${w.AP||"?"} • D ${w.D||"?"}${w.keywords?` • ${w.keywords}`:""}`;
-}
-function populateWeaponSelectors(side,unit){
- const pre=side==="friend"?"friendly":"enemy";
- const ranged=$(pre+"RangedWeapon"),melee=$(pre+"MeleeWeapon");
- ranged.innerHTML='<option value="">None / manual…</option>';melee.innerHTML='<option value="">None / manual…</option>';
- const weapons=unit?.raw?weaponProfiles(unit.raw):[];
- unit._weapons=weapons;
- weapons.filter(w=>w.type==="ranged").forEach((w,i)=>{let o=document.createElement("option");o.value=String(weapons.indexOf(w));o.textContent=weaponLabel(w);ranged.appendChild(o)});
- weapons.filter(w=>w.type==="melee").forEach((w,i)=>{let o=document.createElement("option");o.value=String(weapons.indexOf(w));o.textContent=weaponLabel(w);melee.appendChild(o)});
- $(pre+"RangedInfo").textContent=weapons.some(w=>w.type==="ranged")?"Select a ranged weapon.":"No ranged profile found in this unit entry.";
- $(pre+"MeleeInfo").textContent=weapons.some(w=>w.type==="melee")?"Select a melee weapon.":"No melee profile found in this unit entry.";
-}
-function selectedWeapon(side,type){
- const pre=side==="friend"?"friendly":"enemy",unit=selectedLiveUnit(side);
- if(!unit||!unit._weapons)return null;
- const sel=$(pre+(type==="ranged"?"RangedWeapon":"MeleeWeapon"));
- return sel.value===""?null:unit._weapons[Number(sel.value)]||null;
-}
-function applyWeapon(side,type){
- const pre=side==="friend"?"friendly":"enemy",w=selectedWeapon(side,type);
- $(pre+(type==="ranged"?"RangedInfo":"MeleeInfo")).textContent=weaponInfo(w);
- if(side==="friend"&&type==="ranged"&&w){
-   $("atk").value=numericStat(w.A,1);$("bs").value=numericStat(w.skill,3);$("str").value=numericStat(w.S,4);
-   $("ap").value=numericStat(w.AP,0);$("dmg").value=numericStat(w.D,1);$("rng").value=numericStat(w.range,24);
-   const keys=(w.keywords||"").toLowerCase();
-   $("torrent").checked=keys.includes("torrent");$("blast").checked=keys.includes("blast");
-   $("lethal").checked=keys.includes("lethal hits");$("devWounds").checked=keys.includes("devastating wounds");
-   $("hazardous").checked=keys.includes("hazardous");
-   const sm=keys.match(/sustained hits\s*(\d+)/);$("sustained").value=sm?Number(sm[1]):0;
-   previewAttack();
- }
-}
-
-function numericStat(v,fallback=0){
- const m=String(v??"").match(/-?\d+(\.\d+)?/);
- return m?Number(m[0]):fallback;
-}
-function findUnitProfile(entry){
- return (entry?.profiles||[]).find(p=>p.typeName==="Unit") || null;
-}
-function pointCost(entry){
- const p=(entry?.costs||[]).find(c=>c.name==="pts");
- return p?Number(p.value||0):0;
-}
-function hasPointModifiers(entry){
- const txt=JSON.stringify(entry?.modifiers||entry?.modifierGroups||[]);
- return txt.includes('"field":"51b2-306e-1021-d207"') || txt.includes('"name":"pts"');
-}
-function extractLiveUnits(data){
- const roots=[
-   ...(data?.catalogue?.sharedSelectionEntries||[]),
-   ...(data?.catalogue?.selectionEntries||[])
- ];
- const found=[];
- const visit=(entry)=>{
-   if(!entry||typeof entry!=="object")return;
-   const profile=findUnitProfile(entry);
-   if(profile && entry.name && !entry.hidden){
-     const stats=charsToStats(profile),pts=pointCost(entry);
-     found.push({
-       name:entry.name, points:pts, pointsVariable:hasPointModifiers(entry),
-       move:stats.M||"", T:stats.T||"", sv:stats.Sv||"", W:stats.W||"",
-       LD:stats.LD||"", oc:stats.OC||"", inv:stats.InSv||"",
-       raw:entry
-     });
-   }
-   for(const key of ["selectionEntries","sharedSelectionEntries"]){
-     (entry[key]||[]).forEach(visit);
-   }
- };
- roots.forEach(visit);
- const dedup=new Map();
- found.forEach(u=>{
-   const key=u.name.toLowerCase();
-   if(!dedup.has(key) || (u.points && !dedup.get(key).points))dedup.set(key,u);
- });
- return [...dedup.values()].sort((a,b)=>a.name.localeCompare(b.name));
-}
-async function loadArmyUnits(army){
- if(liveArmyCache[army])return liveArmyCache[army];
- const file=ARMY_CATALOGUES[army];
- if(!file)return[];
- const url=LIVE_BASE+encodeURIComponent(file).replaceAll("%2F","/");
- const resp=await fetch(url,{cache:"no-store"});
- if(!resp.ok)throw new Error(`Catalogue load failed (${resp.status})`);
- const data=await resp.json();
- const units=extractLiveUnits(data);
- liveArmyCache[army]=units;
- return units;
-}
-function populateArmySelectors(){
- const names=Object.keys(ARMY_CATALOGUES).sort();
- for(const id of ["friendlyArmy","enemyArmy"]){
-   const sel=$(id);sel.innerHTML="";
-   names.forEach(n=>{const o=document.createElement("option");o.value=n;o.textContent=n;sel.appendChild(o)});
- }
- $("friendlyArmy").value="Space Marines";
- $("enemyArmy").value="Chaos Space Marines";
-}
-function unitLabel(u){
- const pts=u.points?`${u.points}${u.pointsVariable?"+":""} pts`:"points vary";
- const stats=[u.move&&`M ${u.move}`,u.T&&`T ${u.T}`,u.sv&&`Sv ${u.sv}`,u.W&&`W ${u.W}`,u.oc&&`OC ${u.oc}`].filter(Boolean).join(" • ");
- return `${u.name} — ${pts}${stats?` — ${stats}`:""}`;
-}
-async function populateLiveUnitSelector(side){
- const isFriend=side==="friend", army=$(isFriend?"friendlyArmy":"enemyArmy").value;
- const sel=$(isFriend?"unitPreset":"enemyUnitPreset"),info=$(isFriend?"friendlyUnitInfo":"enemyUnitInfo");
- sel.innerHTML='<option value="">Loading current units…</option>';info.textContent=`Loading ${army} catalogue…`;
- try{
-   const units=await loadArmyUnits(army);
-   sel.innerHTML='<option value="">Custom / manual unit…</option>';
-   units.forEach((u,i)=>{const o=document.createElement("option");o.value=`live:${i}`;o.textContent=unitLabel(u);sel.appendChild(o)});
-   sel.dataset.army=army;
-   info.textContent=`${units.length} current catalogue units loaded for ${army}.`;
- }catch(err){
-   // Fallback to local presets for offline use.
-   sel.innerHTML='<option value="">Custom / manual unit…</option>';
-   UNIT_LIBRARY.filter(u=>u.faction===army).forEach((u,i)=>{
-     const o=document.createElement("option");o.value=`fallback:${UNIT_LIBRARY.indexOf(u)}`;o.textContent=u.name;sel.appendChild(o)
-   });
-   info.textContent=`Offline fallback for ${army}. Live points/stats need an internet connection.`;
- }
-}
-function selectedLiveUnit(side){
- const isFriend=side==="friend",sel=$(isFriend?"unitPreset":"enemyUnitPreset"),army=$(isFriend?"friendlyArmy":"enemyArmy").value;
- if(!sel.value.startsWith("live:"))return null;
- return (liveArmyCache[army]||[])[Number(sel.value.split(":")[1])]||null;
-}
-function applyLiveOrFallback(side){
- const isFriend=side==="friend",sel=$(isFriend?"unitPreset":"enemyUnitPreset");
- if(!sel.value)return;
- let u=null,faction=$(isFriend?"friendlyArmy":"enemyArmy").value;
- if(sel.value.startsWith("live:")){
-   u=selectedLiveUnit(side);
-   if(!u)return;
-   const prefix=isFriend?"new":"enemy";
-   $(prefix+"Name").value=u.name;
-   $(prefix+"Move").value=numericStat(u.move,6);
-   $(prefix+"T").value=numericStat(u.T,4);
-   $(prefix+"Sv").value=numericStat(u.sv,3);
-   $(prefix+"Wpm").value=numericStat(u.W,2);
-   $(prefix+"Oc").value=numericStat(u.oc,1);
-   $(prefix+"Pts").value=u.points||0;
-   $(isFriend?"friendlyUnitInfo":"enemyUnitInfo").textContent=
-     `${u.name} • ${u.points?u.points+(u.pointsVariable?"+":"")+" pts":"points vary"} • M ${u.move||"?"} • T ${u.T||"?"} • Sv ${u.sv||"?"} • W ${u.W||"?"} • LD ${u.LD||"?"} • OC ${u.oc||"?"}${u.inv?` • Inv ${u.inv}`:""}`;
-   populateWeaponSelectors(side,u);
- } else if(sel.value.startsWith("fallback:")){
-   u=UNIT_LIBRARY[Number(sel.value.split(":")[1])];
-   const prefix=isFriend?"new":"enemy";
-   $(prefix+"Name").value=u.name;$(prefix+"Count").value=u.count;$(prefix+"Base").value=u.base;$(prefix+"Wpm").value=u.wpm;
-   $(prefix+"Move").value=u.move;$(prefix+"T").value=u.T;$(prefix+"Sv").value=u.sv;$(prefix+"Oc").value=u.oc;$(prefix+"Pts").value=u.points||0;
-   populateWeaponSelectors(side,null);
- }
-}
-
-const UNIT_LIBRARY = [
- {faction:"Space Marines",name:"Intercessor Squad",count:5,base:32,wpm:2,move:6,T:4,sv:3,oc:2,points:0},
- {faction:"Space Marines",name:"Assault Intercessor Squad",count:5,base:32,wpm:2,move:6,T:4,sv:3,oc:2,points:0},
- {faction:"Space Marines",name:"Infernus Squad",count:10,base:32,wpm:2,move:6,T:4,sv:3,oc:1,points:0},
- {faction:"Space Marines",name:"Hellblaster Squad",count:10,base:32,wpm:2,move:6,T:4,sv:3,oc:1,points:0},
- {faction:"Space Marines",name:"Eradicator Squad",count:3,base:40,wpm:3,move:5,T:6,sv:3,oc:1,points:0},
- {faction:"Space Marines",name:"Terminator Squad",count:5,base:40,wpm:3,move:5,T:5,sv:2,oc:1,points:0},
- {faction:"Space Marines",name:"Vanguard Veterans with Jump Packs",count:5,base:32,wpm:2,move:12,T:4,sv:3,oc:1,points:0},
- {faction:"Space Marines",name:"Redemptor Dreadnought",count:1,base:90,wpm:12,move:8,T:10,sv:2,oc:4,points:0},
- {faction:"Space Marines",name:"Brutalis Dreadnought",count:1,base:90,wpm:12,move:10,T:10,sv:2,oc:4,points:0},
- {faction:"Space Marines",name:"Land Raider Redeemer",count:1,base:160,wpm:16,move:10,T:12,sv:2,oc:5,points:0},
- {faction:"Space Marines",name:"Stormraven Gunship",count:1,base:120,wpm:14,move:20,T:10,sv:3,oc:0,points:0},
-
- {faction:"Grey Knights",name:"Strike Squad",count:5,base:32,wpm:2,move:6,T:4,sv:2,oc:2,points:0},
- {faction:"Grey Knights",name:"Purifier Squad",count:10,base:32,wpm:2,move:6,T:4,sv:2,oc:2,points:0},
- {faction:"Grey Knights",name:"Purgation Squad",count:5,base:32,wpm:2,move:6,T:4,sv:2,oc:2,points:0},
- {faction:"Grey Knights",name:"Brotherhood Terminator Squad",count:5,base:40,wpm:3,move:5,T:5,sv:2,oc:2,points:0},
- {faction:"Grey Knights",name:"Paladin Squad",count:5,base:40,wpm:3,move:5,T:5,sv:2,oc:1,points:0},
- {faction:"Grey Knights",name:"Nemesis Dreadknight",count:1,base:120,wpm:13,move:8,T:11,sv:2,oc:4,points:0},
-
- {faction:"Chaos Space Marines",name:"Legionaries",count:10,base:32,wpm:2,move:6,T:4,sv:3,oc:2,points:0},
- {faction:"Chaos Space Marines",name:"Defiler",count:1,base:120,wpm:14,move:8,T:10,sv:3,oc:5,points:0},
- {faction:"Chaos Space Marines",name:"Daemon Prince",count:1,base:60,wpm:10,move:10,T:9,sv:2,oc:3,points:0},
- {faction:"Chaos Space Marines",name:"Chaos Predator",count:1,base:100,wpm:11,move:10,T:10,sv:3,oc:3,points:0}
-];
-
-function populateUnitLibrary(){populateArmySelectors();}
-function applyUnitPreset(){
- const value=$("unitPreset").value;
- if(value==="") return;
- const u=UNIT_LIBRARY[Number(value)];
- $("newName").value=u.name;
- $("newCount").value=u.count;
- $("newBase").value=u.base;
- $("newWpm").value=u.wpm;
- $("newMove").value=u.move;
- $("newT").value=u.T;
- $("newSv").value=u.sv;
- $("newOc").value=u.oc;
-}
-function applyEnemyPreset(){
- const value=$("enemyUnitPreset").value;if(value==="")return;
- const u=UNIT_LIBRARY[Number(value)];
- $("enemyName").value=u.name;$("enemyCount").value=u.count;$("enemyBase").value=u.base;$("enemyWpm").value=u.wpm;
- $("enemyMove").value=u.move;$("enemyT").value=u.T;$("enemySv").value=u.sv;$("enemyOc").value=u.oc;
-}
-
 function staticBoard(){
  for(let x=5;x<BW;x+=5){let e=document.createElement("div");e.className="gridV";Object.assign(e.style,{left:x*PPI+"px",top:0,width:"1px",height:"100%"});board.appendChild(e)}
  for(let y=5;y<BH;y+=5){let e=document.createElement("div");e.className="gridH";Object.assign(e.style,{top:y*PPI+"px",left:0,height:"1px",width:"100%"});board.appendChild(e)}
  objectives.forEach(([x,y])=>{let e=document.createElement("div"),r=OBJ_RANGE*PPI;e.className="objective";Object.assign(e.style,{left:x*PPI-r+"px",top:y*PPI-r+"px",width:2*r+"px",height:2*r+"px"});board.appendChild(e)});terrain()
-}
-
-let view3d={rx:56,rz:0,zoom:.86,drag:false,lastX:0,lastY:0};
-function modelVisualType(u){
- const n=(u?.name||"").toLowerCase();
- if(/stormraven|stormhawk|stormtalon|aircraft|flyer/.test(n))return"flyer";
- if(/land raider|redeemer|predator|rhino|razorback|impulsor|repulsor|gladiator|vindicator|tank|speeder/.test(n))return"vehicle";
- if(/dreadnought|redemptor|brutalis|ballistus|dreadknight|gmndk|\bndk\b/.test(n))return"dreadnought";
- if(/daemon prince|carnifex|tyrant|monster|greater daemon/.test(n))return"monster";
- if(/terminator|paladin/.test(n))return"terminator";
- if(/gravis|eradicator|aggressor|heavy intercessor/.test(n))return"gravis";
- if(/captain|chaplain|librarian|lieutenant|vulkan|crowe|techmarine|apothecary/.test(n))return"character";
- return"infantry";
-}
-function modelTokenFor(u,m){
- const e=document.createElement("div"),type=modelVisualType(u),size=Math.max(14,mm2in(m.base)*PPI*1.05);
- e.className=`modelToken ${type}`;
- Object.assign(e.style,{left:m.x*PPI+"px",top:m.y*PPI+"px",width:size+"px",height:size+"px",color:u.side==="friend"?"#4da3ff":"#ff5d5d"});
- e.innerHTML=`<div class="body"></div><div class="facing"></div><div class="modelLabel">${u.name}</div>`;return e
-}
-function renderModelTokens(){state.units.forEach(u=>alive(u).forEach(m=>board.appendChild(modelTokenFor(u,m))))}
-function apply3DView(){
- const wrap=$("boardWrap"),b=$("board"),mode=$("viewModeSelect")?.value||"top";
- board.querySelectorAll(".model").forEach(e=>e.style.opacity=mode==="3d"?"0.12":"1");
- if(mode==="3d"){wrap.classList.add("view3d");b.style.transform=`rotateX(${view3d.rx}deg) rotateZ(${view3d.rz}deg) scale(${view3d.zoom})`}
- else{wrap.classList.remove("view3d");b.style.transform=""}
-}
-function setup3DControls(){
- const wrap=$("boardWrap");$("viewModeSelect").onchange=()=>render();
- wrap.addEventListener("pointerdown",e=>{if($("viewModeSelect").value!=="3d"||e.target.closest(".model"))return;view3d.drag=true;view3d.lastX=e.clientX;view3d.lastY=e.clientY});
- wrap.addEventListener("pointermove",e=>{if(!view3d.drag||$("viewModeSelect").value!=="3d")return;view3d.rz+=(e.clientX-view3d.lastX)*.28;view3d.rx=Math.max(28,Math.min(76,view3d.rx-(e.clientY-view3d.lastY)*.18));view3d.lastX=e.clientX;view3d.lastY=e.clientY;apply3DView()});
- window.addEventListener("pointerup",()=>view3d.drag=false);
- wrap.addEventListener("wheel",e=>{if($("viewModeSelect").value!=="3d")return;e.preventDefault();view3d.zoom=Math.max(.55,Math.min(1.25,view3d.zoom-e.deltaY*.0007));apply3DView()},{passive:false});
 }
 function render(){
  board.innerHTML="";staticBoard();
@@ -689,42 +160,20 @@ function render(){
    let e=document.createElement("div");e.className=`model ${u.side} ${(u.id===selectedUnitId&&m.id===selectedModelId)?"selected":""}`;
    e.dataset.unit=u.id;e.dataset.model=m.id;let dd=Math.max(16,mm2in(m.base)*PPI);Object.assign(e.style,{left:m.x*PPI+"px",top:m.y*PPI+"px",width:dd+"px",height:dd+"px"});e.textContent=alive(u).length===1?u.name.split(" ").map(s=>s[0]).join("").slice(0,3):String(i+1);e.title=`${u.name} model ${i+1} • ${m.wounds}/${m.maxWounds}W`;board.appendChild(e)
  }));
- if($("viewModeSelect")?.value==="3d")renderModelTokens();
- apply3DView();
- renderList();renderDetail();renderPhase();renderLog();renderRulesPanel();persist()
+ renderList();renderDetail();renderPhase();renderLog();persist()
 }
 function renderList(){
- const friendly=$("friendlyUnitList"),enemy=$("enemyUnitList");friendly.innerHTML="";enemy.innerHTML="";
- state.units.forEach(u=>{
-  const living=alive(u);
-  const woundsNow=living.reduce((s,m)=>s+m.wounds,0);
-  const woundsMax=u.models.reduce((s,m)=>s+m.maxWounds,0);
-  const e=document.createElement("div");e.className="rosterCard "+(u.id===selectedUnitId?"selected":"");
-  const pips=u.models.map((m,i)=>{
-    const cls=!m.alive?"dead":m.wounds<m.maxWounds?"damaged":"";
-    return `<span class="woundPip ${cls}" title="Model ${i+1}: ${m.alive?m.wounds+"/"+m.maxWounds+" wounds":"destroyed"}">${m.alive?m.wounds:"X"}</span>`;
-  }).join("");
-  e.innerHTML=`<div class="rosterHead"><b>${u.name}</b><span>${u.points||0} pts</span></div>
-   <div class="rosterSummary small"><span>${living.length}/${u.models.length} models</span><span>${woundsNow}/${woundsMax} wounds</span></div>
-   <div class="small">T${u.T} • Sv${u.sv}+ • OC${u.oc}</div>
-   <div class="woundTrack">${pips}</div>
-   <div class="rosterActions"><button data-select="${u.id}">Select</button><button data-remove="${u.id}" class="danger">Remove</button></div>`;
-  (u.side==="friend"?friendly:enemy).appendChild(e);
- });
- document.querySelectorAll("[data-select]").forEach(b=>b.onclick=()=>{const u=state.units.find(x=>x.id===b.dataset.select);selectedUnitId=u.id;selectedModelId=alive(u)[0]?.id||u.models[0]?.id||null;render()});
- document.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>{pushHistory("Remove unit");state.units=state.units.filter(x=>x.id!==b.dataset.remove);if(selectedUnitId===b.dataset.remove){selectedUnitId=null;selectedModelId=null}render()});
- $("friendlyPoints").textContent=`${state.units.filter(u=>u.side==="friend").reduce((s,u)=>s+(u.points||0),0)} pts`;
- $("enemyPoints").textContent=`${state.units.filter(u=>u.side==="enemy").reduce((s,u)=>s+(u.points||0),0)} pts`;
+ $("unitList").innerHTML="";state.units.forEach(u=>{let a=alive(u),w=a.reduce((s,m)=>s+m.wounds,0),max=u.models.reduce((s,m)=>s+m.maxWounds,0);let e=document.createElement("div");e.className="unitCard "+(u.id===selectedUnitId?"selected":"");e.innerHTML=`<b>${u.name}</b><span class="badge">${u.side}</span><br><span class="small">${a.length}/${u.models.length} models • ${w}/${max}W • T${u.T} Sv${u.sv}+ OC${u.oc}</span>`;e.onclick=()=>{selectedUnitId=u.id;selectedModelId=alive(u)[0]?.id||null;render()};$("unitList").appendChild(e)})
 }
 function renderDetail(){
  let u=state.units.find(x=>x.id===selectedUnitId);$("none").style.display=u?"none":"block";$("detail").style.display=u?"block":"none";if(!u)return;
- let a=alive(u);$("unitTitle").textContent=u.name;$("unitMeta").textContent=u.side==="friend"?"Friendly unit":"Enemy unit";$("selectedLoadout").innerHTML=`${u.rangedWeapon?`Ranged: <b>${u.rangedWeapon.name}</b><br>`:""}${u.meleeWeapon?`Melee: <b>${u.meleeWeapon.name}</b>`:"No saved melee weapon"}`;$("mStat").textContent=u.move+'"';$("tStat").textContent=u.T;$("svStat").textContent=u.sv+"+";$("ocStat").textContent=u.oc;$("aliveStat").textContent=`${a.length}/${u.models.length}`;$("woundStat").textContent=a.reduce((s,m)=>s+m.wounds,0);
+ let a=alive(u);$("unitTitle").textContent=u.name;$("unitMeta").textContent=u.side==="friend"?"Friendly unit":"Enemy unit";$("mStat").textContent=u.move+'"';$("tStat").textContent=u.T;$("svStat").textContent=u.sv+"+";$("ocStat").textContent=u.oc;$("aliveStat").textContent=`${a.length}/${u.models.length}`;$("woundStat").textContent=a.reduce((s,m)=>s+m.wounds,0);
  $("modelList").innerHTML="";u.models.forEach((m,i)=>{let row=document.createElement("div");row.className="modelrow";row.innerHTML=`<span class="small">Model ${i+1} • ${m.alive?m.wounds+"/"+m.maxWounds+"W":"destroyed"}</span><button data-sel="${m.id}">Select</button><button data-kill="${m.id}" class="danger">${m.alive?"Remove":"Restore"}</button>`;$("modelList").appendChild(row)});
  $("modelList").querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{selectedModelId=b.dataset.sel;render()});$("modelList").querySelectorAll("[data-kill]").forEach(b=>b.onclick=()=>toggleCasualty(u,b.dataset.kill));
  [chargeTarget,shootTarget].forEach(sel=>{sel.innerHTML="";state.units.filter(x=>x.side!==u.side&&alive(x).length).forEach(t=>{let o=document.createElement("option");o.value=t.id;o.textContent=`${t.name} (${unitEdgeDistance(u,t).toFixed(2)}" edge)`;sel.appendChild(o)})});previewAttack()
 }
-function toggleCasualty(u,id){pushHistory("Before casualty change");let m=u.models.find(x=>x.id===id);m.alive=!m.alive;if(m.alive){m.wounds=m.maxWounds;addLog(`${u.name} model restored`)}else{m.wounds=0;addLog(`${u.name} model removed as a casualty`)}render()}
-function renderPhase(){expireEffects();$("phase").textContent=`T${state.turn} ${phases[state.phase]}`;updateTotalScore()}
+function toggleCasualty(u,id){let m=u.models.find(x=>x.id===id);m.alive=!m.alive;if(m.alive){m.wounds=m.maxWounds;addLog(`${u.name} model restored`)}else{m.wounds=0;addLog(`${u.name} model removed as a casualty`)}render()}
+function renderPhase(){$("phase").textContent=`Turn ${state.turn} • ${phases[state.phase]} phase`}
 function renderLog(){$("log").textContent=state.log.join("\n\n")}
 function clearDyn(){board.querySelectorAll(".rangeHalo,.engHalo,.dsHalo,.label,.ruler,.losLine,.pathSeg").forEach(e=>e.remove())}
 function circle(x,y,r,cls){let e=document.createElement("div");e.className=cls;Object.assign(e.style,{left:x*PPI+"px",top:y*PPI+"px",width:2*r*PPI+"px",height:2*r*PPI+"px"});board.appendChild(e)}
@@ -740,7 +189,8 @@ function showRange(){clearDyn();let u=state.units.find(x=>x.id===selectedUnitId)
 function checkObj(){clearDyn();objectives.forEach(([x,y],i)=>{let f=0,e=0;state.units.forEach(u=>alive(u).forEach(m=>{let dd=Math.max(0,Math.hypot(m.x-x,m.y-y)-modelR(m));if(dd<=OBJ_RANGE){if(u.side==="friend")f+=u.oc;else e+=u.oc}}));label(x,y-4,`OBJ ${i+1}: ${f}-${e} ${f>e?"FRIEND":e>f?"ENEMY":"CONTESTED"}`)});$("status").textContent="OC counted model-by-model within 3″ of objective centre"}
 
 function allTerrainRects(){
- return activeTerrain().map(([x,y,w,h,kind,shape,dense])=>({x,y,w,h,blocking:!!dense,shape}));
+ const builtIn=[[7,6,10,5,1],[22,4,8,6,1],[40,5,10,5,1],[12,18,8,5,1],[27,18,7,7,0],[43,18,8,5,1],[7,33,10,5,1],[24,32,8,6,1],[42,33,10,5,1]];
+ return [...builtIn,...(state.customTerrain||[])].map(([x,y,w,h,b])=>({x,y,w,h,blocking:!!b}));
 }
 function segmentIntersectsRect(a,b,r){
  const steps=Math.max(8,Math.ceil(dxy(a,b)*8));
@@ -800,7 +250,7 @@ function finishPathMove(){
  if(L>u.move+.001)addLog(`${u.name} path move rejected: ${L.toFixed(2)}" exceeds M${u.move}"`);
  else if(blocked)addLog(`${u.name} path move rejected: path crosses blocking terrain`);
  else if(enemyEng)addLog(`${u.name} path move rejected: ends within enemy Engagement Range`);
- else{pushHistory("Before path move");m.x=end.x;m.y=end.y;addLog(`${u.name} model path-moved ${L.toFixed(2)}"`)}
+ else{m.x=end.x;m.y=end.y;addLog(`${u.name} model path-moved ${L.toFixed(2)}"`)}
  pathPoints=[];tool="select";render()
 }
 function boardPoint(ev){let r=board.getBoundingClientRect();return{x:(ev.clientX-r.left)/PPI,y:(ev.clientY-r.top)/PPI}}
@@ -812,32 +262,19 @@ function legalMove(u,m,newp,ignoreEng=false){
 }
 board.addEventListener("pointerdown",ev=>{if(tool==="path"){pathPoints.push(boardPoint(ev));drawPath();$("status").textContent=`Path ${pathLength(pathPoints).toFixed(2)}"`;return}if(tool==="ruler"){rulerStart=boardPoint(ev);return}let el=ev.target.closest(".model");if(!el)return;selectedUnitId=el.dataset.unit;selectedModelId=el.dataset.model;let u=state.units.find(x=>x.id===selectedUnitId),m=u.models.find(x=>x.id===selectedModelId);drag={u,m,sx:ev.clientX,sy:ev.clientY,ox:m.x,oy:m.y};el.setPointerCapture(ev.pointerId);render()});
 board.addEventListener("pointermove",ev=>{if(tool==="ruler"&&rulerStart){drawRuler(rulerStart,boardPoint(ev));return}if(!drag)return;let p={x:clamp(drag.ox+(ev.clientX-drag.sx)/PPI,0,BW),y:clamp(drag.oy+(ev.clientY-drag.sy)/PPI,0,BH)};drag.m.x=p.x;drag.m.y=p.y;render()});
-board.addEventListener("pointerup",ev=>{if(tool==="ruler"&&rulerStart){drawRuler(rulerStart,boardPoint(ev));rulerStart=null;return}if(!drag)return;let p={x:drag.m.x,y:drag.m.y};drag.m.x=drag.ox;drag.m.y=drag.oy;let chk=legalMove(drag.u,drag.m,p,false);if(chk.ok){pushHistory("Before model move");drag.m.x=p.x;drag.m.y=p.y;let bad=coherencyProblems(drag.u);addLog(`${drag.u.name} model moved ${chk.msg}${bad.length?" • WARNING: unit out of coherency":""}`)}else addLog(`${drag.u.name} move rejected: ${chk.msg}`);drag=null;render()});
+board.addEventListener("pointerup",ev=>{if(tool==="ruler"&&rulerStart){drawRuler(rulerStart,boardPoint(ev));rulerStart=null;return}if(!drag)return;let p={x:drag.m.x,y:drag.m.y};drag.m.x=drag.ox;drag.m.y=drag.oy;let chk=legalMove(drag.u,drag.m,p,false);if(chk.ok){drag.m.x=p.x;drag.m.y=p.y;let bad=coherencyProblems(drag.u);addLog(`${drag.u.name} model moved ${chk.msg}${bad.length?" • WARNING: unit out of coherency":""}`)}else addLog(`${drag.u.name} move rejected: ${chk.msg}`);drag=null;render()});
 function previewAttack(){let a=state.units.find(x=>x.id===selectedUnitId),t=state.units.find(x=>x.id===$("shootTarget").value);if(!a||!t)return;let range=+$("rng").value,d=unitEdgeDistance(a,t),w=woundOn(+$("str").value,t.T),s=saveOn(t.sv,+$("ap").value);let los=alive(a).some(am=>alive(t).some(tm=>hasLOS(am,tm)));let cov=targetInCover(a,t);$("attackPreview").innerHTML=`Edge distance <b>${d.toFixed(2)}"</b> • ${d<=range?'<span class="ok">IN RANGE</span>':'<span class="warn">OUT OF RANGE</span>'} • ${los?'<span class="ok">LOS</span>':'<span class="warn">NO LOS</span>'} • ${cov?'Cover':''} • wounds ${w}+ • save ${s}+`}
 function allocateDamage(target,totalDamage,fnpTarget){
  let damageLeft=totalDamage,ignored=0,casualties=0;while(damageLeft>0){let m=alive(target)[0];if(!m)break;let point=1;if(fnpTarget>0){let r=dice();if(r>=fnpTarget){ignored++;damageLeft--;continue}}m.wounds-=point;damageLeft--;if(m.wounds<=0){m.alive=false;m.wounds=0;casualties++}}
  return{ignored,casualties,applied:totalDamage-ignored-damageLeft}
 }
-$("loadSelectedRanged").onclick=()=>{
- const u=state.units.find(x=>x.id===selectedUnitId),w=u?.rangedWeapon;if(!w){alert("This unit has no saved ranged weapon.");return}
- $("atk").value=numericStat(w.A,1);$("bs").value=numericStat(w.skill,3);$("str").value=numericStat(w.S,4);$("ap").value=numericStat(w.AP,0);$("dmg").value=numericStat(w.D,1);$("rng").value=numericStat(w.range,24);
- const keys=(w.keywords||"").toLowerCase();$("torrent").checked=keys.includes("torrent");$("blast").checked=keys.includes("blast");$("lethal").checked=keys.includes("lethal hits");$("devWounds").checked=keys.includes("devastating wounds");$("hazardous").checked=keys.includes("hazardous");const sm=keys.match(/sustained hits\s*(\d+)/);$("sustained").value=sm?Number(sm[1]):0;previewAttack()
-};
-$("fire").onclick=()=>{pushHistory("Before shooting");
+$("fire").onclick=()=>{
  let a=state.units.find(x=>x.id===selectedUnitId),t=state.units.find(x=>x.id===$("shootTarget").value);if(!a||!t)return;
  let distance=unitEdgeDistance(a,t),range=+$("rng").value;
  if(distance>range){alert(`Target is ${distance.toFixed(2)}" away from closest attacking base. Range is ${range}".`);return}
  let los=alive(a).some(am=>alive(t).some(tm=>hasLOS(am,tm)));
  if(!los){alert("No line of sight between any attacking model and target model.");return}
- let A=+$("atk").value,H=+$("bs").value,S=+$("str").value,AP=+$("ap").value,D=+$("dmg").value;
- if(effectActiveForUnit(a,"plusAP"))AP-=1;
- if(effectActiveForUnit(a,"plusDamage"))D+=1;
- if(effectActiveForUnit(a,"rerollHits"))$("rrHit").checked=true;
- if(effectActiveForUnit(a,"rerollWounds"))$("rrWound").checked=true;
- if(effectActiveForUnit(a,"lethalHits"))$("lethal").checked=true;
- if(effectActiveForUnit(t,"fnp5") && +$("fnp").value===0)$("fnp").value=5;
- if(effectActiveForUnit(t,"reduceAP"))AP+=1;
- let W=woundOn(S,t.T);
+ let A=+$("atk").value,H=+$("bs").value,S=+$("str").value,AP=+$("ap").value,D=+$("dmg").value,W=woundOn(S,t.T);
  if($("blast").checked) A += Math.floor(alive(t).length/5);
  let hitRolls=[],hitCount=0,critHits=0;
  if($("torrent").checked){hitCount=A;hitRolls=Array(A).fill("auto")}
@@ -865,279 +302,25 @@ Hits ${hitCount}/${A}: ${hitRolls.join(" ")}
 S${S} vs T${t.T}: ${W}+ • wounds ${totalWounds}${devBypass?` (${devBypass} Devastating)`:''}
 Saves ${sv.ok}/${normalWounds} (${finalSv}+): ${sv.rolls.join(" ")}
 Damage ${total} • FNP ignored ${res.ignored} • applied ${res.applied} • casualties ${res.casualties}${haz}`);
- consumeActivationEffects(a);render()
-};
-$("rollCharge").onclick=()=>{pushHistory("Before charge roll");chargeRoll=dice()+dice();const cu=selectedUnit();if(cu&&effectActiveForUnit(cu,"chargePlus2"))chargeRoll+=2;$("chargeResult").textContent=`${chargeRoll}" charge`;addLog(`${state.units.find(x=>x.id===selectedUnitId)?.name||"Unit"} rolled ${chargeRoll}" charge`)};
-$("autoCharge").onclick=()=>{pushHistory("Before charge move");let a=state.units.find(x=>x.id===selectedUnitId),t=state.units.find(x=>x.id===$("chargeTarget").value);if(!a||!t||!chargeRoll){alert("Roll the charge first.");return}let am=alive(a).sort((x,y)=>{let dx=Math.min(...alive(t).map(n=>edgeDist(x,n)));let dy=Math.min(...alive(t).map(n=>edgeDist(y,n)));return dx-dy})[0];let tm=alive(t).sort((x,y)=>edgeDist(am,x)-edgeDist(am,y))[0],ed=edgeDist(am,tm),needed=Math.max(0,ed-ENGAGEMENT+.01);if(needed>chargeRoll+.001){addLog(`${a.name} charge failed: needs about ${needed.toFixed(2)}", rolled ${chargeRoll}"`);render();return}let vx=tm.x-am.x,vy=tm.y-am.y,L=Math.hypot(vx,vy)||1,centreTarget=modelR(am)+modelR(tm)+ENGAGEMENT-.02,newp={x:tm.x-vx/L*centreTarget,y:tm.y-vy/L*centreTarget},travel=Math.hypot(newp.x-am.x,newp.y-am.y);if(travel>chargeRoll){let scale=chargeRoll/travel;newp={x:am.x+(newp.x-am.x)*scale,y:am.y+(newp.y-am.y)*scale}}am.x=newp.x;am.y=newp.y;let bad=coherencyProblems(a);addLog(`${a.name} charge model moved ${travel.toFixed(2)}" into Engagement Range${bad.length?" • WARNING: remaining unit coherency needs adjustment":""}`);chargeRoll=null;$("chargeResult").textContent="—";render()};
-$("friendlyArmy").onchange=()=>populateLiveUnitSelector("friend");
-$("enemyArmy").onchange=()=>populateLiveUnitSelector("enemy");
-$("unitPreset").onchange=()=>applyLiveOrFallback("friend");
-$("enemyUnitPreset").onchange=()=>applyLiveOrFallback("enemy");
-$("friendlyRangedWeapon").onchange=()=>applyWeapon("friend","ranged");
-$("friendlyMeleeWeapon").onchange=()=>applyWeapon("friend","melee");
-$("enemyRangedWeapon").onchange=()=>applyWeapon("enemy","ranged");
-$("enemyMeleeWeapon").onchange=()=>applyWeapon("enemy","melee");
-$("addSquad").onclick=()=>{pushHistory("Before adding friendly unit");state.units.push(squad($("newName").value||"Unit","friend",8,30,+$("newCount").value,+$("newBase").value,+$("newWpm").value,+$("newMove").value,+$("newT").value,+$("newSv").value,+$("newOc").value,+$("newPts").value,$("friendlyArmy").value,selectedWeapon("friend","ranged"),selectedWeapon("friend","melee")));render()};
-$("addEnemySquad").onclick=()=>{pushHistory("Before adding enemy unit");state.units.push(squad($("enemyName").value||"Enemy Unit","enemy",46,10,+$("enemyCount").value,+$("enemyBase").value,+$("enemyWpm").value,+$("enemyMove").value,+$("enemyT").value,+$("enemySv").value,+$("enemyOc").value,+$("enemyPts").value,$("enemyArmy").value,selectedWeapon("enemy","ranged"),selectedWeapon("enemy","melee")));render()};
-
-
-
-const RULE_LIBRARY=[
- {id:"generic_reroll_hits",name:"Re-roll Hits",type:"ability",cost:0,phase:["Shooting","Fight"],scope:"activation",effect:"rerollHits",usage:"phase",desc:"Re-roll failed hit rolls for the selected unit this activation."},
- {id:"generic_reroll_wounds",name:"Re-roll Wounds",type:"ability",cost:0,phase:["Shooting","Fight"],scope:"activation",effect:"rerollWounds",usage:"phase",desc:"Re-roll failed wound rolls for the selected unit this activation."},
- {id:"generic_lethal_hits",name:"Lethal Hits",type:"ability",cost:0,phase:["Shooting","Fight"],scope:"activation",effect:"lethalHits",usage:"phase",desc:"Critical hits automatically wound for the selected activation."},
- {id:"generic_plus_ap",name:"Improve AP",type:"enhancement",cost:0,phase:["Shooting","Fight"],scope:"battle",effect:"plusAP",usage:"battle",desc:"Representative enhancement: improve AP by 1 while active."},
- {id:"generic_fnp5",name:"Feel No Pain 5+",type:"enhancement",cost:0,phase:["Command","Movement","Shooting","Charge","Fight"],scope:"battle",effect:"fnp5",usage:"battle",desc:"Representative enhancement: unit gains Feel No Pain 5+."},
- {id:"generic_damage_boost",name:"Focused Fire",type:"stratagem",cost:1,phase:["Shooting"],scope:"phase",effect:"plusDamage",usage:"phase",desc:"Representative stratagem: improve Damage by 1 for the selected unit this phase."},
- {id:"generic_charge_boost",name:"Aggressive Advance",type:"stratagem",cost:1,phase:["Charge"],scope:"phase",effect:"chargePlus2",usage:"phase",desc:"Representative stratagem: add 2 to this unit's Charge roll this phase."},
- {id:"generic_defence",name:"Armour of Contempt",type:"stratagem",cost:1,phase:["Shooting","Fight"],scope:"phase",effect:"reduceAP",usage:"phase",desc:"Representative defensive stratagem: worsen incoming AP by 1 for this unit this phase."}
-];
-function ensureRulesState(){
- if(!state.ruleUsage)state.ruleUsage={};
- if(!Array.isArray(state.activeEffects))state.activeEffects=[];
-}
-function selectedUnit(){return state.units.find(x=>x.id===selectedUnitId)}
-function ruleKey(rule,u){
- if(rule.usage==="battle")return`${u.id}:${rule.id}:battle`;
- if(rule.usage==="turn")return`${u.id}:${rule.id}:T${state.turn}`;
- return`${u.id}:${rule.id}:T${state.turn}:${phases[state.phase]}`;
-}
-function cpForSide(side){ensureMeta();return side==="friend"?(+state.meta.friendlyCP||0):(+state.meta.enemyCP||0)}
-function setCpForSide(side,v){ensureMeta();if(side==="friend")state.meta.friendlyCP=Math.max(0,v);else state.meta.enemyCP=Math.max(0,v);syncMeta()}
-function effectActiveForUnit(u,effect){
- ensureRulesState();return state.activeEffects.some(x=>x.unitId===u.id&&x.effect===effect&&(x.expires==="battle"||x.turn===state.turn&&(x.expires==="turn"||x.phase===phases[state.phase])))
-}
-function expireEffects(){
- ensureRulesState();
- state.activeEffects=state.activeEffects.filter(x=>{
-  if(x.expires==="battle")return true;
-  if(x.expires==="turn")return x.turn===state.turn;
-  if(x.expires==="phase")return x.turn===state.turn&&x.phase===phases[state.phase];
-  if(x.expires==="activation")return false;
-  return true
- });
-}
-function applyRule(rule){
- const u=selectedUnit();if(!u)return;
- ensureRulesState();
- const key=ruleKey(rule,u);
- if(state.ruleUsage[key]){alert("This rule has already been used for its current limit.");return}
- if(!rule.phase.includes(phases[state.phase])){alert(`This rule is not available in the ${phases[state.phase]} phase.`);return}
- if(rule.cost>0){
-  const cp=cpForSide(u.side);
-  if(cp<rule.cost){alert(`Not enough CP. ${rule.cost} CP required.`);return}
- }
- pushHistory(`Before ${rule.name}`);
- if(rule.cost>0)setCpForSide(u.side,cpForSide(u.side)-rule.cost);
- state.ruleUsage[key]=true;
- state.activeEffects.push({id:uid(),unitId:u.id,unitName:u.name,effect:rule.effect,name:rule.name,turn:state.turn,phase:phases[state.phase],expires:rule.scope});
- addLog(`${u.name} used ${rule.name}${rule.cost?` (${rule.cost} CP)`:""} • ${rule.desc}`);
- renderRulesPanel();render()
-}
-function removeEffect(id){
- pushHistory("Before removing active effect");state.activeEffects=state.activeEffects.filter(x=>x.id!==id);renderRulesPanel();render()
-}
-function renderRulesPanel(){
- const u=selectedUnit(),cat=$("ruleCategory")?.value||"all";ensureRulesState();
- $("rulesPanelUnit").textContent=u?`${u.name} • ${phases[state.phase]} phase`:"Select a unit.";
- const list=$("ruleList");list.innerHTML="";
- if(!u){$("activeEffects").textContent="None";return}
- RULE_LIBRARY.filter(r=>cat==="all"||r.type===cat).forEach(rule=>{
-  const used=!!state.ruleUsage[ruleKey(rule,u)],phaseOk=rule.phase.includes(phases[state.phase]),cpOk=cpForSide(u.side)>=rule.cost;
-  const e=document.createElement("div");e.className=`ruleCard ${used?"used":""} ${effectActiveForUnit(u,rule.effect)?"active":""}`;
-  e.innerHTML=`<div class="ruleTop"><b>${rule.name}</b><span>${rule.type}${rule.cost?` • ${rule.cost} CP`:""}</span></div>
-  <div class="ruleMeta">${rule.desc}<br>Timing: ${rule.phase.join(", ")} • Limit: ${rule.usage}</div>
-  <div class="ruleActions"><button ${(!phaseOk||used||!cpOk)?"disabled":""} data-rule="${rule.id}">Use</button></div>`;
-  list.appendChild(e)
- });
- list.querySelectorAll("[data-rule]").forEach(b=>b.onclick=()=>applyRule(RULE_LIBRARY.find(r=>r.id===b.dataset.rule)));
- const effects=state.activeEffects.filter(x=>x.unitId===u.id);
- $("activeEffects").innerHTML=effects.length?effects.map(x=>`<span class="effectChip">${x.name}</span>`).join(""):"None";
-}
-function consumeActivationEffects(u){
- ensureRulesState();state.activeEffects=state.activeEffects.filter(x=>!(x.unitId===u.id&&x.expires==="activation"))
-}
-
-let history=[],historyIndex=-1,isRestoringHistory=false;
-function cloneState(){return JSON.parse(JSON.stringify(state))}
-function historyLabel(label){return `${label} • T${state.turn} ${phases[state.phase]}`}
-function pushHistory(label="Step"){
- if(isRestoringHistory)return;
- const snap=cloneState();
- if(historyIndex<history.length-1)history=history.slice(0,historyIndex+1);
- history.push({label:historyLabel(label),state:snap});
- if(history.length>120)history.shift(); else historyIndex++;
- updateTimelineInfo();
-}
-function restoreHistory(index){
- if(index<0||index>=history.length)return;
- isRestoringHistory=true;
- state=JSON.parse(JSON.stringify(history[index].state));
- historyIndex=index;
- selectedUnitId=null;selectedModelId=null;
- ensureMeta();syncMeta();
- if($("terrainLayoutSelect"))$("terrainLayoutSelect").value=state.terrainPreset||"layoutA";
- render();
- isRestoringHistory=false;
- updateTimelineInfo();
-}
-function undoHistory(){if(historyIndex>0)restoreHistory(historyIndex-1)}
-function redoHistory(){if(historyIndex<history.length-1)restoreHistory(historyIndex+1)}
-function updateTimelineInfo(){
- if(!$("timelineInfo"))return;
- const item=history[historyIndex];
- $("timelineInfo").innerHTML=item?`${historyIndex+1}/${history.length} • ${item.label}${historyIndex<history.length-1?' <span class="branchBadge">earlier state</span>':''}`:"No history yet";
-}
-function checkpoint(label="Checkpoint"){pushHistory(label)}
-function ensureMeta(){
- if(!state.meta)state.meta={};
- const d={
-  friendlyDetachment:"",friendlyDisposition:"",enemyDetachment:"",enemyDisposition:"",
-  friendlyCP:0,enemyCP:0,
-  activePlayer:"friend",primaryName:"",primaryTiming:"end_command",primaryAward:5,primaryAchieved:false,
-  friendlyPrimaryScore:0,enemyPrimaryScore:0,
-  friendlySecondary1:"",friendlySecondary1Timing:"end_turn",friendlySecondary1Award:5,friendlySecondary1Achieved:false,
-  friendlySecondary2:"",friendlySecondary2Timing:"end_turn",friendlySecondary2Award:5,friendlySecondary2Achieved:false,
-  enemySecondary1:"",enemySecondary1Timing:"end_turn",enemySecondary1Award:5,enemySecondary1Achieved:false,
-  enemySecondary2:"",enemySecondary2Timing:"end_turn",enemySecondary2Award:5,enemySecondary2Achieved:false,
-  friendlySecondaryScore:0,enemySecondaryScore:0,scoreEvents:[]
- };
- Object.keys(d).forEach(k=>{if(state.meta[k]===undefined)state.meta[k]=d[k]});
- if(!Array.isArray(state.meta.scoreEvents))state.meta.scoreEvents=[];
-}
-const META_IDS=["friendlyDetachment","friendlyDisposition","enemyDetachment","enemyDisposition","friendlyCP","enemyCP",
-"activePlayer","primaryName","primaryTiming","primaryAward","primaryAchieved",
-"friendlySecondary1","friendlySecondary1Timing","friendlySecondary1Award","friendlySecondary1Achieved",
-"friendlySecondary2","friendlySecondary2Timing","friendlySecondary2Award","friendlySecondary2Achieved",
-"enemySecondary1","enemySecondary1Timing","enemySecondary1Award","enemySecondary1Achieved",
-"enemySecondary2","enemySecondary2Timing","enemySecondary2Award","enemySecondary2Achieved"];
-function updateTotalScore(){
- ensureMeta();
- const f=(+state.meta.friendlyPrimaryScore||0)+(+state.meta.friendlySecondaryScore||0);
- const e=(+state.meta.enemyPrimaryScore||0)+(+state.meta.enemySecondaryScore||0);
- if($("friendlyPrimary"))$("friendlyPrimary").textContent=state.meta.friendlyPrimaryScore||0;
- if($("enemyPrimary"))$("enemyPrimary").textContent=state.meta.enemyPrimaryScore||0;
- if($("friendlySecondaryTotal"))$("friendlySecondaryTotal").textContent=state.meta.friendlySecondaryScore||0;
- if($("enemySecondaryTotal"))$("enemySecondaryTotal").textContent=state.meta.enemySecondaryScore||0;
- if($("totalScore"))$("totalScore").textContent=`${f}–${e}`;
-}
-function syncMeta(){
- ensureMeta();
- META_IDS.forEach(id=>{
-  if(!$(id))return;
-  if($(id).type==="checkbox")$(id).checked=!!state.meta[id];
-  else $(id).value=state.meta[id];
- });
- updateTotalScore()
-}
-function metaChanged(){
- ensureMeta();
- META_IDS.forEach(id=>{
-  if(!$(id))return;
-  state.meta[id]=$(id).type==="checkbox"?$(id).checked:$(id).type==="number"?Number($(id).value||0):$(id).value
- });
- updateTotalScore();persist()
-}
-
-function scoringKey(side,kind,slot,timing){
- return `${side}:${kind}:${slot}:R${state.turn}:${timing}`;
-}
-function recordScore(side,source,vp,timing){
- ensureMeta();
- if(vp<=0)return;
- if(side==="friend"){
-  if(source==="Primary")state.meta.friendlyPrimaryScore+=vp;else state.meta.friendlySecondaryScore+=vp;
- }else{
-  if(source==="Primary")state.meta.enemyPrimaryScore+=vp;else state.meta.enemySecondaryScore+=vp;
- }
- const ev={round:state.turn,phase:phases[state.phase],side,source,vp,timing,label:new Date().toISOString()};
- state.meta.scoreEvents.push(ev);
- addLog(`${side==="friend"?"Friendly":"Enemy"} scored ${vp} VP — ${source} — ${timing.replaceAll("_"," ")}`);
-}
-function secondaryAwardedThisTurn(side){
- ensureMeta();return state.meta.scoreEvents.filter(e=>e.side===side&&e.source!=="Primary"&&e.round===state.turn).reduce((s,e)=>s+e.vp,0)
-}
-function scoreSecondary(side,slot,timing){
- const pre=side==="friend"?"friendly":"enemy";
- const nameKey=`${pre}Secondary${slot}`,timingKey=`${nameKey}Timing`,awardKey=`${nameKey}Award`,achKey=`${nameKey}Achieved`;
- if(!state.meta[achKey]||state.meta[timingKey]!==timing||!state.meta[nameKey])return;
- const key=scoringKey(side,"secondary",slot,timing);
- if(state.meta.scoreEvents.some(e=>e.key===key))return;
- let vp=+state.meta[awardKey]||0;
- if(timing==="end_turn"){
-   const room=Math.max(0,15-secondaryAwardedThisTurn(side));
-   vp=Math.min(vp,room);
- }
- if(vp<=0)return;
- pushHistory(`Before scoring ${state.meta[nameKey]}`);
- recordScore(side,state.meta[nameKey],vp,timing);
- state.meta.scoreEvents[state.meta.scoreEvents.length-1].key=key;
- state.meta[achKey]=false;
- syncMeta();
-}
-function scorePrimary(side,timing){
- if(!state.meta.primaryAchieved||state.meta.primaryTiming!==timing||!state.meta.primaryName)return;
- const key=scoringKey(side,"primary",0,timing);
- if(state.meta.scoreEvents.some(e=>e.key===key))return;
- const vp=+state.meta.primaryAward||0;if(vp<=0)return;
- pushHistory(`Before scoring ${state.meta.primaryName}`);
- recordScore(side,"Primary",vp,timing);
- state.meta.scoreEvents[state.meta.scoreEvents.length-1].key=key;
- state.meta.primaryAchieved=false;syncMeta()
-}
-function processScoringCheckpoint(timing,side=state.meta.activePlayer){
- ensureMeta();
- scorePrimary(side,timing);
- scoreSecondary(side,1,timing);scoreSecondary(side,2,timing);
- updateTotalScore();persist()
-}
-function runToolMenu(){
- const v=$("toolMenu").value;
- if(v==="select")setTool("select");else if(v==="ruler")setTool("ruler");else if(v==="path")beginPathMove();
- else if(v==="moveRange")showMove();else if(v==="weaponRange")showRange();else if(v==="engagement")showEng();
- else if(v==="reserve")showDS();else if(v==="coherency")showCoherency();else if(v==="los")drawLOS();
- else if(v==="cover")showCover();else if(v==="objectives")checkObj()
-}
-function runFileMenu(){
- const v=$("fileMenu").value;$("fileMenu").value="";
- if(v==="save")$("saveJson").click();else if(v==="load")$("loadJson").click();else if(v==="export")$("exportCsv").click();else if(v==="scoreBattle"){processScoringCheckpoint("end_battle","friend");processScoringCheckpoint("end_battle","enemy");render()}else if(v==="reset")$("reset").click()
-}
-function setTool(t){tool=t;$("selectTool").classList.toggle("active",t==="select");$("rulerTool").classList.toggle("active",t==="ruler")}
-$("toolMenu").onchange=runToolMenu;$("fileMenu").onchange=runFileMenu;$("ruleCategory").onchange=renderRulesPanel;
-$("selectTool").onclick=()=>setTool("select");$("rulerTool").onclick=()=>setTool("ruler");$("moveRange").onclick=showMove;$("weaponRangeBtn").onclick=showRange;$("engagementBtn").onclick=showEng;$("deepStrikeBtn").onclick=showDS;$("objectivesBtn").onclick=checkObj;$("coherencyBtn").onclick=showCoherency;$("losBtn").onclick=drawLOS;$("coverBtn").onclick=showCover;$("pathMoveBtn").onclick=beginPathMove;$("finishPathBtn").onclick=finishPathMove;$("clearOverlays").onclick=clearDyn;
-$("addTerrainBtn").onclick=()=>{if(!state.customTerrain)state.customTerrain=[];state.terrainPreset="custom";$("terrainLayoutSelect").value="custom";state.customTerrain.push([27,20,+$("terrainW").value,+$("terrainH").value,$("terrainBlocking").checked?1:0]);addLog("Custom terrain added at board centre");render()};
-$("clearTerrainBtn").onclick=()=>{state.customTerrain=[];state.terrainPreset="custom";$("terrainLayoutSelect").value="custom";addLog("Custom terrain cleared");render()};
-$("applyTerrainLayout").onclick=()=>{pushHistory("Before terrain change");state.terrainPreset=$("terrainLayoutSelect").value;addLog(`Terrain loaded: ${$("terrainLayoutSelect").selectedOptions[0].textContent}`);render()};
-$("shootTarget").onchange=previewAttack;["str","ap","rng"].forEach(id=>$(id).oninput=previewAttack);
-$("nextPhase").onclick=()=>{
- if(phases[state.phase]==="Command")processScoringCheckpoint("end_command");
- pushHistory("Before next phase");
- state.phase=(state.phase+1)%phases.length;
- if(state.phase===0){processScoringCheckpoint("end_turn");state.turn++}
  render()
 };
-$("prevPhase").onclick=()=>{pushHistory("Before previous phase");state.phase=(state.phase-1+phases.length)%phases.length;render()};
-$("nextTurn").onclick=()=>{
- processScoringCheckpoint("end_turn");
- pushHistory("Before next turn");
- if(state.meta.activePlayer==="enemy"){processScoringCheckpoint("end_round","enemy");state.turn++}
- state.meta.activePlayer=state.meta.activePlayer==="friend"?"enemy":"friend";
- state.phase=0;syncMeta();render()
-};
-$("prevTurn").onclick=()=>{pushHistory("Before previous turn");state.turn=Math.max(1,state.turn-1);state.phase=0;render()};
-META_IDS.forEach(id=>{if($(id)){ $(id).addEventListener("input",metaChanged); $(id).addEventListener("change",metaChanged); }});
-$("undoStep").onclick=undoHistory;
-$("redoStep").onclick=redoHistory;
-$("checkpointBtn").onclick=()=>checkpoint("Manual checkpoint");
-
+$("rollCharge").onclick=()=>{chargeRoll=dice()+dice();$("chargeResult").textContent=`${chargeRoll}" charge`;addLog(`${state.units.find(x=>x.id===selectedUnitId)?.name||"Unit"} rolled ${chargeRoll}" charge`)};
+$("autoCharge").onclick=()=>{let a=state.units.find(x=>x.id===selectedUnitId),t=state.units.find(x=>x.id===$("chargeTarget").value);if(!a||!t||!chargeRoll){alert("Roll the charge first.");return}let am=alive(a).sort((x,y)=>{let dx=Math.min(...alive(t).map(n=>edgeDist(x,n)));let dy=Math.min(...alive(t).map(n=>edgeDist(y,n)));return dx-dy})[0];let tm=alive(t).sort((x,y)=>edgeDist(am,x)-edgeDist(am,y))[0],ed=edgeDist(am,tm),needed=Math.max(0,ed-ENGAGEMENT+.01);if(needed>chargeRoll+.001){addLog(`${a.name} charge failed: needs about ${needed.toFixed(2)}", rolled ${chargeRoll}"`);render();return}let vx=tm.x-am.x,vy=tm.y-am.y,L=Math.hypot(vx,vy)||1,centreTarget=modelR(am)+modelR(tm)+ENGAGEMENT-.02,newp={x:tm.x-vx/L*centreTarget,y:tm.y-vy/L*centreTarget},travel=Math.hypot(newp.x-am.x,newp.y-am.y);if(travel>chargeRoll){let scale=chargeRoll/travel;newp={x:am.x+(newp.x-am.x)*scale,y:am.y+(newp.y-am.y)*scale}}am.x=newp.x;am.y=newp.y;let bad=coherencyProblems(a);addLog(`${a.name} charge model moved ${travel.toFixed(2)}" into Engagement Range${bad.length?" • WARNING: remaining unit coherency needs adjustment":""}`);chargeRoll=null;$("chargeResult").textContent="—";render()};
+$("addSquad").onclick=()=>{state.units.push(squad($("newName").value||"Unit",$("newSide").value,30,22,+$("newCount").value,+$("newBase").value,+$("newWpm").value,+$("newMove").value,+$("newT").value,+$("newSv").value,+$("newOc").value));render()};
+function setTool(t){tool=t;$("selectTool").classList.toggle("active",t==="select");$("rulerTool").classList.toggle("active",t==="ruler")}
+$("selectTool").onclick=()=>setTool("select");$("rulerTool").onclick=()=>setTool("ruler");$("moveRange").onclick=showMove;$("weaponRangeBtn").onclick=showRange;$("engagementBtn").onclick=showEng;$("deepStrikeBtn").onclick=showDS;$("objectivesBtn").onclick=checkObj;$("coherencyBtn").onclick=showCoherency;$("losBtn").onclick=drawLOS;$("coverBtn").onclick=showCover;$("pathMoveBtn").onclick=beginPathMove;$("finishPathBtn").onclick=finishPathMove;$("clearOverlays").onclick=clearDyn;
+$("addTerrainBtn").onclick=()=>{if(!state.customTerrain)state.customTerrain=[];state.customTerrain.push([27,20,+$("terrainW").value,+$("terrainH").value,$("terrainBlocking").checked?1:0]);addLog("Custom terrain added at board centre");render()};
+$("clearTerrainBtn").onclick=()=>{state.customTerrain=[];addLog("Custom terrain cleared");render()};
+$("shootTarget").onchange=previewAttack;["str","ap","rng"].forEach(id=>$(id).oninput=previewAttack);
+$("nextPhase").onclick=()=>{state.phase=(state.phase+1)%phases.length;if(state.phase===0)state.turn++;render()};$("nextTurn").onclick=()=>{state.turn++;state.phase=0;render()};
 const KEY="warhammer_tactical_v05";function persist(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
-function restore(){try{let x=JSON.parse(localStorage.getItem(KEY)||"null");if(x?.units){state=x;if(!state.customTerrain)state.customTerrain=[];if(!state.terrainPreset)state.terrainPreset="layoutA";ensureMeta();ensureRulesState();return true}}catch(e){}return false}
+function restore(){try{let x=JSON.parse(localStorage.getItem(KEY)||"null");if(x?.units){state=x;if(!state.customTerrain)state.customTerrain=[];return true}}catch(e){}return false}
 $("reset").onclick=()=>{if(confirm("Reset battle?")){localStorage.removeItem(KEY);selectedUnitId=null;selectedModelId=null;demo();render()}};
 $("saveJson").onclick=()=>download("40k_battle_v04.json",JSON.stringify(state,null,2),"application/json");
 $("loadJson").onchange=async e=>{let f=e.target.files[0];if(!f)return;try{state=JSON.parse(await f.text());selectedUnitId=null;selectedModelId=null;render()}catch(x){alert("Invalid battle file")}};
 function download(name,text,type){let b=new Blob([text],{type}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),100)}
 $("exportCsv").onclick=()=>{let keys=["turn","phase","attacker","target","attacks","hits","wounds","saves","unsaved","damage","fnpIgnored","casualties","distance"],rows=[keys,...state.stats.map(s=>keys.map(k=>s[k]??""))],csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");download("40k_stats_v04.csv",csv,"text/csv")};
-populateUnitLibrary();populateLiveUnitSelector("friend");populateLiveUnitSelector("enemy");if(!restore())demo();ensureMeta();ensureRulesState();$("terrainLayoutSelect").value=state.terrainPreset||"layoutA";syncMeta();setup3DControls();render();pushHistory("Initial rehearsal state");
+if(!restore())demo();render();
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
 </script>
 </body></html>
