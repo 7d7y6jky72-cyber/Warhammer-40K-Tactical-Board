@@ -6,7 +6,7 @@
   "display": "standalone",
   "background_color": "#15181d",
   "theme_color": "#15181d",
-  "description": "Cross-platform Warhammer 40K tactical board with model-by-model movement, >8 inch reserve arrival zones, terrain, LOS, cover, charges, special rules and battle analytics.",
+  "description": "Warhammer 40K tactical board with a dropdown unit library, model-by-model movement, terrain, LOS, combat resolution and battle analytics.",
   "icons": [
     {
       "src": "icon-192.png",

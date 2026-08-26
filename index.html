@@ -13,7 +13,7 @@
 <style>
 :root{--bg:#15181d;--panel:#20242b;--panel2:#29303a;--text:#eef2f6;--muted:#aab2bd;--accent:#e8733c;--blue:#3f89d8;--red:#c54b4b;--gold:#f4d35e;--green:#66d18f}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-#app{height:100vh;display:grid;grid-template-columns:270px minmax(520px,1fr) 320px;overflow:hidden}
+#app{height:100vh;display:grid;grid-template-columns:280px minmax(520px,1fr) 280px;overflow:hidden}
 .panel{background:var(--panel);padding:13px;overflow:auto}.left{border-right:1px solid #373e48}.right{border-left:1px solid #373e48}
 h1{font-size:18px;margin:0 0 5px}h2{font-size:14px;margin:15px 0 7px}.small{font-size:11px;color:var(--muted)}.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:7px}
 button,input,select{background:var(--panel2);border:1px solid #485260;color:var(--text);padding:7px 8px;border-radius:6px}button{cursor:pointer}.primary{background:#3e536c}.danger{border-color:#7e4141}.active{outline:2px solid var(--accent)}
@@ -31,21 +31,37 @@ input[type=number]{width:66px}.unitCard{padding:8px;border:1px solid #3e4651;bor
 .warn{color:#ff9a87}.ok{color:#7cdfa1}.badge{display:inline-block;background:#343b45;border-radius:4px;padding:2px 4px;font-size:10px;margin-left:4px}
 .modelrow{display:grid;grid-template-columns:1fr auto auto;gap:5px;align-items:center;padding:4px 0;border-bottom:1px solid #343a43}.modelrow:last-child{border-bottom:0}
 hr{border:0;border-top:1px solid #373e48;margin:10px 0}
-@media(max-width:1050px){#app{grid-template-columns:220px 1fr}.right{display:none}}
+@media(max-width:1050px){#app{height:auto;min-height:100vh;grid-template-columns:1fr}.left{order:1;border-right:0;border-bottom:1px solid #373e48}.right{order:3;border-left:0;border-top:1px solid #373e48}#center{order:2;min-height:70vh}}
 </style>
 </head>
 <body>
 <div id="app">
 <aside class="panel left">
-<h1>40K Tactical Board</h1><div class="small">Rules Engine v0.5 • Cross-platform</div>
-<h2>Units</h2><div id="unitList"></div>
-<h2>Add squad</h2>
+<h1>Friendly Army</h1><div class="small">Rules Engine v0.5.4 • weapon loadouts</div>
+<h2>Friendly units</h2><div id="friendlyPoints" class="small">0 pts</div><div id="friendlyUnitList"></div>
+<h2>Add unit</h2>
 <div class="col">
+<label class="small">Friendly army
+<select id="friendlyArmy"></select>
+</label>
+<label class="small">Unit
+<select id="unitPreset"><option value="">Select army first...</option></select>
+</label>
+<div id="friendlyUnitInfo" class="small">Choose an army, then a unit.</div>
+<label class="small">Ranged weapon
+<select id="friendlyRangedWeapon"><option value="">Select a unit first…</option></select>
+</label>
+<div id="friendlyRangedInfo" class="small"></div>
+<label class="small">Melee weapon
+<select id="friendlyMeleeWeapon"><option value="">Select a unit first…</option></select>
+</label>
+<div id="friendlyMeleeInfo" class="small"></div>
+<input id="newSide" type="hidden" value="friend">
 <input id="newName" value="Intercessors" placeholder="Unit name">
-<div class="row"><select id="newSide"><option value="friend">Friendly</option><option value="enemy">Enemy</option></select><label class="small">Models <input id="newCount" type="number" value="5" min="1" max="20"></label></div>
-<div class="row"><label class="small">Base mm <input id="newBase" type="number" value="32"></label><label class="small">W/model <input id="newWpm" type="number" value="2"></label></div>
-<div class="row"><label class="small">M <input id="newMove" type="number" value="6"></label><label class="small">T <input id="newT" type="number" value="4"></label><label class="small">Sv <input id="newSv" type="number" value="3"></label><label class="small">OC <input id="newOc" type="number" value="2"></label></div>
-<button id="addSquad">Add squad</button>
+<div class="row"><label class="small">Models <input id="newCount" type="number" value="5" min="1" max="20"></label><label class="small">Base mm <input id="newBase" type="number" value="32"></label></div>
+<div class="row"><label class="small">W/model <input id="newWpm" type="number" value="2"></label><label class="small">M <input id="newMove" type="number" value="6"></label><label class="small">Pts <input id="newPts" type="number" value="0"></label></div>
+<div class="row"><label class="small">T <input id="newT" type="number" value="4"></label><label class="small">Sv <input id="newSv" type="number" value="3"></label><label class="small">OC <input id="newOc" type="number" value="2"></label></div>
+<button id="addSquad" class="primary">Add selected unit</button>
 </div>
 <h2>Terrain</h2>
 <div class="col">
@@ -79,6 +95,32 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 </main>
 
 <aside class="panel right">
+<h1>Enemy Army</h1><div class="small">Right-side roster</div>
+<h2>Enemy units</h2><div id="enemyPoints" class="small">0 pts</div><div id="enemyUnitList"></div>
+<h2>Add enemy unit</h2>
+<div class="col">
+<label class="small">Enemy army
+<select id="enemyArmy"></select>
+</label>
+<label class="small">Unit
+<select id="enemyUnitPreset"><option value="">Select army first...</option></select>
+</label>
+<div id="enemyUnitInfo" class="small">Choose an army, then a unit.</div>
+<label class="small">Ranged weapon
+<select id="enemyRangedWeapon"><option value="">Select a unit first…</option></select>
+</label>
+<div id="enemyRangedInfo" class="small"></div>
+<label class="small">Melee weapon
+<select id="enemyMeleeWeapon"><option value="">Select a unit first…</option></select>
+</label>
+<div id="enemyMeleeInfo" class="small"></div>
+<input id="enemyName" value="Legionaries" placeholder="Unit name">
+<div class="row"><label class="small">Models <input id="enemyCount" type="number" value="10" min="1" max="20"></label><label class="small">Base mm <input id="enemyBase" type="number" value="32"></label></div>
+<div class="row"><label class="small">W/model <input id="enemyWpm" type="number" value="2"></label><label class="small">M <input id="enemyMove" type="number" value="6"></label><label class="small">Pts <input id="enemyPts" type="number" value="0"></label></div>
+<div class="row"><label class="small">T <input id="enemyT" type="number" value="4"></label><label class="small">Sv <input id="enemySv" type="number" value="3"></label><label class="small">OC <input id="enemyOc" type="number" value="2"></label></div>
+<button id="addEnemySquad" class="primary">Add enemy unit</button>
+</div>
+<hr>
 <h1>Selected</h1><div id="none" class="small">Select a unit or model.</div>
 <div id="detail" style="display:none">
 <div id="unitTitle" style="font-weight:800;font-size:17px"></div><div id="unitMeta" class="small"></div>
@@ -89,6 +131,9 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 <h2>Charge</h2>
 <div class="col"><label class="small">Target <select id="chargeTarget"></select></label><div class="row"><button id="rollCharge" class="primary">Roll 2D6</button><span id="chargeResult" class="small">—</span></div><button id="autoCharge">Auto-move closest model</button></div>
 
+<h2>Selected loadout</h2>
+<div id="selectedLoadout" class="small"></div>
+<button id="loadSelectedRanged">Load ranged weapon into resolver</button>
 <h2>Ranged attack</h2>
 <div class="col">
 <label class="small">Target <select id="shootTarget"></select></label>
@@ -126,9 +171,9 @@ function saveOn(sv,apv){return clamp(sv-apv,2,7)}
 function dice(){return 1+Math.floor(Math.random()*6)}
 function pool(n,target,reroll=false){let rolls=[],ok=0;for(let i=0;i<n;i++){let a=dice(),b=a;if(a<target&&reroll)b=dice();rolls.push(a===b?String(b):`${a}→${b}`);if(b>=target)ok++}return{rolls,ok}}
 function addLog(s){state.log.unshift(`[T${state.turn} ${phases[state.phase]}] ${s}`)}
-function squad(name,side,x,y,count,base,wpm,move,T,sv,oc){
+function squad(name,side,x,y,count,base,wpm,move,T,sv,oc,points=0,faction="Custom",rangedWeapon=null,meleeWeapon=null){
  let models=[];const spacing=mm2in(base)+.35;for(let i=0;i<count;i++){let col=i%5,row=Math.floor(i/5);models.push({id:uid(),x:x+col*spacing,y:y+row*spacing,base,wounds:wpm,maxWounds:wpm,alive:true})}
- return{id:uid(),name,side,move,T,sv,oc,models};
+ return{id:uid(),name,side,move,T,sv,oc,points,faction,rangedWeapon,meleeWeapon,models};
 }
 function demo(){
  state={turn:1,phase:0,log:[],stats:[],customTerrain:[],units:[
@@ -149,6 +194,283 @@ function terrain(){
  })
 }
 const objectives=[[30,22],[12,22],[48,22],[30,8],[30,36]];
+
+const ARMY_CATALOGUES = {
+ "Adepta Sororitas":"Imperium - Adepta Sororitas.json",
+ "Adeptus Custodes":"Imperium - Adeptus Custodes.json",
+ "Adeptus Mechanicus":"Imperium - Adeptus Mechanicus.json",
+ "Agents of the Imperium":"Imperium - Agents of the Imperium.json",
+ "Aeldari":"Aeldari - Craftworlds.json",
+ "Astra Militarum":"Imperium - Astra Militarum.json",
+ "Black Templars":"Imperium - Black Templars.json",
+ "Blood Angels":"Imperium - Blood Angels.json",
+ "Chaos Daemons":"Chaos - Chaos Daemons.json",
+ "Chaos Knights":"Chaos - Chaos Knights.json",
+ "Chaos Space Marines":"Chaos - Chaos Space Marines.json",
+ "Dark Angels":"Imperium - Dark Angels.json",
+ "Death Guard":"Chaos - Death Guard.json",
+ "Deathwatch":"Imperium - Deathwatch.json",
+ "Drukhari":"Aeldari - Drukhari.json",
+ "Emperor's Children":"Chaos - Emperor's Children.json",
+ "Genestealer Cults":"Genestealer Cults.json",
+ "Grey Knights":"Imperium - Grey Knights.json",
+ "Imperial Knights":"Imperium - Imperial Knights.json",
+ "Leagues of Votann":"Leagues of Votann.json",
+ "Necrons":"Necrons.json",
+ "Orks":"Orks.json",
+ "Salamanders":"Imperium - Salamanders.json",
+ "Space Marines":"Imperium - Space Marines.json",
+ "Space Wolves":"Imperium - Space Wolves.json",
+ "T'au Empire":"T'au Empire.json",
+ "Thousand Sons":"Chaos - Thousand Sons.json",
+ "Tyranids":"Tyranids.json",
+ "Ultramarines":"Imperium - Ultramarines.json",
+ "White Scars":"Imperium - White Scars.json",
+ "World Eaters":"Chaos - World Eaters.json"
+};
+const LIVE_BASE="https://raw.githubusercontent.com/BSData/wh40k-11e/refs/heads/main/";
+const liveArmyCache={};
+
+function charsToStats(profile){
+ const out={};
+ (profile?.characteristics||[]).forEach(c=>out[c.name]=String(c.$text??"").trim());
+ return out;
+}
+function weaponProfiles(entry){
+ const all=[];
+ const visit=e=>{
+   (e?.profiles||[]).forEach(p=>{
+     if(p.typeName==="Ranged Weapons"||p.typeName==="Melee Weapons"){
+       const c=charsToStats(p);
+       all.push({
+         type:p.typeName==="Ranged Weapons"?"ranged":"melee",
+         name:p.name,
+         range:c.Range||"",
+         A:c.A||"",
+         skill:c.BS||c.WS||"",
+         S:c.S||"",
+         AP:c.AP||"",
+         D:c.D||"",
+         keywords:c.Keywords||""
+       });
+     }
+   });
+   ["selectionEntries","sharedSelectionEntries"].forEach(k=>(e?.[k]||[]).forEach(visit));
+ };
+ visit(entry);
+ const seen=new Set();
+ return all.filter(w=>{const k=[w.type,w.name,w.range,w.A,w.skill,w.S,w.AP,w.D,w.keywords].join("|");if(seen.has(k))return false;seen.add(k);return true});
+}
+function weaponLabel(w){
+ const sk=w.type==="ranged"?"BS":"WS";
+ return `${w.name} — ${w.range?`R ${w.range} • `:""}A ${w.A||"?"} • ${sk} ${w.skill||"?"} • S ${w.S||"?"} • AP ${w.AP||"?"} • D ${w.D||"?"}`;
+}
+function weaponInfo(w){
+ if(!w)return"";
+ const sk=w.type==="ranged"?"BS":"WS";
+ return `${w.name} • ${w.range?`Range ${w.range} • `:""}A ${w.A||"?"} • ${sk} ${w.skill||"?"} • S ${w.S||"?"} • AP ${w.AP||"?"} • D ${w.D||"?"}${w.keywords?` • ${w.keywords}`:""}`;
+}
+function populateWeaponSelectors(side,unit){
+ const pre=side==="friend"?"friendly":"enemy";
+ const ranged=$(pre+"RangedWeapon"),melee=$(pre+"MeleeWeapon");
+ ranged.innerHTML='<option value="">None / manual…</option>';melee.innerHTML='<option value="">None / manual…</option>';
+ const weapons=unit?.raw?weaponProfiles(unit.raw):[];
+ unit._weapons=weapons;
+ weapons.filter(w=>w.type==="ranged").forEach((w,i)=>{let o=document.createElement("option");o.value=String(weapons.indexOf(w));o.textContent=weaponLabel(w);ranged.appendChild(o)});
+ weapons.filter(w=>w.type==="melee").forEach((w,i)=>{let o=document.createElement("option");o.value=String(weapons.indexOf(w));o.textContent=weaponLabel(w);melee.appendChild(o)});
+ $(pre+"RangedInfo").textContent=weapons.some(w=>w.type==="ranged")?"Select a ranged weapon.":"No ranged profile found in this unit entry.";
+ $(pre+"MeleeInfo").textContent=weapons.some(w=>w.type==="melee")?"Select a melee weapon.":"No melee profile found in this unit entry.";
+}
+function selectedWeapon(side,type){
+ const pre=side==="friend"?"friendly":"enemy",unit=selectedLiveUnit(side);
+ if(!unit||!unit._weapons)return null;
+ const sel=$(pre+(type==="ranged"?"RangedWeapon":"MeleeWeapon"));
+ return sel.value===""?null:unit._weapons[Number(sel.value)]||null;
+}
+function applyWeapon(side,type){
+ const pre=side==="friend"?"friendly":"enemy",w=selectedWeapon(side,type);
+ $(pre+(type==="ranged"?"RangedInfo":"MeleeInfo")).textContent=weaponInfo(w);
+ if(side==="friend"&&type==="ranged"&&w){
+   $("atk").value=numericStat(w.A,1);$("bs").value=numericStat(w.skill,3);$("str").value=numericStat(w.S,4);
+   $("ap").value=numericStat(w.AP,0);$("dmg").value=numericStat(w.D,1);$("rng").value=numericStat(w.range,24);
+   const keys=(w.keywords||"").toLowerCase();
+   $("torrent").checked=keys.includes("torrent");$("blast").checked=keys.includes("blast");
+   $("lethal").checked=keys.includes("lethal hits");$("devWounds").checked=keys.includes("devastating wounds");
+   $("hazardous").checked=keys.includes("hazardous");
+   const sm=keys.match(/sustained hits\s*(\d+)/);$("sustained").value=sm?Number(sm[1]):0;
+   previewAttack();
+ }
+}
+
+function numericStat(v,fallback=0){
+ const m=String(v??"").match(/-?\d+(\.\d+)?/);
+ return m?Number(m[0]):fallback;
+}
+function findUnitProfile(entry){
+ return (entry?.profiles||[]).find(p=>p.typeName==="Unit") || null;
+}
+function pointCost(entry){
+ const p=(entry?.costs||[]).find(c=>c.name==="pts");
+ return p?Number(p.value||0):0;
+}
+function hasPointModifiers(entry){
+ const txt=JSON.stringify(entry?.modifiers||entry?.modifierGroups||[]);
+ return txt.includes('"field":"51b2-306e-1021-d207"') || txt.includes('"name":"pts"');
+}
+function extractLiveUnits(data){
+ const roots=[
+   ...(data?.catalogue?.sharedSelectionEntries||[]),
+   ...(data?.catalogue?.selectionEntries||[])
+ ];
+ const found=[];
+ const visit=(entry)=>{
+   if(!entry||typeof entry!=="object")return;
+   const profile=findUnitProfile(entry);
+   if(profile && entry.name && !entry.hidden){
+     const stats=charsToStats(profile),pts=pointCost(entry);
+     found.push({
+       name:entry.name, points:pts, pointsVariable:hasPointModifiers(entry),
+       move:stats.M||"", T:stats.T||"", sv:stats.Sv||"", W:stats.W||"",
+       LD:stats.LD||"", oc:stats.OC||"", inv:stats.InSv||"",
+       raw:entry
+     });
+   }
+   for(const key of ["selectionEntries","sharedSelectionEntries"]){
+     (entry[key]||[]).forEach(visit);
+   }
+ };
+ roots.forEach(visit);
+ const dedup=new Map();
+ found.forEach(u=>{
+   const key=u.name.toLowerCase();
+   if(!dedup.has(key) || (u.points && !dedup.get(key).points))dedup.set(key,u);
+ });
+ return [...dedup.values()].sort((a,b)=>a.name.localeCompare(b.name));
+}
+async function loadArmyUnits(army){
+ if(liveArmyCache[army])return liveArmyCache[army];
+ const file=ARMY_CATALOGUES[army];
+ if(!file)return[];
+ const url=LIVE_BASE+encodeURIComponent(file).replaceAll("%2F","/");
+ const resp=await fetch(url,{cache:"no-store"});
+ if(!resp.ok)throw new Error(`Catalogue load failed (${resp.status})`);
+ const data=await resp.json();
+ const units=extractLiveUnits(data);
+ liveArmyCache[army]=units;
+ return units;
+}
+function populateArmySelectors(){
+ const names=Object.keys(ARMY_CATALOGUES).sort();
+ for(const id of ["friendlyArmy","enemyArmy"]){
+   const sel=$(id);sel.innerHTML="";
+   names.forEach(n=>{const o=document.createElement("option");o.value=n;o.textContent=n;sel.appendChild(o)});
+ }
+ $("friendlyArmy").value="Space Marines";
+ $("enemyArmy").value="Chaos Space Marines";
+}
+function unitLabel(u){
+ const pts=u.points?`${u.points}${u.pointsVariable?"+":""} pts`:"points vary";
+ const stats=[u.move&&`M ${u.move}`,u.T&&`T ${u.T}`,u.sv&&`Sv ${u.sv}`,u.W&&`W ${u.W}`,u.oc&&`OC ${u.oc}`].filter(Boolean).join(" • ");
+ return `${u.name} — ${pts}${stats?` — ${stats}`:""}`;
+}
+async function populateLiveUnitSelector(side){
+ const isFriend=side==="friend", army=$(isFriend?"friendlyArmy":"enemyArmy").value;
+ const sel=$(isFriend?"unitPreset":"enemyUnitPreset"),info=$(isFriend?"friendlyUnitInfo":"enemyUnitInfo");
+ sel.innerHTML='<option value="">Loading current units…</option>';info.textContent=`Loading ${army} catalogue…`;
+ try{
+   const units=await loadArmyUnits(army);
+   sel.innerHTML='<option value="">Custom / manual unit…</option>';
+   units.forEach((u,i)=>{const o=document.createElement("option");o.value=`live:${i}`;o.textContent=unitLabel(u);sel.appendChild(o)});
+   sel.dataset.army=army;
+   info.textContent=`${units.length} current catalogue units loaded for ${army}.`;
+ }catch(err){
+   // Fallback to local presets for offline use.
+   sel.innerHTML='<option value="">Custom / manual unit…</option>';
+   UNIT_LIBRARY.filter(u=>u.faction===army).forEach((u,i)=>{
+     const o=document.createElement("option");o.value=`fallback:${UNIT_LIBRARY.indexOf(u)}`;o.textContent=u.name;sel.appendChild(o)
+   });
+   info.textContent=`Offline fallback for ${army}. Live points/stats need an internet connection.`;
+ }
+}
+function selectedLiveUnit(side){
+ const isFriend=side==="friend",sel=$(isFriend?"unitPreset":"enemyUnitPreset"),army=$(isFriend?"friendlyArmy":"enemyArmy").value;
+ if(!sel.value.startsWith("live:"))return null;
+ return (liveArmyCache[army]||[])[Number(sel.value.split(":")[1])]||null;
+}
+function applyLiveOrFallback(side){
+ const isFriend=side==="friend",sel=$(isFriend?"unitPreset":"enemyUnitPreset");
+ if(!sel.value)return;
+ let u=null,faction=$(isFriend?"friendlyArmy":"enemyArmy").value;
+ if(sel.value.startsWith("live:")){
+   u=selectedLiveUnit(side);
+   if(!u)return;
+   const prefix=isFriend?"new":"enemy";
+   $(prefix+"Name").value=u.name;
+   $(prefix+"Move").value=numericStat(u.move,6);
+   $(prefix+"T").value=numericStat(u.T,4);
+   $(prefix+"Sv").value=numericStat(u.sv,3);
+   $(prefix+"Wpm").value=numericStat(u.W,2);
+   $(prefix+"Oc").value=numericStat(u.oc,1);
+   $(prefix+"Pts").value=u.points||0;
+   $(isFriend?"friendlyUnitInfo":"enemyUnitInfo").textContent=
+     `${u.name} • ${u.points?u.points+(u.pointsVariable?"+":"")+" pts":"points vary"} • M ${u.move||"?"} • T ${u.T||"?"} • Sv ${u.sv||"?"} • W ${u.W||"?"} • LD ${u.LD||"?"} • OC ${u.oc||"?"}${u.inv?` • Inv ${u.inv}`:""}`;
+   populateWeaponSelectors(side,u);
+ } else if(sel.value.startsWith("fallback:")){
+   u=UNIT_LIBRARY[Number(sel.value.split(":")[1])];
+   const prefix=isFriend?"new":"enemy";
+   $(prefix+"Name").value=u.name;$(prefix+"Count").value=u.count;$(prefix+"Base").value=u.base;$(prefix+"Wpm").value=u.wpm;
+   $(prefix+"Move").value=u.move;$(prefix+"T").value=u.T;$(prefix+"Sv").value=u.sv;$(prefix+"Oc").value=u.oc;$(prefix+"Pts").value=u.points||0;
+   populateWeaponSelectors(side,null);
+ }
+}
+
+const UNIT_LIBRARY = [
+ {faction:"Space Marines",name:"Intercessor Squad",count:5,base:32,wpm:2,move:6,T:4,sv:3,oc:2,points:0},
+ {faction:"Space Marines",name:"Assault Intercessor Squad",count:5,base:32,wpm:2,move:6,T:4,sv:3,oc:2,points:0},
+ {faction:"Space Marines",name:"Infernus Squad",count:10,base:32,wpm:2,move:6,T:4,sv:3,oc:1,points:0},
+ {faction:"Space Marines",name:"Hellblaster Squad",count:10,base:32,wpm:2,move:6,T:4,sv:3,oc:1,points:0},
+ {faction:"Space Marines",name:"Eradicator Squad",count:3,base:40,wpm:3,move:5,T:6,sv:3,oc:1,points:0},
+ {faction:"Space Marines",name:"Terminator Squad",count:5,base:40,wpm:3,move:5,T:5,sv:2,oc:1,points:0},
+ {faction:"Space Marines",name:"Vanguard Veterans with Jump Packs",count:5,base:32,wpm:2,move:12,T:4,sv:3,oc:1,points:0},
+ {faction:"Space Marines",name:"Redemptor Dreadnought",count:1,base:90,wpm:12,move:8,T:10,sv:2,oc:4,points:0},
+ {faction:"Space Marines",name:"Brutalis Dreadnought",count:1,base:90,wpm:12,move:10,T:10,sv:2,oc:4,points:0},
+ {faction:"Space Marines",name:"Land Raider Redeemer",count:1,base:160,wpm:16,move:10,T:12,sv:2,oc:5,points:0},
+ {faction:"Space Marines",name:"Stormraven Gunship",count:1,base:120,wpm:14,move:20,T:10,sv:3,oc:0,points:0},
+
+ {faction:"Grey Knights",name:"Strike Squad",count:5,base:32,wpm:2,move:6,T:4,sv:2,oc:2,points:0},
+ {faction:"Grey Knights",name:"Purifier Squad",count:10,base:32,wpm:2,move:6,T:4,sv:2,oc:2,points:0},
+ {faction:"Grey Knights",name:"Purgation Squad",count:5,base:32,wpm:2,move:6,T:4,sv:2,oc:2,points:0},
+ {faction:"Grey Knights",name:"Brotherhood Terminator Squad",count:5,base:40,wpm:3,move:5,T:5,sv:2,oc:2,points:0},
+ {faction:"Grey Knights",name:"Paladin Squad",count:5,base:40,wpm:3,move:5,T:5,sv:2,oc:1,points:0},
+ {faction:"Grey Knights",name:"Nemesis Dreadknight",count:1,base:120,wpm:13,move:8,T:11,sv:2,oc:4,points:0},
+
+ {faction:"Chaos Space Marines",name:"Legionaries",count:10,base:32,wpm:2,move:6,T:4,sv:3,oc:2,points:0},
+ {faction:"Chaos Space Marines",name:"Defiler",count:1,base:120,wpm:14,move:8,T:10,sv:3,oc:5,points:0},
+ {faction:"Chaos Space Marines",name:"Daemon Prince",count:1,base:60,wpm:10,move:10,T:9,sv:2,oc:3,points:0},
+ {faction:"Chaos Space Marines",name:"Chaos Predator",count:1,base:100,wpm:11,move:10,T:10,sv:3,oc:3,points:0}
+];
+
+function populateUnitLibrary(){populateArmySelectors();}
+function applyUnitPreset(){
+ const value=$("unitPreset").value;
+ if(value==="") return;
+ const u=UNIT_LIBRARY[Number(value)];
+ $("newName").value=u.name;
+ $("newCount").value=u.count;
+ $("newBase").value=u.base;
+ $("newWpm").value=u.wpm;
+ $("newMove").value=u.move;
+ $("newT").value=u.T;
+ $("newSv").value=u.sv;
+ $("newOc").value=u.oc;
+}
+function applyEnemyPreset(){
+ const value=$("enemyUnitPreset").value;if(value==="")return;
+ const u=UNIT_LIBRARY[Number(value)];
+ $("enemyName").value=u.name;$("enemyCount").value=u.count;$("enemyBase").value=u.base;$("enemyWpm").value=u.wpm;
+ $("enemyMove").value=u.move;$("enemyT").value=u.T;$("enemySv").value=u.sv;$("enemyOc").value=u.oc;
+}
+
 function staticBoard(){
  for(let x=5;x<BW;x+=5){let e=document.createElement("div");e.className="gridV";Object.assign(e.style,{left:x*PPI+"px",top:0,width:"1px",height:"100%"});board.appendChild(e)}
  for(let y=5;y<BH;y+=5){let e=document.createElement("div");e.className="gridH";Object.assign(e.style,{top:y*PPI+"px",left:0,height:"1px",width:"100%"});board.appendChild(e)}
@@ -163,11 +485,24 @@ function render(){
  renderList();renderDetail();renderPhase();renderLog();persist()
 }
 function renderList(){
- $("unitList").innerHTML="";state.units.forEach(u=>{let a=alive(u),w=a.reduce((s,m)=>s+m.wounds,0),max=u.models.reduce((s,m)=>s+m.maxWounds,0);let e=document.createElement("div");e.className="unitCard "+(u.id===selectedUnitId?"selected":"");e.innerHTML=`<b>${u.name}</b><span class="badge">${u.side}</span><br><span class="small">${a.length}/${u.models.length} models • ${w}/${max}W • T${u.T} Sv${u.sv}+ OC${u.oc}</span>`;e.onclick=()=>{selectedUnitId=u.id;selectedModelId=alive(u)[0]?.id||null;render()};$("unitList").appendChild(e)})
+ const friendly=$("friendlyUnitList"),enemy=$("enemyUnitList");
+ friendly.innerHTML="";enemy.innerHTML="";
+ state.units.forEach(u=>{
+   let a=alive(u),w=a.reduce((s,m)=>s+m.wounds,0),max=u.models.reduce((s,m)=>s+m.maxWounds,0);
+   let e=document.createElement("div");
+   e.className="unitCard "+(u.id===selectedUnitId?"selected":"");
+   e.innerHTML=`<b>${u.name}</b>${u.points?` <span class="badge">${u.points} pts</span>`:""}<br><span class="small">${u.faction||""} • ${a.length}/${u.models.length} models • ${w}/${max}W • T${u.T} Sv${u.sv}+ OC${u.oc}</span>${u.rangedWeapon?`<br><span class="small">Ranged: ${u.rangedWeapon.name}</span>`:""}${u.meleeWeapon?`<br><span class="small">Melee: ${u.meleeWeapon.name}</span>`:""}`;
+   e.onclick=()=>{selectedUnitId=u.id;selectedModelId=alive(u)[0]?.id||null;render()};
+   (u.side==="friend"?friendly:enemy).appendChild(e);
+ });
+ const fp=state.units.filter(u=>u.side==="friend").reduce((s,u)=>s+(u.points||0),0);
+ const ep=state.units.filter(u=>u.side==="enemy").reduce((s,u)=>s+(u.points||0),0);
+ $("friendlyPoints").textContent=`${fp} pts`;
+ $("enemyPoints").textContent=`${ep} pts`;
 }
 function renderDetail(){
  let u=state.units.find(x=>x.id===selectedUnitId);$("none").style.display=u?"none":"block";$("detail").style.display=u?"block":"none";if(!u)return;
- let a=alive(u);$("unitTitle").textContent=u.name;$("unitMeta").textContent=u.side==="friend"?"Friendly unit":"Enemy unit";$("mStat").textContent=u.move+'"';$("tStat").textContent=u.T;$("svStat").textContent=u.sv+"+";$("ocStat").textContent=u.oc;$("aliveStat").textContent=`${a.length}/${u.models.length}`;$("woundStat").textContent=a.reduce((s,m)=>s+m.wounds,0);
+ let a=alive(u);$("unitTitle").textContent=u.name;$("unitMeta").textContent=u.side==="friend"?"Friendly unit":"Enemy unit";$("selectedLoadout").innerHTML=`${u.rangedWeapon?`Ranged: <b>${u.rangedWeapon.name}</b><br>`:""}${u.meleeWeapon?`Melee: <b>${u.meleeWeapon.name}</b>`:"No saved melee weapon"}`;$("mStat").textContent=u.move+'"';$("tStat").textContent=u.T;$("svStat").textContent=u.sv+"+";$("ocStat").textContent=u.oc;$("aliveStat").textContent=`${a.length}/${u.models.length}`;$("woundStat").textContent=a.reduce((s,m)=>s+m.wounds,0);
  $("modelList").innerHTML="";u.models.forEach((m,i)=>{let row=document.createElement("div");row.className="modelrow";row.innerHTML=`<span class="small">Model ${i+1} • ${m.alive?m.wounds+"/"+m.maxWounds+"W":"destroyed"}</span><button data-sel="${m.id}">Select</button><button data-kill="${m.id}" class="danger">${m.alive?"Remove":"Restore"}</button>`;$("modelList").appendChild(row)});
  $("modelList").querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{selectedModelId=b.dataset.sel;render()});$("modelList").querySelectorAll("[data-kill]").forEach(b=>b.onclick=()=>toggleCasualty(u,b.dataset.kill));
  [chargeTarget,shootTarget].forEach(sel=>{sel.innerHTML="";state.units.filter(x=>x.side!==u.side&&alive(x).length).forEach(t=>{let o=document.createElement("option");o.value=t.id;o.textContent=`${t.name} (${unitEdgeDistance(u,t).toFixed(2)}" edge)`;sel.appendChild(o)})});previewAttack()
@@ -268,6 +603,11 @@ function allocateDamage(target,totalDamage,fnpTarget){
  let damageLeft=totalDamage,ignored=0,casualties=0;while(damageLeft>0){let m=alive(target)[0];if(!m)break;let point=1;if(fnpTarget>0){let r=dice();if(r>=fnpTarget){ignored++;damageLeft--;continue}}m.wounds-=point;damageLeft--;if(m.wounds<=0){m.alive=false;m.wounds=0;casualties++}}
  return{ignored,casualties,applied:totalDamage-ignored-damageLeft}
 }
+$("loadSelectedRanged").onclick=()=>{
+ const u=state.units.find(x=>x.id===selectedUnitId),w=u?.rangedWeapon;if(!w){alert("This unit has no saved ranged weapon.");return}
+ $("atk").value=numericStat(w.A,1);$("bs").value=numericStat(w.skill,3);$("str").value=numericStat(w.S,4);$("ap").value=numericStat(w.AP,0);$("dmg").value=numericStat(w.D,1);$("rng").value=numericStat(w.range,24);
+ const keys=(w.keywords||"").toLowerCase();$("torrent").checked=keys.includes("torrent");$("blast").checked=keys.includes("blast");$("lethal").checked=keys.includes("lethal hits");$("devWounds").checked=keys.includes("devastating wounds");$("hazardous").checked=keys.includes("hazardous");const sm=keys.match(/sustained hits\s*(\d+)/);$("sustained").value=sm?Number(sm[1]):0;previewAttack()
+};
 $("fire").onclick=()=>{
  let a=state.units.find(x=>x.id===selectedUnitId),t=state.units.find(x=>x.id===$("shootTarget").value);if(!a||!t)return;
  let distance=unitEdgeDistance(a,t),range=+$("rng").value;
@@ -306,7 +646,16 @@ Damage ${total} • FNP ignored ${res.ignored} • applied ${res.applied} • ca
 };
 $("rollCharge").onclick=()=>{chargeRoll=dice()+dice();$("chargeResult").textContent=`${chargeRoll}" charge`;addLog(`${state.units.find(x=>x.id===selectedUnitId)?.name||"Unit"} rolled ${chargeRoll}" charge`)};
 $("autoCharge").onclick=()=>{let a=state.units.find(x=>x.id===selectedUnitId),t=state.units.find(x=>x.id===$("chargeTarget").value);if(!a||!t||!chargeRoll){alert("Roll the charge first.");return}let am=alive(a).sort((x,y)=>{let dx=Math.min(...alive(t).map(n=>edgeDist(x,n)));let dy=Math.min(...alive(t).map(n=>edgeDist(y,n)));return dx-dy})[0];let tm=alive(t).sort((x,y)=>edgeDist(am,x)-edgeDist(am,y))[0],ed=edgeDist(am,tm),needed=Math.max(0,ed-ENGAGEMENT+.01);if(needed>chargeRoll+.001){addLog(`${a.name} charge failed: needs about ${needed.toFixed(2)}", rolled ${chargeRoll}"`);render();return}let vx=tm.x-am.x,vy=tm.y-am.y,L=Math.hypot(vx,vy)||1,centreTarget=modelR(am)+modelR(tm)+ENGAGEMENT-.02,newp={x:tm.x-vx/L*centreTarget,y:tm.y-vy/L*centreTarget},travel=Math.hypot(newp.x-am.x,newp.y-am.y);if(travel>chargeRoll){let scale=chargeRoll/travel;newp={x:am.x+(newp.x-am.x)*scale,y:am.y+(newp.y-am.y)*scale}}am.x=newp.x;am.y=newp.y;let bad=coherencyProblems(a);addLog(`${a.name} charge model moved ${travel.toFixed(2)}" into Engagement Range${bad.length?" • WARNING: remaining unit coherency needs adjustment":""}`);chargeRoll=null;$("chargeResult").textContent="—";render()};
-$("addSquad").onclick=()=>{state.units.push(squad($("newName").value||"Unit",$("newSide").value,30,22,+$("newCount").value,+$("newBase").value,+$("newWpm").value,+$("newMove").value,+$("newT").value,+$("newSv").value,+$("newOc").value));render()};
+$("friendlyArmy").onchange=()=>populateLiveUnitSelector("friend");
+$("enemyArmy").onchange=()=>populateLiveUnitSelector("enemy");
+$("unitPreset").onchange=()=>applyLiveOrFallback("friend");
+$("enemyUnitPreset").onchange=()=>applyLiveOrFallback("enemy");
+$("friendlyRangedWeapon").onchange=()=>applyWeapon("friend","ranged");
+$("friendlyMeleeWeapon").onchange=()=>applyWeapon("friend","melee");
+$("enemyRangedWeapon").onchange=()=>applyWeapon("enemy","ranged");
+$("enemyMeleeWeapon").onchange=()=>applyWeapon("enemy","melee");
+$("addSquad").onclick=()=>{state.units.push(squad($("newName").value||"Unit","friend",8,30,+$("newCount").value,+$("newBase").value,+$("newWpm").value,+$("newMove").value,+$("newT").value,+$("newSv").value,+$("newOc").value,+$("newPts").value,$("friendlyArmy").value,selectedWeapon("friend","ranged"),selectedWeapon("friend","melee")));render()};
+$("addEnemySquad").onclick=()=>{state.units.push(squad($("enemyName").value||"Enemy Unit","enemy",46,10,+$("enemyCount").value,+$("enemyBase").value,+$("enemyWpm").value,+$("enemyMove").value,+$("enemyT").value,+$("enemySv").value,+$("enemyOc").value,+$("enemyPts").value,$("enemyArmy").value,selectedWeapon("enemy","ranged"),selectedWeapon("enemy","melee")));render()};
 function setTool(t){tool=t;$("selectTool").classList.toggle("active",t==="select");$("rulerTool").classList.toggle("active",t==="ruler")}
 $("selectTool").onclick=()=>setTool("select");$("rulerTool").onclick=()=>setTool("ruler");$("moveRange").onclick=showMove;$("weaponRangeBtn").onclick=showRange;$("engagementBtn").onclick=showEng;$("deepStrikeBtn").onclick=showDS;$("objectivesBtn").onclick=checkObj;$("coherencyBtn").onclick=showCoherency;$("losBtn").onclick=drawLOS;$("coverBtn").onclick=showCover;$("pathMoveBtn").onclick=beginPathMove;$("finishPathBtn").onclick=finishPathMove;$("clearOverlays").onclick=clearDyn;
 $("addTerrainBtn").onclick=()=>{if(!state.customTerrain)state.customTerrain=[];state.customTerrain.push([27,20,+$("terrainW").value,+$("terrainH").value,$("terrainBlocking").checked?1:0]);addLog("Custom terrain added at board centre");render()};
@@ -320,7 +669,7 @@ $("saveJson").onclick=()=>download("40k_battle_v04.json",JSON.stringify(state,nu
 $("loadJson").onchange=async e=>{let f=e.target.files[0];if(!f)return;try{state=JSON.parse(await f.text());selectedUnitId=null;selectedModelId=null;render()}catch(x){alert("Invalid battle file")}};
 function download(name,text,type){let b=new Blob([text],{type}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),100)}
 $("exportCsv").onclick=()=>{let keys=["turn","phase","attacker","target","attacks","hits","wounds","saves","unsaved","damage","fnpIgnored","casualties","distance"],rows=[keys,...state.stats.map(s=>keys.map(k=>s[k]??""))],csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");download("40k_stats_v04.csv",csv,"text/csv")};
-if(!restore())demo();render();
+populateUnitLibrary();populateLiveUnitSelector("friend");populateLiveUnitSelector("enemy");if(!restore())demo();render();
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
 </script>
 </body></html>
