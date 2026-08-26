@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Warhammer 40K Tactical Board v0.7.4</title>
+<title>Warhammer 40K Tactical Board v0.7.5</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#15181d">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -143,7 +143,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 <div id="app">
 <aside class="panel left">
 <h1>Friendly Army</h1>
-<div class="small">v0.7.4 • <span class="phaseContext">Army Builder</span></div>
+<div class="small">v0.7.5 • <span class="phaseContext">Army Builder</span></div>
 <details class="sideMenu builderOnly" open><summary>Army setup, detachments &amp; units</summary><div>
 <div class="rosterMeta" style="margin-top:8px">
  <label class="small full">Army<select id="friendlyArmy"></select></label>
@@ -196,7 +196,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 <details class="toolMenu"><summary>File</summary><div class="toolPopover" style="left:auto;right:0">
  <label class="small">Battle file<select id="fileMenu"><option value="">Choose…</option><option value="save">Save Battle</option><option value="load">Load Battle</option><option value="export">Export Stats</option><option value="scoreBattle">Score End Battle</option><option value="reset">Reset Demo</option></select></label>
  <span class="small">Autosave is always active.</span>
-</div></details><span class="badge">v0.7.4</span>
+</div></details><span class="badge">v0.7.5</span>
 <div style="display:none">
  <button id="selectTool"></button><button id="rulerTool"></button><button id="moveRange"></button><button id="weaponRangeBtn"></button>
  <button id="engagementBtn"></button><button id="deepStrikeBtn"></button><button id="objectivesBtn"></button><button id="coherencyBtn"></button>
@@ -274,7 +274,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 
 <aside class="panel right">
 <h1>Enemy Army</h1>
-<div class="small">v0.7.4 • <span class="phaseContext">Army Builder</span></div>
+<div class="small">v0.7.5 • <span class="phaseContext">Army Builder</span></div>
 <details class="sideMenu builderOnly" open><summary>Army setup, detachments &amp; units</summary><div>
 <div class="rosterMeta" style="margin-top:8px">
  <label class="small full">Army<select id="enemyArmy"></select></label>
@@ -573,7 +573,7 @@ function pointCost(entry){
  const p=(entry?.costs||[]).find(c=>c.name==="pts");
  return p?Number(p.value||0):0;
 }
-const CURRENT_POINT_DEFAULTS={"infernus squad":{5:85,10:170},"hellblaster squad":{5:110,10:220},"redemptor dreadnought":{1:195}};
+const CURRENT_POINT_DEFAULTS={"intercessor squad":{5:80,10:150},"assault intercessor squad":{5:75,10:150},"infernus squad":{5:85,10:170},"hellblaster squad":{5:110,10:220},"eradicator squad":{3:90,6:180},"vanguard veteran squad with jump packs":{5:100,10:200},"vanguard veterans with jump packs":{5:100,10:200},"redemptor dreadnought":{1:195}};
 function currentPointDefault(name,count){const row=CURRENT_POINT_DEFAULTS[String(name||"").toLowerCase()];return row?.[count]||0}
 function hasPointModifiers(entry){
  const txt=JSON.stringify(entry?.modifiers||entry?.modifierGroups||[]);
@@ -609,15 +609,14 @@ function extractLiveUnits(data){
  });
  return [...dedup.values()].sort((a,b)=>a.name.localeCompare(b.name));
 }
+const SPACE_MARINE_CHAPTERS=new Set(["Black Templars","Blood Angels","Dark Angels","Deathwatch","Salamanders","Space Wolves","Ultramarines","White Scars"]);
+async function fetchCatalogueUnits(army){
+ const file=ARMY_CATALOGUES[army];if(!file)return[];const url=LIVE_BASE+encodeURIComponent(file).replaceAll("%2F","/");const resp=await fetch(url,{cache:"no-store"});if(!resp.ok)throw new Error(`Catalogue load failed (${resp.status})`);return extractLiveUnits(await resp.json())
+}
 async function loadArmyUnits(army){
  if(liveArmyCache[army])return liveArmyCache[army];
- const file=ARMY_CATALOGUES[army];
- if(!file)return[];
- const url=LIVE_BASE+encodeURIComponent(file).replaceAll("%2F","/");
- const resp=await fetch(url,{cache:"no-store"});
- if(!resp.ok)throw new Error(`Catalogue load failed (${resp.status})`);
- const data=await resp.json();
- const units=extractLiveUnits(data);
+ const lists=SPACE_MARINE_CHAPTERS.has(army)?await Promise.all([fetchCatalogueUnits("Space Marines"),fetchCatalogueUnits(army)]):[await fetchCatalogueUnits(army)];
+ const merged=new Map();lists.flat().forEach(u=>merged.set(u.name.toLowerCase(),u));const units=[...merged.values()].sort((a,b)=>a.name.localeCompare(b.name));
  liveArmyCache[army]=units;
  return units;
 }
@@ -635,6 +634,18 @@ function unitLabel(u){
  const stats=[u.move&&`M ${u.move}`,u.T&&`T ${u.T}`,u.sv&&`Sv ${u.sv}`,u.W&&`W ${u.W}`,u.oc&&`OC ${u.oc}`].filter(Boolean).join(" • ");
  return `${u.name} — ${pts}${stats?` — ${stats}`:""}`;
 }
+function unitShopCategory(u){
+ const n=(u?.name||"").toLowerCase();
+ if(isLeaderName(n)||/ancient|judiciar|champion/.test(n))return"Characters & Command";
+ if(/^(assault intercessor squad|intercessor squad|heavy intercessor squad|tactical squad|infiltrator squad|incursor squad|scout squad)$/.test(n))return"Battleline & Core Infantry";
+ if(/terminator|bladeguard|sternguard|vanguard veteran|company veteran|centurion|aggressor/.test(n))return"Elite Infantry";
+ if(/jump pack|inceptor|suppressor|reiver|outrider|bike|mounted|land speeder/.test(n))return"Jump Pack & Fast Attack";
+ if(/devastator|hellblaster|eradicator|eliminator|desolation|firestrike/.test(n))return"Fire Support";
+ if(/dreadnought|dreadknight|warsuit/.test(n))return"Dreadnoughts & Walkers";
+ if(/rhino|razorback|impulsor|repulsor|predator|gladiator|land raider|vindicator|whirlwind|stormhawk|stormtalon|stormraven|aircraft|gunship|tank/.test(n))return"Vehicles & Aircraft";
+ return"Other Units";
+}
+const SHOP_CATEGORY_ORDER=["Characters & Command","Battleline & Core Infantry","Elite Infantry","Jump Pack & Fast Attack","Fire Support","Dreadnoughts & Walkers","Vehicles & Aircraft","Other Units"];
 async function populateLiveUnitSelector(side){
  const isFriend=side==="friend", army=$(isFriend?"friendlyArmy":"enemyArmy").value;
  const sel=$(isFriend?"unitPreset":"enemyUnitPreset"),info=$(isFriend?"friendlyUnitInfo":"enemyUnitInfo");
@@ -642,13 +653,17 @@ async function populateLiveUnitSelector(side){
  try{
    const units=await loadArmyUnits(army);
    sel.innerHTML='<option value="">Custom / manual unit…</option>';
-   units.forEach((u,i)=>{const o=document.createElement("option");o.value=`live:${i}`;o.textContent=unitLabel(u);sel.appendChild(o)});
+   const groups=new Map();SHOP_CATEGORY_ORDER.forEach(category=>{const g=document.createElement("optgroup");g.label=category;groups.set(category,g);sel.appendChild(g)});const add=(category,value,label)=>{const o=document.createElement("option");o.value=value;o.textContent=label;groups.get(category).appendChild(o)};
+   units.forEach((u,i)=>add(unitShopCategory(u),`live:${i}`,unitLabel(u)));
+   const present=new Set(units.map(u=>u.name.toLowerCase()));
+   UNIT_LIBRARY.forEach((u,i)=>{if((u.faction===army||(SPACE_MARINE_CHAPTERS.has(army)&&u.faction==="Space Marines")||(army==="Space Marines"&&u.faction==="Space Marines"))&&!present.has(u.name.toLowerCase()))add(unitShopCategory(u),`fallback:${i}`,unitLabel({...u,W:u.wpm}))});
+   groups.forEach(g=>{if(!g.children.length)g.remove()});
    sel.dataset.army=army;
-   info.textContent=`${units.length} current catalogue units loaded for ${army}.`;
+   info.textContent=`${sel.options.length-1} current and core units loaded for ${army}.`;
  }catch(err){
    // Fallback to local presets for offline use.
    sel.innerHTML='<option value="">Custom / manual unit…</option>';
-   UNIT_LIBRARY.filter(u=>u.faction===army).forEach((u,i)=>{
+   UNIT_LIBRARY.filter(u=>u.faction===army||(SPACE_MARINE_CHAPTERS.has(army)&&u.faction==="Space Marines")).forEach((u,i)=>{
      const o=document.createElement("option");o.value=`fallback:${UNIT_LIBRARY.indexOf(u)}`;o.textContent=u.name;sel.appendChild(o)
    });
    info.textContent=`Offline fallback for ${army}. Live points/stats need an internet connection.`;
@@ -688,13 +703,13 @@ function applyLiveOrFallback(side){
 
 const UNIT_LIBRARY = [
  {faction:"Space Marines",name:"Captain",count:1,base:40,wpm:5,move:6,T:4,sv:3,oc:1,points:80},
- {faction:"Space Marines",name:"Intercessor Squad",count:5,base:32,wpm:2,move:6,T:4,sv:3,oc:2,points:0},
- {faction:"Space Marines",name:"Assault Intercessor Squad",count:5,base:32,wpm:2,move:6,T:4,sv:3,oc:2,points:0},
+ {faction:"Space Marines",name:"Intercessor Squad",count:5,base:32,wpm:2,move:6,T:4,sv:3,oc:2,points:80},
+ {faction:"Space Marines",name:"Assault Intercessor Squad",count:5,base:32,wpm:2,move:6,T:4,sv:3,oc:2,points:75},
  {faction:"Space Marines",name:"Infernus Squad",count:10,base:32,wpm:2,move:6,T:4,sv:3,oc:1,points:170},
  {faction:"Space Marines",name:"Hellblaster Squad",count:10,base:32,wpm:2,move:6,T:4,sv:3,oc:1,points:220},
- {faction:"Space Marines",name:"Eradicator Squad",count:3,base:40,wpm:3,move:5,T:6,sv:3,oc:1,points:0},
+ {faction:"Space Marines",name:"Eradicator Squad",count:3,base:40,wpm:3,move:5,T:6,sv:3,oc:1,points:90},
  {faction:"Space Marines",name:"Terminator Squad",count:5,base:40,wpm:3,move:5,T:5,sv:2,oc:1,points:0},
- {faction:"Space Marines",name:"Vanguard Veterans with Jump Packs",count:5,base:32,wpm:2,move:12,T:4,sv:3,oc:1,points:0},
+ {faction:"Space Marines",name:"Vanguard Veteran Squad with Jump Packs",count:5,base:32,wpm:2,move:12,T:4,sv:3,oc:1,points:100},
  {faction:"Space Marines",name:"Redemptor Dreadnought",count:1,base:90,wpm:12,move:8,T:10,sv:2,oc:4,points:195},
  {faction:"Space Marines",name:"Brutalis Dreadnought",count:1,base:90,wpm:12,move:10,T:10,sv:2,oc:4,points:0},
  {faction:"Space Marines",name:"Land Raider Redeemer",count:1,base:160,wpm:16,move:10,T:12,sv:2,oc:5,points:0},
@@ -1110,6 +1125,9 @@ function ensureMeta(){
   friendlySecondaryScore:0,enemySecondaryScore:0,scoreEvents:[]
  };
  Object.keys(d).forEach(k=>{if(state.meta[k]===undefined)state.meta[k]=d[k]});
+ const validDispositions=new Set(["","Priority Assets","Take and Hold","Purge the Foe","Disruption","Reconnaissance"]);
+ if(!validDispositions.has(state.meta.friendlyDisposition))state.meta.friendlyDisposition="";
+ if(!validDispositions.has(state.meta.enemyDisposition))state.meta.enemyDisposition="";
  if(!Array.isArray(state.meta.scoreEvents))state.meta.scoreEvents=[];
 }
 const DETACHMENT_OPTIONS=[

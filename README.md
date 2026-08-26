@@ -1,4 +1,13 @@
-# Warhammer 40K Tactical Board v0.7.4
+# Warhammer 40K Tactical Board v0.7.5
+
+## New in v0.7.5 — Correct Force Dispositions and chapter unit catalogues
+
+- Force Disposition is restricted to the five valid values: Priority Assets, Take and Hold, Purge the Foe, Disruption and Reconnaissance.
+- Invalid legacy values saved by earlier builds are removed automatically.
+- Space Marine successor/chapter catalogues now merge with the main Space Marines catalogue instead of replacing it.
+- Salamanders and other chapter shopping lists now include Vanguard Veteran Squad with Jump Packs, Intercessor Squad, Eradicator Squad and Assault Intercessor Squad.
+- Offline presets include those units with current base costs.
+- Space Marine shopping lists are grouped into Characters & Command, Battleline & Core Infantry, Elite Infantry, Jump Pack & Fast Attack, Fire Support, Dreadnoughts & Walkers, Vehicles & Aircraft and Other Units for faster browsing.
 
 ## New in v0.7.4 — Current points and visible army relationships
 
@@ -50,7 +59,7 @@
 
 ## Install / Run
 
-Keep all six packaged files together and open `index.html`, or serve the folder from any static web host. On iPhone/iPad, use Safari's Add to Home Screen for the standalone PWA. The v0.7.4 service worker uses cache `40k-board-v074` to replace older cached builds.
+Keep all six packaged files together and open `index.html`, or serve the folder from any static web host. On iPhone/iPad, use Safari's Add to Home Screen for the standalone PWA. The v0.7.5 service worker uses cache `40k-board-v075` to replace older cached builds.
 
 UI redesign:
 - Friendly and Enemy panes are now clean roster panels.
