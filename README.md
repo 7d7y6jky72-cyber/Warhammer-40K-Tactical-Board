@@ -12,6 +12,7 @@
 - Reserve arrival highlights the battlefield edge and the existing exclusion halos; every arriving base must finish more than 8.00 inches from enemy models.
 - Deployment stages, statuses, zone selection, first-turn determination, placements and arrivals participate in rehearsal history, undo/redo and autosave.
 - Existing roster, terrain, movement, LOS, combat, rules/actions, scoring, 2D/3D view, Windows browser and iOS/PWA functionality is retained.
+- The Friendly pane, Enemy pane, complete top toolbar and bottom Turn / Phase dashboard remain simultaneously visible in the desktop layout; deployment uses a compact scrolling panel so it cannot push those established controls off-screen.
 
 ## Install / Run
 
