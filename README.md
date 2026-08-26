@@ -1,4 +1,23 @@
-# Warhammer 40K Tactical Board v0.7.5
+# Warhammer 40K Tactical Board v0.8.0
+
+## New in v0.8.0 — Flaming Predator vs CSM AI rehearsal
+
+- One-click Match loader creates the supplied 1,995-point Salamanders army and 2,000-point Chaos Space Marines army.
+- Exact sheet points, unit sizes, Warlord status, loadouts, enhancements and four Friendly/one Enemy Attached Unit relationships are preserved.
+- Duplicate Land Raider Redeemers, Daemon Princes and Defilers remain separately identifiable with their distinct loadouts and costs.
+- The match opens directly at Declare Battle Formations instead of requiring army construction.
+- Tactical model categories automatically distinguish infantry, jump infantry, Characters, Terminators, monsters, tanks, Dreadnoughts and Defilers.
+- AI profiles include Balanced, Aggressive pressure, Objective focused and Ranged firepower.
+- Run AI Phase handles Command evaluation, movement plans, shooting targets, charge attempts and Fight engagement plans with history/autosave integration.
+
+## New in v0.7.6 — Reliable unit costs and enhancements
+
+- Selecting a known unit now sets its default model count and current matching points together, preventing newly added squads from becoming one-model, zero-point units.
+- Existing zero-point copies of supported units are corrected from their actual model count.
+- Army Builder roster cards now include an Enhancement / Upgrade selector populated from the selected detachment.
+- Enhancement costs are included in roster cards, army totals and deployment/reserve accounting.
+- Enhancements are unique per army, saved in autosave/export, and participate in undo/redo history.
+- Changing detachment removes enhancements that are no longer valid for the new detachment.
 
 ## New in v0.7.5 — Correct Force Dispositions and chapter unit catalogues
 
@@ -59,7 +78,7 @@
 
 ## Install / Run
 
-Keep all six packaged files together and open `index.html`, or serve the folder from any static web host. On iPhone/iPad, use Safari's Add to Home Screen for the standalone PWA. The v0.7.5 service worker uses cache `40k-board-v075` to replace older cached builds.
+Keep all six packaged files together and open `index.html`, or serve the folder from any static web host. On iPhone/iPad, use Safari's Add to Home Screen for the standalone PWA. The v0.8.0 service worker uses cache `40k-board-v080` to replace older cached builds.
 
 UI redesign:
 - Friendly and Enemy panes are now clean roster panels.

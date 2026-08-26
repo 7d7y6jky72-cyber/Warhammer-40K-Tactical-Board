@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Warhammer 40K Tactical Board v0.7.5</title>
+<title>Warhammer 40K Tactical Board v0.8.0</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#15181d">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -97,6 +97,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 .attachedCard{margin-left:16px;border-left:3px solid #d7b85a;background:#24282e}.attachmentLine{font-size:10px;color:#f1d77d;margin:3px 0}.attachSelect{display:none;font-size:10px;padding:3px 4px;margin-top:5px;width:100%}.phaseContext{font-weight:800;color:#f0d77c}.builderOnly,.formationOnly{display:none}body[data-context="build"] .builderOnly,body[data-context="formations"] .formationOnly,body[data-context="build"] .attachSelect,body[data-context="formations"] .attachSelect{display:block}body[data-context="build"] .statusSelect{display:none}body[data-context="battle"] .deployPanel{display:none}body[data-context="deployment"] .deployPanel,body[data-context="formations"] .deployPanel,body[data-context="setup"] .deployPanel{display:grid}
 .sideMenu{margin-top:9px;border:1px solid #3d4652;border-radius:7px;background:#242a32}.sideMenu>summary{cursor:pointer;padding:8px;font-size:12px;font-weight:800}.sideMenu>div{padding:0 8px 8px}.sideMenu h2{margin-top:10px}
 .attachManagerRow{display:grid;grid-template-columns:1fr;gap:3px;padding:6px;margin-top:5px;background:#1d2229;border:1px solid #3d4652;border-radius:6px}.attachManagerRow b{font-size:11px}.attachManagerRow select{width:100%}
+.enhancementSelect{font-size:10px;padding:4px;margin-top:5px;width:100%}.enhancementChip{font-size:10px;color:#9fe0ae;margin-top:3px}
 .terrainArea:after{position:absolute;left:4px;top:3px;font-size:9px;font-weight:900;letter-spacing:.4px;color:rgba(235,238,228,.75)}
 .terrainArea.large:after{content:"HEAVY"}
 .terrainArea.medium:after,.terrainArea.line:after{content:"LIGHT"}
@@ -143,7 +144,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 <div id="app">
 <aside class="panel left">
 <h1>Friendly Army</h1>
-<div class="small">v0.7.5 • <span class="phaseContext">Army Builder</span></div>
+<div class="small">v0.8.0 • <span class="phaseContext">Army Builder</span></div>
 <details class="sideMenu builderOnly" open><summary>Army setup, detachments &amp; units</summary><div>
 <div class="rosterMeta" style="margin-top:8px">
  <label class="small full">Army<select id="friendlyArmy"></select></label>
@@ -179,6 +180,11 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 
 <main id="center">
 <div id="toolbar">
+<details class="toolMenu"><summary>Match</summary><div class="toolPopover">
+ <button id="loadRehearsalMatch" class="primary">Load Flaming Predator vs CSM</button>
+ <label class="small">AI style<select id="aiProfile"><option value="balanced">Balanced</option><option value="aggressive">Aggressive pressure</option><option value="objectives">Objective focused</option><option value="ranged">Ranged firepower</option></select></label>
+ <button id="runAIPhase">Run AI phase</button><span id="matchInfo" class="small">Load the supplied army sheets to begin.</span>
+</div></details>
 <details class="toolMenu"><summary>Actions</summary><div class="toolPopover">
  <label class="small">Board action<select id="toolMenu"><option value="select">Select / Move</option><option value="ruler">Ruler</option><option value="path">Path Move</option><option value="moveRange">Move Range</option><option value="weaponRange">Weapon Range</option><option value="engagement">Engagement Range</option><option value="reserve">Reserve / Ingress</option><option value="coherency">Coherency</option><option value="los">Line of Sight</option><option value="cover">Cover</option><option value="objectives">Objectives</option></select></label>
  <div class="row"><button id="finishPathBtn">Finish Path</button><button id="clearOverlays">Clear overlays</button></div>
@@ -196,7 +202,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 <details class="toolMenu"><summary>File</summary><div class="toolPopover" style="left:auto;right:0">
  <label class="small">Battle file<select id="fileMenu"><option value="">Choose…</option><option value="save">Save Battle</option><option value="load">Load Battle</option><option value="export">Export Stats</option><option value="scoreBattle">Score End Battle</option><option value="reset">Reset Demo</option></select></label>
  <span class="small">Autosave is always active.</span>
-</div></details><span class="badge">v0.7.5</span>
+</div></details><span class="badge">v0.8.0</span>
 <div style="display:none">
  <button id="selectTool"></button><button id="rulerTool"></button><button id="moveRange"></button><button id="weaponRangeBtn"></button>
  <button id="engagementBtn"></button><button id="deepStrikeBtn"></button><button id="objectivesBtn"></button><button id="coherencyBtn"></button>
@@ -274,7 +280,7 @@ hr{border:0;border-top:1px solid #373e48;margin:10px 0}
 
 <aside class="panel right">
 <h1>Enemy Army</h1>
-<div class="small">v0.7.5 • <span class="phaseContext">Army Builder</span></div>
+<div class="small">v0.8.0 • <span class="phaseContext">Army Builder</span></div>
 <details class="sideMenu builderOnly" open><summary>Army setup, detachments &amp; units</summary><div>
 <div class="rosterMeta" style="margin-top:8px">
  <label class="small full">Army<select id="enemyArmy"></select></label>
@@ -335,7 +341,7 @@ function pool(n,target,reroll=false){let rolls=[],ok=0;for(let i=0;i<n;i++){let 
 function addLog(s){state.log.unshift(`[T${state.turn} ${phases[state.phase]}] ${s}`)}
 function squad(name,side,x,y,count,base,wpm,move,T,sv,oc,points=0,faction="Custom",rangedWeapon=null,meleeWeapon=null){
  let models=[];const spacing=mm2in(base)+.35;for(let i=0;i<count;i++){let col=i%5,row=Math.floor(i/5);models.push({id:uid(),x:x+col*spacing,y:y+row*spacing,base,wounds:wpm,maxWounds:wpm,alive:true})}
- return{id:uid(),name,side,move,T,sv,oc,points,faction,rangedWeapon,meleeWeapon,models,deploymentStatus:"board",deploymentComplete:false,arrivalPending:false,isLeader:isLeaderName(name),attachedTo:null,maxLeaders:2};
+ return{id:uid(),name,side,move,T,sv,oc,points,faction,rangedWeapon,meleeWeapon,models,deploymentStatus:"board",deploymentComplete:false,arrivalPending:false,isLeader:isLeaderName(name),attachedTo:null,maxLeaders:2,enhancement:null};
 }
 function isLeaderName(name){return /captain|chapter master|lieutenant|chaplain|librarian|apothecary|techmarine|ancient|castellan|marshal|vulkan|crowe|farseer|warboss|overlord|character|daemon prince/i.test(name||"")}
 function demo(){
@@ -348,10 +354,49 @@ function demo(){
   squad("Daemon Prince","enemy",45,10,1,60,10,10,9,2,3)
  ]};
 }
+function sheetWeapon(name,type="ranged"){return{name,type,range:"",A:"",skill:"",S:"",AP:"",D:"",keywords:"Army sheet import"}}
+function sheetUnit({name,side,x,y,count,base,wounds,move,T,sv,oc,points,faction,role,loadout=[],enhancement=null,warlord=false}){
+ const rangedName=loadout.find(n=>/pistol|bolter|boltgun|rifle|cannon|melta|plasma|launcher|autocannon|lascannon|stubber|flamer|pyreblaster|gun/i.test(n));
+ const meleeName=loadout.find(n=>/hammer|sword|weapon|fist|claw|talon|tracks|axe|crozius|gauntlet|spear/i.test(n));
+ const u=squad(name,side,x,y,count,base,wounds,move,T,sv,oc,points,faction,rangedName?sheetWeapon(rangedName):null,meleeName?sheetWeapon(meleeName,"melee"):null);u.sheetRole=role;u.loadout=loadout;u.enhancement=enhancement;u.warlord=warlord;return u
+}
+function loadFlamingPredatorMatch(){
+ pushHistory("Before loading supplied army sheets");
+ const f=[],e=[],F="Salamanders",C="Chaos Space Marines";
+ const addF=s=>{const u=sheetUnit({...s,side:"friend",faction:F});f.push(u);return u},addE=s=>{const u=sheetUnit({...s,side:"enemy",faction:C});e.push(u);return u};
+ const infernus=addF({name:"Infernus Squad",x:7,y:34,count:10,base:32,wounds:2,move:6,T:4,sv:3,oc:1,points:180,role:"Bodyguard",loadout:["Bolt pistol","Close combat weapon","Pyreblaster"]});
+ const vulkan=addF({name:"Vulkan He’stan",x:12,y:38,count:1,base:40,wounds:5,move:6,T:4,sv:2,oc:1,points:85,role:"Leader",loadout:["Bolt Pistol","Gauntlet of the Forge","Spear of Vulkan"],warlord:true});vulkan.attachedTo=infernus.id;
+ const assaultJump=addF({name:"Assault Intercessors with Jump Packs",x:18,y:34,count:5,base:32,wounds:2,move:12,T:4,sv:3,oc:1,points:85,role:"Bodyguard",loadout:["Astartes chainsword","Heavy bolt pistol","Plasma pistol"]});
+ const jumpCaptain=addF({name:"Captain with Jump Pack",x:19,y:38,count:1,base:40,wounds:6,move:12,T:4,sv:3,oc:1,points:75,role:"Leader",loadout:["Astartes chainsword","Heavy bolt pistol"]});jumpCaptain.attachedTo=assaultJump.id;
+ const hellblasters=addF({name:"Hellblaster Squad",x:25,y:34,count:10,base:32,wounds:2,move:6,T:4,sv:3,oc:1,points:220,role:"Bodyguard",loadout:["Bolt pistol","Close combat weapon","Plasma incinerator"]});
+ const lieutenant=addF({name:"Lieutenant",x:30,y:38,count:1,base:40,wounds:4,move:6,T:4,sv:3,oc:1,points:45,role:"Support",loadout:["Bolt Pistol","Close combat weapon","Master-crafted bolter"]});lieutenant.attachedTo=hellblasters.id;
+ const vanguard=addF({name:"Vanguard Veteran Squad with Jump Packs",x:36,y:34,count:5,base:32,wounds:2,move:12,T:4,sv:3,oc:1,points:105,role:"Bodyguard",loadout:["Bolt pistol","Plasma pistol","Vanguard Veteran weapon"]});
+ const chaplain=addF({name:"Chaplain with Jump Pack",x:38,y:38,count:1,base:40,wounds:5,move:12,T:4,sv:3,oc:1,points:75,role:"Leader",loadout:["Bolt pistol","Crozius arcanum"],enhancement:{name:"Orksbane",points:20}});chaplain.attachedTo=vanguard.id;
+ addF({name:"Techmarine",x:44,y:38,count:1,base:40,wounds:4,move:6,T:4,sv:2,oc:1,points:65,role:"Character",loadout:["Forge bolter","Grav-pistol","Omnissian power axe","Servo-arm"],enhancement:{name:"Orbital Uplink Reliquary",points:15}});
+ addF({name:"Intercessor Squad",x:48,y:34,count:5,base:32,wounds:2,move:6,T:4,sv:3,oc:2,points:80,role:"Battleline",loadout:["Bolt pistol","Bolt rifle","Close combat weapon"]});
+ addF({name:"Brutalis Dreadnought",x:8,y:27,count:1,base:90,wounds:12,move:10,T:10,sv:2,oc:4,points:150,role:"Other Datasheet",loadout:["Brutalis talons","Twin Icarus ironhail heavy stubber","Twin multi-melta"]});
+ addF({name:"Eradicator Squad",x:18,y:28,count:3,base:40,wounds:3,move:5,T:6,sv:3,oc:1,points:90,role:"Other Datasheet",loadout:["Bolt pistol","Melta rifle","Multi-melta"]});
+ addF({name:"Land Raider Redeemer A",x:30,y:28,count:1,base:160,wounds:16,move:10,T:12,sv:2,oc:5,points:250,role:"Other Datasheet",loadout:["Armoured tracks","Flamestorm cannon","Twin assault cannon"]});
+ addF({name:"Land Raider Redeemer B",x:43,y:28,count:1,base:160,wounds:16,move:10,T:12,sv:2,oc:5,points:250,role:"Other Datasheet",loadout:["Armoured tracks","Flamestorm cannon","Twin assault cannon"]});
+ addF({name:"Redemptor Dreadnought",x:54,y:29,count:1,base:90,wounds:12,move:8,T:10,sv:2,oc:4,points:205,role:"Other Datasheet",loadout:["Icarus rocket pod","Macro plasma incinerator","Onslaught gatling cannon","Redemptor fist","Twin storm bolter"]});
+ const chaosLegion=addE({name:"Legionaries — Lord’s Retinue",x:8,y:5,count:10,base:32,wounds:2,move:6,T:4,sv:3,oc:2,points:170,role:"Bodyguard",loadout:["Bolt pistol","Boltgun","Balefire tome","Havoc autocannon","Heavy melee weapon","Reaper chaincannon"]});
+ const chaosLord=addE({name:"Chaos Lord",x:13,y:9,count:1,base:40,wounds:6,move:6,T:5,sv:2,oc:1,points:90,role:"Leader",loadout:["Daemon hammer","Plasma pistol"],enhancement:{name:"Helm of All-Seeing",points:25},warlord:true});chaosLord.attachedTo=chaosLegion.id;
+ addE({name:"Heretic Astartes Daemon Prince — Surgical Precision",x:22,y:8,count:1,base:60,wounds:10,move:10,T:9,sv:2,oc:3,points:165,role:"Character",loadout:["Hellforged weapons","Infernal cannon"],enhancement:{name:"Surgical Precision",points:10}});
+ addE({name:"Heretic Astartes Daemon Prince",x:29,y:7,count:1,base:60,wounds:10,move:10,T:9,sv:2,oc:3,points:165,role:"Character",loadout:["Hellforged weapons","Infernal cannon"]});
+ addE({name:"Legionaries — Lascannon Squad",x:36,y:5,count:10,base:32,wounds:2,move:6,T:4,sv:3,oc:2,points:170,role:"Battleline",loadout:["Bolt pistol","Boltgun","Lascannon","Meltagun","Chaos Icon"]});
+ addE({name:"Chaos Predator Annihilator",x:48,y:7,count:1,base:100,wounds:11,move:10,T:10,sv:3,oc:3,points:145,role:"Other Datasheet",loadout:["Armoured tracks","Predator twin lascannon"]});
+ addE({name:"Chaos Terminator Squad",x:7,y:14,count:5,base:40,wounds:3,move:5,T:5,sv:2,oc:1,points:175,role:"Other Datasheet",loadout:["Paired accursed weapons","Chainfist","Combi-bolter","Power fist","Reaper autocannon"]});
+ addE({name:"Chaos Vindicator",x:18,y:15,count:1,base:100,wounds:11,move:9,T:11,sv:2,oc:3,points:185,role:"Other Datasheet",loadout:["Armoured tracks","Combi-weapon","Demolisher cannon","Havoc launcher"]});
+ addE({name:"Defiler — Excruciator Battery",x:33,y:15,count:1,base:120,wounds:14,move:8,T:10,sv:3,oc:5,points:330,role:"Other Datasheet",loadout:["Excruciator cannon","Hades battle cannon","Hades lascannon","Heavy reaper autocannon","Shearing claws"]});
+ addE({name:"Defiler — Ectoplasma Battery",x:48,y:16,count:1,base:120,wounds:14,move:8,T:10,sv:3,oc:5,points:370,role:"Other Datasheet",loadout:["Ectoplasma destructor","Hades lascannon","Magma cutters","Shearing claws"]});
+ state={turn:1,phase:0,units:[...f,...e],log:["Imported Flaming Predator (1,995) vs CSM (2,000) from supplied army sheets"],stats:[],customTerrain:[],terrainPreset:"layoutA",deployment:{stage:1,preset:"long",nextSide:"friend",firstTurn:null},importedMatch:{friendly:"Flaming Predator",friendlyPoints:1995,enemy:"CSM",enemyPoints:2000},ai:{profile:"balanced"}};
+ ensureMeta();state.meta.friendlyDetachment="Orbital Assault Force and Vengeful Hosts";state.meta.friendlyDisposition="Take and Hold";state.meta.enemyDetachment="Creations of Bile";state.meta.enemyDisposition="Purge the Foe";state.meta.activePlayer="friend";
+ selectedUnitId=infernus.id;selectedModelId=alive(infernus)[0]?.id||null;history=[];historyIndex=-1;render();pushHistory("Supplied army sheets loaded")
+}
 function ensureDeployment(){
  if(!state.deployment)state.deployment={stage:0,preset:"long",nextSide:"friend",firstTurn:null};
  if(state.deployment.stage===undefined)state.deployment.stage=0;
- state.units.forEach(u=>{if(!u.deploymentStatus||u.deploymentStatus==="attached")u.deploymentStatus="board";if(u.deploymentComplete===undefined)u.deploymentComplete=false;if(u.arrivalPending===undefined)u.arrivalPending=false;if(u.isLeader===undefined)u.isLeader=isLeaderName(u.name);if(u.attachedTo===undefined)u.attachedTo=null;if(u.maxLeaders===undefined)u.maxLeaders=2;if(u.attachedTo&&!state.units.some(x=>x.id===u.attachedTo))u.attachedTo=null;const corrected=currentPointDefault(u.name,u.models?.length||0);if((!u.points||u.points===0)&&corrected)u.points=corrected});
+ state.units.forEach(u=>{if(!u.deploymentStatus||u.deploymentStatus==="attached")u.deploymentStatus="board";if(u.deploymentComplete===undefined)u.deploymentComplete=false;if(u.arrivalPending===undefined)u.arrivalPending=false;if(u.isLeader===undefined)u.isLeader=isLeaderName(u.name);if(u.attachedTo===undefined)u.attachedTo=null;if(u.maxLeaders===undefined)u.maxLeaders=2;if(u.enhancement===undefined)u.enhancement=null;if(u.attachedTo&&!state.units.some(x=>x.id===u.attachedTo))u.attachedTo=null;const corrected=currentPointDefault(u.name,u.models?.length||0);if((!u.points||u.points===0)&&corrected)u.points=corrected});
 }
 function bodyguardFor(u){return u?.attachedTo?state.units.find(x=>x.id===u.attachedTo)||null:null}
 function attachedLeaders(u){return state.units.filter(x=>x.attachedTo===u.id)}
@@ -375,6 +420,12 @@ function setAttachment(leaderId,bodyguardId){
  pushHistory(`${leader.name} attachment changed`);render()
 }
 function syncAttachedState(root){attachedLeaders(root).forEach(l=>{l.deploymentStatus=root.deploymentStatus;l.deploymentComplete=root.deploymentComplete;l.arrivalPending=root.arrivalPending})}
+function enhancementOptionsFor(side){ensureMeta();const detachment=state.meta[side==="friend"?"friendlyDetachment":"enemyDetachment"];return DETACHMENT_ENHANCEMENTS[detachment]||[]}
+function setEnhancement(unitId,name){
+ const u=state.units.find(x=>x.id===unitId);if(!u)return;const options=enhancementOptionsFor(u.side),chosen=options.find(x=>x.name===name)||null;
+ if(chosen&&state.units.some(x=>x.side===u.side&&x.id!==u.id&&x.enhancement?.name===chosen.name)){alert("That enhancement is already assigned in this army.");render();return}
+ pushHistory(`Before changing ${u.name} enhancement`);u.enhancement=chosen?{...chosen}:null;addLog(`${u.name}: ${chosen?chosen.name+" ("+chosen.points+" pts)":"enhancement removed"}`);pushHistory(`${u.name} enhancement changed`);render()
+}
 function zoneContains(side,m,preset=state.deployment.preset){
  const r=modelR(m),x=m.x,y=m.y;
  if(preset==="long")return side==="friend"?y-r>=BH-12:y+r<=12;
@@ -412,7 +463,7 @@ function renderDeploymentPanel(){
  ensureDeployment();$("deploymentStages").innerHTML=DEPLOY_STAGES.map((s,i)=>`<button class="deployStage ${i===state.deployment.stage?"current":i<state.deployment.stage?"done":""}" data-stage="${i}">${s}</button>`).join("");
  $("deploymentStages").querySelectorAll("[data-stage]").forEach(b=>b.onclick=()=>{pushHistory("Before deployment stage change");state.deployment.stage=+b.dataset.stage;if(state.deployment.stage===6){state.phase=0;state.turn=1}pushHistory(`Deployment stage: ${DEPLOY_STAGES[state.deployment.stage]}`);render()});
  $("deploymentPreset").value=state.deployment.preset;$("firstTurnSelect").value=state.deployment.firstTurn||"";$("deploymentTurn").textContent=state.units.some(u=>u.arrivalPending)?'Reserve arrival active • finish >8.00" from enemies':state.deployment.stage===2?`${state.deployment.nextSide==="friend"?"Friendly":"Enemy"} deploys next • bases must be wholly inside the shaded zone`:"Choose each unit's formation status in its roster card.";
- ["friend","enemy"].forEach(side=>{const units=state.units.filter(u=>u.side===side),sum=k=>units.filter(u=>u.deploymentStatus===k).reduce((n,u)=>n+(+u.points||0),0);$(side==="friend"?"friendlyDeployTotals":"enemyDeployTotals").innerHTML=`<span>On Board <b>${sum("board")} pts</b></span><span>Strategic <b>${sum("strategic")} pts</b></span><span>Other Reserve <b>${sum("reserve")} pts</b></span><span>Embarked <b>${sum("embarked")} pts</b></span>`;const tray=$(side==="friend"?"friendlyReserveTray":"enemyReserveTray");const held=units.filter(u=>!u.attachedTo&&["strategic","reserve","embarked"].includes(u.deploymentStatus));tray.innerHTML=held.length?held.map(u=>`<div class="reserveItem"><span>${u.name}${attachedLeaders(u).length?` + ${attachedLeaders(u).map(l=>l.name).join(", ")}`:""} <span class="deployBadge">${DEPLOY_STATUS[u.deploymentStatus]}</span></span>${["strategic","reserve"].includes(u.deploymentStatus)?`<button data-arrive="${u.id}">Arrive</button>`:""}</div>`).join(""):"<span class='small'>Empty</span>";tray.querySelectorAll("[data-arrive]").forEach(b=>b.onclick=()=>beginReserveArrival(b.dataset.arrive))});
+ ["friend","enemy"].forEach(side=>{const units=state.units.filter(u=>u.side===side),sum=k=>units.filter(u=>u.deploymentStatus===k).reduce((n,u)=>n+unitTotalPoints(u),0);$(side==="friend"?"friendlyDeployTotals":"enemyDeployTotals").innerHTML=`<span>On Board <b>${sum("board")} pts</b></span><span>Strategic <b>${sum("strategic")} pts</b></span><span>Other Reserve <b>${sum("reserve")} pts</b></span><span>Embarked <b>${sum("embarked")} pts</b></span>`;const tray=$(side==="friend"?"friendlyReserveTray":"enemyReserveTray");const held=units.filter(u=>!u.attachedTo&&["strategic","reserve","embarked"].includes(u.deploymentStatus));tray.innerHTML=held.length?held.map(u=>`<div class="reserveItem"><span>${u.name}${attachedLeaders(u).length?` + ${attachedLeaders(u).map(l=>l.name).join(", ")}`:""} <span class="deployBadge">${DEPLOY_STATUS[u.deploymentStatus]}</span></span>${["strategic","reserve"].includes(u.deploymentStatus)?`<button data-arrive="${u.id}">Arrive</button>`:""}</div>`).join(""):"<span class='small'>Empty</span>";tray.querySelectorAll("[data-arrive]").forEach(b=>b.onclick=()=>beginReserveArrival(b.dataset.arrive))});
 }
 const TERRAIN_LAYOUTS={
  layoutA:[
@@ -535,7 +586,7 @@ function populateWeaponSelectors(side,unit){
  const ranged=$(pre+"RangedWeapon"),melee=$(pre+"MeleeWeapon");
  ranged.innerHTML='<option value="">None / manual…</option>';melee.innerHTML='<option value="">None / manual…</option>';
  const weapons=unit?.raw?weaponProfiles(unit.raw):[];
- unit._weapons=weapons;
+ if(unit)unit._weapons=weapons;
  weapons.filter(w=>w.type==="ranged").forEach((w,i)=>{let o=document.createElement("option");o.value=String(weapons.indexOf(w));o.textContent=weaponLabel(w);ranged.appendChild(o)});
  weapons.filter(w=>w.type==="melee").forEach((w,i)=>{let o=document.createElement("option");o.value=String(weapons.indexOf(w));o.textContent=weaponLabel(w);melee.appendChild(o)});
  $(pre+"RangedInfo").textContent=weapons.some(w=>w.type==="ranged")?"Select a ranged weapon.":"No ranged profile found in this unit entry.";
@@ -575,6 +626,8 @@ function pointCost(entry){
 }
 const CURRENT_POINT_DEFAULTS={"intercessor squad":{5:80,10:150},"assault intercessor squad":{5:75,10:150},"infernus squad":{5:85,10:170},"hellblaster squad":{5:110,10:220},"eradicator squad":{3:90,6:180},"vanguard veteran squad with jump packs":{5:100,10:200},"vanguard veterans with jump packs":{5:100,10:200},"redemptor dreadnought":{1:195}};
 function currentPointDefault(name,count){const row=CURRENT_POINT_DEFAULTS[String(name||"").toLowerCase()];return row?.[count]||0}
+function defaultUnitCount(name){const row=CURRENT_POINT_DEFAULTS[String(name||"").toLowerCase()];return row?Number(Object.keys(row)[0]):1}
+function unitTotalPoints(u){return (+u.points||0)+(+u.enhancement?.points||0)}
 function hasPointModifiers(entry){
  const txt=JSON.stringify(entry?.modifiers||entry?.modifierGroups||[]);
  return txt.includes('"field":"51b2-306e-1021-d207"') || txt.includes('"name":"pts"');
@@ -683,14 +736,15 @@ function applyLiveOrFallback(side){
    if(!u)return;
    const prefix=isFriend?"new":"enemy";
    $(prefix+"Name").value=u.name;
+   const count=defaultUnitCount(u.name);$(prefix+"Count").value=count;
    $(prefix+"Move").value=numericStat(u.move,6);
    $(prefix+"T").value=numericStat(u.T,4);
    $(prefix+"Sv").value=numericStat(u.sv,3);
    $(prefix+"Wpm").value=numericStat(u.W,2);
    $(prefix+"Oc").value=numericStat(u.oc,1);
-   $(prefix+"Pts").value=u.points||0;
+   const currentPoints=currentPointDefault(u.name,count)||u.points||0;$(prefix+"Pts").value=currentPoints;
    $(isFriend?"friendlyUnitInfo":"enemyUnitInfo").textContent=
-     `${u.name} • ${u.points?u.points+(u.pointsVariable?"+":"")+" pts":"points vary"} • M ${u.move||"?"} • T ${u.T||"?"} • Sv ${u.sv||"?"} • W ${u.W||"?"} • LD ${u.LD||"?"} • OC ${u.oc||"?"}${u.inv?` • Inv ${u.inv}`:""}`;
+     `${u.name} • ${currentPoints?currentPoints+(u.pointsVariable?"+":"")+" pts":"points vary"} • ${count} model${count===1?"":"s"} • M ${u.move||"?"} • T ${u.T||"?"} • Sv ${u.sv||"?"} • W ${u.W||"?"} • LD ${u.LD||"?"} • OC ${u.oc||"?"}${u.inv?` • Inv ${u.inv}`:""}`;
    populateWeaponSelectors(side,u);
  } else if(sel.value.startsWith("fallback:")){
    u=UNIT_LIBRARY[Number(sel.value.split(":")[1])];
@@ -761,7 +815,7 @@ function modelVisualType(u){
  if(/stormraven|stormhawk|stormtalon|aircraft|flyer/.test(n))return"flyer";
  if(/rhino|razorback|impulsor|transport|wave serpent|devilfish|trukk/.test(n))return"transport";
  if(/land raider|redeemer|predator|repulsor|gladiator|vindicator|tank|speeder/.test(n))return"vehicle";
- if(/dreadnought|redemptor|brutalis|ballistus|dreadknight|gmndk|\bndk\b/.test(n))return"dreadnought";
+ if(/dreadnought|redemptor|brutalis|ballistus|dreadknight|defiler|gmndk|\bndk\b/.test(n))return"dreadnought";
  if(/daemon prince|carnifex|tyrant|monster|greater daemon/.test(n))return"monster";
  if(/bike|biker|outrider|cavalry|mounted|rider/.test(n))return"bike";
  if(/jump|swooping hawk|seraphim|raptor|warp talon/.test(n))return"jump";
@@ -799,7 +853,7 @@ function render(){
  }));
  renderModelTokens();
  apply3DView();
- renderList();renderDetail();renderPhase();renderLog();renderRulesPanel();renderDeploymentPanel();persist()
+ renderList();renderDetail();renderPhase();renderLog();renderRulesPanel();renderDeploymentPanel();if($("aiProfile"))$("aiProfile").value=state.ai?.profile||"balanced";if($("matchInfo"))$("matchInfo").textContent=state.importedMatch?`${state.importedMatch.friendly} ${state.importedMatch.friendlyPoints} vs ${state.importedMatch.enemy} ${state.importedMatch.enemyPoints}`:"Load the supplied army sheets to begin.";persist()
 }
 function renderList(){
  const friendly=$("friendlyUnitList"),enemy=$("enemyUnitList");friendly.innerHTML="";enemy.innerHTML="";
@@ -815,13 +869,18 @@ function renderList(){
   }).join("");
   const root=bodyguardFor(u)||u,leaders=attachedLeaders(u),eligible=state.units.filter(x=>attachmentEligible(u,x)&&x.id!==u.id&&attachedLeaders(x).length<(x.maxLeaders||1));
   const attachControl=u.isLeader?`<label class="formationOnly small">Attach to Unit<select class="attachSelect" data-attach="${u.id}"><option value="">Not attached</option>${eligible.concat(bodyguardFor(u)||[]).filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i).map(x=>`<option value="${x.id}" ${u.attachedTo===x.id?"selected":""}>${x.name}</option>`).join("")}</select></label>`:"";
-  e.innerHTML=`<div class="rosterHead"><b>${u.name}</b><span class="builderOnly">${u.points||0} pts</span></div>
+  const enhancementOptions=enhancementOptionsFor(u.side),enhancementControl=`<label class="builderOnly small">Enhancement / Upgrade<select class="enhancementSelect" data-enhancement="${u.id}" ${enhancementOptions.length?"":"disabled"}><option value="">${enhancementOptions.length?"None":"Select a detachment first"}</option>${enhancementOptions.map(x=>`<option value="${x.name}" ${u.enhancement?.name===x.name?"selected":""} ${state.units.some(y=>y.side===u.side&&y.id!==u.id&&y.enhancement?.name===x.name)?"disabled":""}>${x.name} — ${x.points} pts</option>`).join("")}</select></label>`;
+  e.innerHTML=`<div class="rosterHead"><b>${u.name}${u.warlord?" ★":""}</b><span>${unitTotalPoints(u)} pts</span></div>
+   ${u.sheetRole?`<div class="small">${u.sheetRole}${u.warlord?" • Warlord":""}</div>`:""}
+   ${u.loadout?.length?`<div class="small" title="${u.loadout.join(" • ")}">${u.loadout.slice(0,3).join(" • ")}${u.loadout.length>3?"…":""}</div>`:""}
+   ${u.enhancement?`<div class="enhancementChip">${u.enhancement.name} +${u.enhancement.points} pts</div>`:""}
    ${u.attachedTo?`<div class="attachmentLine">↳ Leader attached to ${root.name}</div>`:leaders.length?`<div class="attachmentLine">Attached Unit • ${leaders.map(l=>l.name).join(" + ")}</div>`:""}
    <div class="rosterSummary small"><span>${living.length}/${u.models.length} models</span><span>${woundsNow}/${woundsMax} wounds</span></div>
    <div class="small">T${u.T} • Sv${u.sv}+ • OC${u.oc}</div>
    <span class="deployBadge">${u.attachedTo?`ATTACHED → ${root.name}`:DEPLOY_STATUS[u.deploymentStatus||"board"]}${u.deploymentComplete?" ✓":""}</span>
    <select class="statusSelect" data-status="${u.id}">${Object.entries(DEPLOY_STATUS).map(([k,v])=>`<option value="${k}" ${k===(u.deploymentStatus||"board")?"selected":""}>${v}</option>`).join("")}</select>
    ${attachControl}
+   ${enhancementControl}
    <div class="woundTrack">${pips}</div>
    <div class="rosterActions"><button data-select="${u.id}">Select</button><button data-remove="${u.id}" class="danger builderOnly">Remove</button></div>`;
   (u.side==="friend"?friendly:enemy).appendChild(e);
@@ -830,9 +889,10 @@ function renderList(){
  document.querySelectorAll("[data-select]").forEach(b=>b.onclick=()=>{const u=state.units.find(x=>x.id===b.dataset.select);selectedUnitId=u.id;selectedModelId=alive(u)[0]?.id||u.models[0]?.id||null;render()});
  document.querySelectorAll("[data-status]").forEach(s=>s.onchange=()=>setDeploymentStatus(s.dataset.status,s.value));
  document.querySelectorAll("[data-attach]").forEach(s=>s.onchange=()=>setAttachment(s.dataset.attach,s.value));
+ document.querySelectorAll("[data-enhancement]").forEach(s=>s.onchange=()=>setEnhancement(s.dataset.enhancement,s.value));
  document.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>{pushHistory("Remove unit");state.units.forEach(x=>{if(x.attachedTo===b.dataset.remove)x.attachedTo=null});state.units=state.units.filter(x=>x.id!==b.dataset.remove);if(selectedUnitId===b.dataset.remove){selectedUnitId=null;selectedModelId=null}render()});
- $("friendlyPoints").textContent=`${state.units.filter(u=>u.side==="friend").reduce((s,u)=>s+(u.points||0),0)} pts`;
- $("enemyPoints").textContent=`${state.units.filter(u=>u.side==="enemy").reduce((s,u)=>s+(u.points||0),0)} pts`;
+ $("friendlyPoints").textContent=`${state.units.filter(u=>u.side==="friend").reduce((s,u)=>s+unitTotalPoints(u),0)} pts`;
+ $("enemyPoints").textContent=`${state.units.filter(u=>u.side==="enemy").reduce((s,u)=>s+unitTotalPoints(u),0)} pts`;
 }
 function renderDetail(){
  let u=state.units.find(x=>x.id===selectedUnitId);$("none").style.display=u?"none":"block";$("detail").style.display=u?"block":"none";if(!u)return;
@@ -1138,6 +1198,19 @@ const DETACHMENT_OPTIONS=[
  ["Librarius Conclave","Librarius Conclave — 1DP"],["Armoured Speartip","Armoured Speartip — 3DP"],["Faction-specific / Other","Faction-specific / Other"]
 ];
 const DETACHMENT_DISPOSITIONS={"Gladius Task Force":"Priority Assets","Anvil Siege Force":"Take and Hold","Firestorm Assault Force":"Purge the Foe","Forgefather's Seekers":"Purge the Foe","Ironstorm Spearhead":"Purge the Foe","Stormlance Task Force":"Disruption","Vanguard Spearhead":"Reconnaissance","1st Company Task Force":"Priority Assets","Librarius Conclave":"Reconnaissance","Armoured Speartip":"Take and Hold"};
+const DETACHMENT_ENHANCEMENTS={
+ "1st Company Task Force":[["Fear Made Manifest",30],["Iron Resolve",15],["Rites of War",10],["The Imperium's Sword",25]],
+ "Anvil Siege Force":[["Architect of War",25],["Fleet Commander",15],["Indomitable Fury",20],["Stoic Defender",15]],
+ "Armoured Speartip":[["Armoured Commander",25],["Liberator",15],["Shock Deployment",20],["Tip of the Spear",40]],
+ "Firestorm Assault Force":[["Adamantine Mantle",20],["Champion of Humanity",10],["Forged in Battle",15],["War-tempered Artifice",25]],
+ "Forgefather's Seekers":[["Adamantine Mantle",20],["Forged in Battle",15],["Immolator",10],["War-tempered Artifice",25]],
+ "Gladius Task Force":[["Adept of the Codex",20],["Artificer Armour",10],["Fire Discipline",25],["The Honour Vehement",15]],
+ "Ironstorm Spearhead":[["Adept of the Omnissiah",35],["Master of Machine War",20],["Target Augury Web",30],["The Flesh Is Weak",10]],
+ "Librarius Conclave":[["Celerity",35],["Fusillade",20],["Obfuscation",25],["Prescience",20],["Temporal Corridor",15]],
+ "Stormlance Task Force":[["Feinting Withdrawal",10],["Fury of the Storm",25],["Hunter's Instincts",25],["Portents of Wisdom",15]],
+ "Vanguard Spearhead":[["Execute and Redeploy",20],["Ghostweave Cloak",15],["Shadow War Veteran",30],["The Blade Driven Deep",25]]
+};
+Object.keys(DETACHMENT_ENHANCEMENTS).forEach(k=>DETACHMENT_ENHANCEMENTS[k]=DETACHMENT_ENHANCEMENTS[k].map(([name,points])=>({name,points})));
 const DISPOSITION_OPTIONS=["","Priority Assets","Take and Hold","Purge the Foe","Disruption","Reconnaissance"];
 function populateArmyMetaSelectors(){
  document.querySelectorAll(".detachmentSelect").forEach(sel=>{sel.innerHTML=DETACHMENT_OPTIONS.map(([v,label])=>`<option value="${v}">${label}</option>`).join("")});
@@ -1178,10 +1251,10 @@ function metaChanged(event){
   if(!$(id))return;
   state.meta[id]=$(id).type==="checkbox"?$(id).checked:$(id).type==="number"?Number($(id).value||0):$(id).value
  });
- if(event?.target?.id==="friendlyDetachment"&&DETACHMENT_DISPOSITIONS[state.meta.friendlyDetachment])state.meta.friendlyDisposition=DETACHMENT_DISPOSITIONS[state.meta.friendlyDetachment];
- if(event?.target?.id==="enemyDetachment"&&DETACHMENT_DISPOSITIONS[state.meta.enemyDetachment])state.meta.enemyDisposition=DETACHMENT_DISPOSITIONS[state.meta.enemyDetachment];
+ if(event?.target?.id==="friendlyDetachment"){if(DETACHMENT_DISPOSITIONS[state.meta.friendlyDetachment])state.meta.friendlyDisposition=DETACHMENT_DISPOSITIONS[state.meta.friendlyDetachment];const names=new Set((DETACHMENT_ENHANCEMENTS[state.meta.friendlyDetachment]||[]).map(x=>x.name));state.units.filter(u=>u.side==="friend"&&!names.has(u.enhancement?.name)).forEach(u=>u.enhancement=null)}
+ if(event?.target?.id==="enemyDetachment"){if(DETACHMENT_DISPOSITIONS[state.meta.enemyDetachment])state.meta.enemyDisposition=DETACHMENT_DISPOSITIONS[state.meta.enemyDetachment];const names=new Set((DETACHMENT_ENHANCEMENTS[state.meta.enemyDetachment]||[]).map(x=>x.name));state.units.filter(u=>u.side==="enemy"&&!names.has(u.enhancement?.name)).forEach(u=>u.enhancement=null)}
  if(event?.target?.id?.endsWith("Detachment"))syncMeta();
- updateTotalScore();persist()
+ updateTotalScore();persist();if(event?.target?.id?.endsWith("Detachment"))render()
 }
 
 function scoringKey(side,kind,slot,timing){
@@ -1247,8 +1320,21 @@ function runFileMenu(){
  const v=$("fileMenu").value;$("fileMenu").value="";
  if(v==="save")$("saveJson").click();else if(v==="load")$("loadJson").click();else if(v==="export")$("exportCsv").click();else if(v==="scoreBattle"){processScoringCheckpoint("end_battle","friend");processScoringCheckpoint("end_battle","enemy");render()}else if(v==="reset")$("reset").click()
 }
+function unitCentre(u){const ms=attachedUnitMembers(u).flatMap(alive);return ms.length?{x:ms.reduce((n,m)=>n+m.x,0)/ms.length,y:ms.reduce((n,m)=>n+m.y,0)/ms.length}:{x:BW/2,y:BH/2}}
+function translateAttachedUnit(root,dx,dy){attachedUnitMembers(root).forEach(u=>alive(u).forEach(m=>{const r=modelR(m);m.x=clamp(m.x+dx,r,BW-r);m.y=clamp(m.y+dy,r,BH-r)}))}
+function nearestEnemyUnit(u){return state.units.filter(x=>x.side!==u.side&&!x.attachedTo&&isOnBoard(x)&&alive(x).length).sort((a,b)=>unitEdgeDistance(u,a)-unitEdgeDistance(u,b))[0]||null}
+function runAIPhase(){
+ ensureMeta();if(!state.units.some(u=>u.side==="enemy")){alert("Load an enemy army sheet first.");return}pushHistory(`Before AI ${phases[state.phase]} phase`);const roots=state.units.filter(u=>u.side==="enemy"&&!u.attachedTo&&isOnBoard(u)&&alive(u).length),profile=$("aiProfile").value;state.ai={profile};
+ if(phases[state.phase]==="Command"){setCpForSide("enemy",cpForSide("enemy")+1);addLog(`AI (${profile}) gains 1 CP and evaluates objectives`)}
+ else if(phases[state.phase]==="Movement")roots.forEach(u=>{const from=unitCentre(u),target=profile==="objectives"?objectives.map(([x,y])=>({x,y})).sort((a,b)=>dxy(from,a)-dxy(from,b))[0]:unitCentre(nearestEnemyUnit(u)||u),factor=profile==="aggressive"?.85:profile==="ranged"?.35:.6,max=u.move*factor,dx=target.x-from.x,dy=target.y-from.y,L=Math.hypot(dx,dy)||1,travel=Math.min(max,Math.max(0,L-2.2));translateAttachedUnit(u,dx/L*travel,dy/L*travel);addLog(`AI moves ${u.name} ${travel.toFixed(1)}\" (${profile})`) });
+ else if(phases[state.phase]==="Shooting")roots.forEach(u=>{const t=nearestEnemyUnit(u);if(t)addLog(`AI shooting plan: ${u.name} targets ${t.name} at ${unitEdgeDistance(u,t).toFixed(1)}\"`) });
+ else if(phases[state.phase]==="Charge")roots.forEach(u=>{const t=nearestEnemyUnit(u),needed=t?unitEdgeDistance(u,t):99;if(!t||needed>12)return;const roll=dice()+dice();if(roll>=needed){const a=unitCentre(u),b=unitCentre(t),L=dxy(a,b)||1,travel=Math.max(0,needed-1.5);translateAttachedUnit(u,(b.x-a.x)/L*travel,(b.y-a.y)/L*travel);addLog(`AI charge: ${u.name} reaches ${t.name} with ${roll}\"`)}else addLog(`AI charge: ${u.name} fails against ${t.name} (${roll}\" vs ${needed.toFixed(1)}\")`) });
+ else{let fights=0;roots.forEach(u=>{const t=nearestEnemyUnit(u);if(t&&unitEdgeDistance(u,t)<=ENGAGEMENT){fights++;addLog(`AI fight plan: ${u.name} engages ${t.name}`)}});if(!fights)addLog("AI has no eligible Fight engagements")}
+ pushHistory(`AI ${phases[state.phase]} phase complete`);render()
+}
 function setTool(t){tool=t;$("selectTool").classList.toggle("active",t==="select");$("rulerTool").classList.toggle("active",t==="ruler")}
 $("toolMenu").onchange=runToolMenu;$("fileMenu").onchange=runFileMenu;$("ruleCategory").onchange=renderRulesPanel;
+$("loadRehearsalMatch").onclick=loadFlamingPredatorMatch;$("runAIPhase").onclick=runAIPhase;$("aiProfile").onchange=()=>{if(!state.ai)state.ai={};state.ai.profile=$("aiProfile").value;persist()};
 $("toggleDeployment").onclick=()=>{$("deploymentPanel").classList.toggle("open");$("toggleDeployment").classList.toggle("active",$("deploymentPanel").classList.contains("open"))};
 $("toggleDashboard").onclick=()=>{$("battleDashboard").classList.toggle("dashboardCompact");$("toggleDashboard").classList.toggle("active",!$("battleDashboard").classList.contains("dashboardCompact"))};
 $("toolbarPrevPhase").onclick=()=>{ensureDeployment();if(state.deployment.stage<6){pushHistory("Before previous workflow stage");state.deployment.stage=Math.max(0,state.deployment.stage-1);render()}else $("prevPhase").click()};

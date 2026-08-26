@@ -1,7 +1,7 @@
 {
-  "name": "Warhammer 40K Tactical Board v0.7.5",
+  "name": "Warhammer 40K Tactical Board v0.8.0",
   "short_name": "40K Board",
-  "description": "Phase-aware tactical rehearsal board with Attached Units, model icons, deployment, scoring and combat tools.",
+  "description": "Import-first tactical rehearsal board with supplied armies, Attached Units, battlefield graphics and AI phase control.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
